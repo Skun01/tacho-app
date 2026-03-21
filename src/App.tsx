@@ -5,6 +5,7 @@ import { RegisterPage } from './pages/RegisterPage'
 import { ForgotPasswordPage } from './pages/ForgotPasswordPage'
 import { ResetPasswordPage } from './pages/ResetPasswordPage'
 import { DashboardPage } from './pages/DashboardPage'
+import { LibraryPage } from './pages/LibraryPage'
 import { GooeyToaster } from './components/ui/goey-toaster'
 
 function App() {
@@ -39,6 +40,10 @@ function App() {
         <Route
           path='/dashboard'
           element={<DashboardPage/>}
+        />
+        <Route
+          path='/library'
+          element={<LibraryPage/>}
         />
       </Routes>
     </BrowserRouter>

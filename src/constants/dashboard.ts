@@ -1,5 +1,6 @@
 export const DASHBOARD_NAV = {
   links: [
+    { label: 'Trang chủ', href: '/' },
     { label: 'Thư viện', href: '/library' },
   ],
   searchPlaceholder: 'Tìm kiếm từ vựng, ngữ pháp...',
