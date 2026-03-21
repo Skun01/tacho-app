@@ -1,19 +1,8 @@
-import { useState } from 'react'
-import {
-  LIBRARY_COPY,
-  MOCK_STUDYING,
-  MOCK_MY_DECKS,
-  MOCK_SAVED,
-  type MySubTab,
-  type DeckMock,
-} from '@/constants/library'
+import { useEffect, useState } from 'react'
+import { LIBRARY_COPY, type MySubTab } from '@/constants/library'
+import type { DeckListItem } from '@/types/deck'
+import { listDecks } from '@/services/deckService'
 import { DeckCard } from './DeckCard'
-
-const DATA: Record<MySubTab, DeckMock[]> = {
-  'Đang học': MOCK_STUDYING,
-  'Cá nhân': MOCK_MY_DECKS,
-  'Đã lưu': MOCK_SAVED,
-}
 
 interface Props {
   search: string
@@ -21,10 +10,20 @@ interface Props {
 
 export function MyDecksTab({ search }: Props) {
   const [subTab, setSubTab] = useState<MySubTab>('Đang học')
-  const decks = DATA[subTab].filter(
+  const [allDecks, setAllDecks] = useState<DeckListItem[]>([])
+
+  useEffect(() => {
+    const params =
+      subTab === 'Đang học' ? { isInReview: true } :
+      subTab === 'Cá nhân'  ? { isOwner: true } :
+                              { isSaved: true }
+    listDecks(params).then(setAllDecks)
+  }, [subTab])
+
+  const decks = allDecks.filter(
     (d) =>
       d.name.toLowerCase().includes(search.toLowerCase()) ||
-      d.creator.toLowerCase().includes(search.toLowerCase()),
+      d.ownerName.toLowerCase().includes(search.toLowerCase()),
   )
 
   return (

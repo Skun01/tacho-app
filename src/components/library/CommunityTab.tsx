@@ -1,6 +1,21 @@
-import { useState } from 'react'
-import { LIBRARY_COPY, MOCK_COMMUNITY, type CommunityCategory } from '@/constants/library'
+import { useEffect, useState } from 'react'
+import { LIBRARY_COPY, type CommunityCategory } from '@/constants/library'
+import type { DeckCategory, DeckListItem } from '@/types/deck'
+import { listDecks } from '@/services/deckService'
 import { DeckCard } from './DeckCard'
+
+const CATEGORY_MAP: Partial<Record<CommunityCategory, DeckCategory>> = {
+  'Từ vựng cộng đồng': 'Từ vựng',
+  'Ngữ pháp cộng đồng': 'Ngữ pháp',
+  'Anime': 'Anime',
+  'Manga': 'Manga',
+  'Âm nhạc': 'Âm nhạc',
+  'TV': 'TV',
+  'Novel': 'Novel',
+  'Game': 'Game',
+  'Sách giáo khoa': 'Sách giáo khoa',
+  'Khác': 'Khác',
+}
 
 interface Props {
   search: string
@@ -8,12 +23,17 @@ interface Props {
 
 export function CommunityTab({ search }: Props) {
   const [category, setCategory] = useState<CommunityCategory>('Tất cả')
+  const [allDecks, setAllDecks] = useState<DeckListItem[]>([])
 
-  const decks = MOCK_COMMUNITY.filter((d) => {
-    const matchesCategory = category === 'Tất cả' || d.category === category
+  useEffect(() => {
+    listDecks({ source: 'community' }).then(setAllDecks)
+  }, [])
+
+  const decks = allDecks.filter((d) => {
+    const matchesCategory = category === 'Tất cả' || d.category === CATEGORY_MAP[category]
     const matchesSearch =
       d.name.toLowerCase().includes(search.toLowerCase()) ||
-      d.creator.toLowerCase().includes(search.toLowerCase())
+      d.ownerName.toLowerCase().includes(search.toLowerCase())
     return matchesCategory && matchesSearch
   })
 

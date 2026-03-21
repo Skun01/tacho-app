@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react'
 import { XIcon, ImageIcon, PencilSimpleIcon } from '@phosphor-icons/react'
-import { DECK_COPY, DECK_CATEGORIES, type DeckCategory } from '@/constants/deck'
+import { DECK_COPY } from '@/constants/deck'
+import { DECK_CATEGORY_OPTIONS, type DeckCategory } from '@/types/deck'
 
 interface DeckFormValues {
   name: string
@@ -115,7 +116,7 @@ export function DeckFormModal({ mode, initialValues, onClose, onSubmit }: DeckFo
               onChange={(e) => setCategory(e.target.value as DeckCategory)}
               className="rounded-xl bg-surface-container-low px-4 py-2.5 text-sm text-foreground outline-none focus:bg-surface-container"
             >
-              {DECK_CATEGORIES.map((cat) => (
+              {DECK_CATEGORY_OPTIONS.map((cat) => (
                 <option key={cat} value={cat}>{cat}</option>
               ))}
             </select>

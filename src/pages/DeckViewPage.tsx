@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router'
 import {
   ArrowsClockwiseIcon,
@@ -10,24 +10,37 @@ import {
   CaretRightIcon,
 } from '@phosphor-icons/react'
 import { DashboardLayout } from '@/components/layout/DashboardLayout'
-import { DECK_COPY, MOCK_DECK_EDIT, MOCK_DECK_VIEW, type EditableDeck } from '@/constants/deck'
+import { DECK_COPY } from '@/constants/deck'
+import type { DeckDetailWithState } from '@/types/deck'
+import { getDeckDetail } from '@/services/deckService'
 import { CardRow } from '@/components/library/CardRow'
 
 const C = DECK_COPY.viewPage
 const PER_PAGE = C.perPage
 
-const MOCK_DECK_LOOKUP: Record<string, EditableDeck> = {
-  me1: MOCK_DECK_EDIT,
-  mv1: MOCK_DECK_VIEW,
-}
-
 export function DeckViewPage() {
   const navigate = useNavigate()
   const { id } = useParams<{ id: string }>()
-  const deck = (id && MOCK_DECK_LOOKUP[id]) ?? MOCK_DECK_VIEW
-  const [inReview, setInReview] = useState(deck.isInReview)
-  const [saved, setSaved] = useState(deck.isSaved)
+  const [deck, setDeck] = useState<DeckDetailWithState | null>(null)
+  const [inReview, setInReview] = useState(false)
+  const [saved, setSaved] = useState(false)
   const [page, setPage] = useState(1)
+
+  useEffect(() => {
+    if (id) {
+      getDeckDetail(id).then((d) => {
+        setDeck(d)
+        setInReview(d.isInReview)
+        setSaved(d.isSaved)
+      })
+    }
+  }, [id])
+
+  if (!deck) return (
+    <DashboardLayout>
+      <div className="py-16 text-center text-sm text-muted-foreground">{DECK_COPY.editPage.loading}</div>
+    </DashboardLayout>
+  )
 
   const totalPages = Math.max(1, Math.ceil(deck.cards.length / PER_PAGE))
   const pageCards = deck.cards.slice((page - 1) * PER_PAGE, page * PER_PAGE)
@@ -36,7 +49,7 @@ export function DeckViewPage() {
   const grammarCount = deck.cards.filter((c) => c.type === 'grammar').length
 
   function handleClone() {
-    navigate(`/deck/me1/edit`)
+    navigate(`/deck/${deck!.id}/edit`)
   }
 
   return (
@@ -53,7 +66,7 @@ export function DeckViewPage() {
           <div className="flex flex-wrap gap-4 text-xs text-muted-foreground">
             <span>
               <span className="font-semibold text-foreground">{C.creatorLabel}: </span>
-              {deck.creator}
+              {deck.ownerName}
             </span>
             <span>
               <span className="font-semibold text-foreground">{C.totalCardsLabel}: </span>

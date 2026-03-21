@@ -1,6 +1,7 @@
 import { Link } from 'react-router'
 import { DotsSixVerticalIcon, XIcon } from '@phosphor-icons/react'
-import { DECK_COPY, type FlashCard } from '@/constants/deck'
+import { DECK_COPY } from '@/constants/deck'
+import type { FlashCard } from '@/types/card'
 import { TypeBadge } from '@/components/ui/type-badge'
 import { JlptBadge } from '@/components/ui/jlpt-badge'
 
@@ -53,7 +54,7 @@ export function CardRow({
         <TypeBadge type={card.type} />
         <JlptBadge level={card.jlptLevel} />
         <span className="font-kiwi text-base font-medium text-foreground">{card.content}</span>
-        {card.reading && (
+        {card.type === 'vocab' && card.reading && (
           <span className="text-xs text-muted-foreground">({card.reading})</span>
         )}
         <span className="ml-auto truncate text-xs text-muted-foreground">{card.meaning}</span>

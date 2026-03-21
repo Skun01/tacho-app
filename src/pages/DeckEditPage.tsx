@@ -1,5 +1,5 @@
-import { useRef, useState } from 'react'
-import { useNavigate } from 'react-router'
+import { useEffect, useRef, useState } from 'react'
+import { useNavigate, useParams } from 'react-router'
 import {
   PencilSimpleIcon,
   PlusIcon,
@@ -11,15 +11,28 @@ import {
 import { DashboardLayout } from '@/components/layout/DashboardLayout'
 import { DeckFormModal } from '@/components/library/DeckFormModal'
 import { AddCardModal } from '@/components/library/AddCardModal'
-import { DECK_COPY, MOCK_DECK_EDIT, type FlashCard, type DeckCategory } from '@/constants/deck'
+import { DECK_COPY } from '@/constants/deck'
+import type { FlashCard } from '@/types/card'
+import type { DeckDetailWithState } from '@/types/deck'
+import { getDeckDetail } from '@/services/deckService'
 import { CardRow } from '@/components/library/CardRow'
 
 const C = DECK_COPY.editPage
 
 export function DeckEditPage() {
   const navigate = useNavigate()
-  const [deck, setDeck] = useState(MOCK_DECK_EDIT)
-  const [cards, setCards] = useState<FlashCard[]>(deck.cards)
+  const { id } = useParams<{ id: string }>()
+  const [deck, setDeck] = useState<DeckDetailWithState | null>(null)
+  const [cards, setCards] = useState<FlashCard[]>([])
+
+  useEffect(() => {
+    if (id) {
+      getDeckDetail(id).then((d) => {
+        setDeck(d)
+        setCards(d.cards)
+      })
+    }
+  }, [id])
   const [search, setSearch] = useState('')
   const [showEditInfo, setShowEditInfo] = useState(false)
   const [showAddCard, setShowAddCard] = useState(false)
@@ -30,7 +43,7 @@ export function DeckEditPage() {
   const visibleCards = cards.filter(
     (c) =>
       c.content.includes(search) ||
-      (c.reading ?? '').includes(search) ||
+      (c.type === 'vocab' ? c.reading : '').includes(search) ||
       c.meaning.toLowerCase().includes(search.toLowerCase()),
   )
   const vocabCount = cards.filter((c) => c.type === 'vocab').length
@@ -56,6 +69,12 @@ export function DeckEditPage() {
     dragIndex.current = null
     setDragOver(null)
   }
+
+  if (!deck) return (
+    <DashboardLayout>
+      <div className="py-16 text-center text-sm text-muted-foreground">{C.loading}</div>
+    </DashboardLayout>
+  )
 
   return (
     <DashboardLayout>
@@ -86,7 +105,7 @@ export function DeckEditPage() {
             </span>
             <span>
               <span className="font-semibold text-foreground">{C.creatorLabel}: </span>
-              {deck.creator}
+              {deck.ownerName}
             </span>
             {vocabCount > 0 && (
               <span>
@@ -198,7 +217,7 @@ export function DeckEditPage() {
           initialValues={{ name: deck.name, description: deck.description, category: deck.category }}
           onClose={() => setShowEditInfo(false)}
           onSubmit={({ name, description, category }) => {
-            setDeck((d) => ({ ...d, name, description, category: category as DeckCategory }))
+            setDeck((d) => d ? { ...d, name, description, category } : null)
             setShowEditInfo(false)
           }}
         />

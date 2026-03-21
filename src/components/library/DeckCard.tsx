@@ -6,7 +6,8 @@ import {
   UsersThreeIcon,
   ArrowsClockwiseIcon,
 } from '@phosphor-icons/react'
-import { LIBRARY_COPY, type DeckMock } from '@/constants/library'
+import { LIBRARY_COPY } from '@/constants/library'
+import type { DeckListItem } from '@/types/deck'
 
 const COVER_GRADIENTS = [
   'from-[#d4e0f5] to-[#c8dde2]',
@@ -23,7 +24,7 @@ function formatCount(n: number): string {
 }
 
 interface DeckCardProps {
-  deck: DeckMock
+  deck: DeckListItem
   showReview?: boolean
 }
 
@@ -51,7 +52,7 @@ export function DeckCard({ deck, showReview }: DeckCardProps) {
             <BookmarkIcon size={14} className="text-muted-foreground" />
           )}
         </button>
-        {deck.isSystemDeck && (
+        {deck.source === 'app' && (
           <span className="absolute bottom-2 left-3 rounded-full bg-primary/90 px-2 py-0.5 text-[10px] font-semibold text-background">
             {LIBRARY_COPY.systemBadge}
           </span>
@@ -63,9 +64,9 @@ export function DeckCard({ deck, showReview }: DeckCardProps) {
           {deck.name}
         </h3>
         <p className="text-xs text-muted-foreground">
-          {deck.isSystemDeck
+          {deck.source === 'app'
             ? LIBRARY_COPY.editorLabel
-            : `${LIBRARY_COPY.createdByPrefix} ${deck.creator}`}
+            : `${LIBRARY_COPY.createdByPrefix} ${deck.ownerName}`}
         </p>
 
         {deck.learnedCards > 0 && (

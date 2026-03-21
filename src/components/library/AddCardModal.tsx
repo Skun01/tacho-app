@@ -1,6 +1,8 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { XIcon, MagnifyingGlassIcon, CheckIcon, PlusIcon } from '@phosphor-icons/react'
-import { DECK_COPY, MOCK_CARDS_LIBRARY, type FlashCard } from '@/constants/deck'
+import { DECK_COPY } from '@/constants/deck'
+import type { FlashCard, FlashCardWithProgress } from '@/types/card'
+import { searchCards } from '@/services/cardService'
 import { TypeBadge } from '@/components/ui/type-badge'
 import { JlptBadge } from '@/components/ui/jlpt-badge'
 
@@ -15,16 +17,12 @@ interface AddCardModalProps {
 
 export function AddCardModal({ existingIds, onAdd, onRemove, onClose }: AddCardModalProps) {
   const [search, setSearch] = useState('')
+  const [results, setResults] = useState<FlashCardWithProgress[]>([])
   const C = DECK_COPY.addCard
 
-  const results = MOCK_CARDS_LIBRARY.filter((c) => {
-    const q = search.toLowerCase()
-    return (
-      c.content.includes(q) ||
-      (c.reading ?? '').includes(q) ||
-      c.meaning.toLowerCase().includes(q)
-    )
-  })
+  useEffect(() => {
+    searchCards(search).then(setResults)
+  }, [search])
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -68,7 +66,7 @@ export function AddCardModal({ existingIds, onAdd, onRemove, onClose }: AddCardM
                       <div className="flex items-center gap-2 flex-wrap">
                         <TypeBadge type={card.type} />
                         <JlptBadge level={card.jlptLevel} />
-                        {card.masteryLevel !== undefined && (
+                        {card.progress !== undefined && (
                           <span className="flex items-center gap-1 text-[10px] text-muted-foreground">
                             <span>{C.masteryLabel}:</span>
                             <span className="flex gap-0.5">
@@ -76,8 +74,8 @@ export function AddCardModal({ existingIds, onAdd, onRemove, onClose }: AddCardM
                                 <span
                                   key={i}
                                   className={`h-1.5 w-1.5 rounded-full ${
-                                    i < (card.masteryLevel ?? 0)
-                                      ? MASTERY_COLORS[card.masteryLevel ?? 0]
+                                    i < (card.progress?.masteryLevel ?? 0)
+                                      ? MASTERY_COLORS[card.progress?.masteryLevel ?? 0]
                                       : 'bg-surface-container-highest'
                                   }`}
                                 />
@@ -88,7 +86,7 @@ export function AddCardModal({ existingIds, onAdd, onRemove, onClose }: AddCardM
                       </div>
                       <div className="flex items-baseline gap-2">
                         <span className="font-kiwi text-base font-medium text-foreground">{card.content}</span>
-                        {card.reading && (
+                        {card.type === 'vocab' && card.reading && (
                           <span className="text-xs text-muted-foreground">({card.reading})</span>
                         )}
                       </div>

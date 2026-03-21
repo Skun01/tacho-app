@@ -1,4 +1,7 @@
-import { LIBRARY_COPY, MOCK_TEXTBOOKS } from '@/constants/library'
+import { useEffect, useState } from 'react'
+import { LIBRARY_COPY } from '@/constants/library'
+import type { DeckListItem } from '@/types/deck'
+import { listDecks } from '@/services/deckService'
 import { DeckCard } from './DeckCard'
 
 interface Props {
@@ -6,13 +9,19 @@ interface Props {
 }
 
 export function TextbookTab({ search }: Props) {
-  const filtered = MOCK_TEXTBOOKS.filter(
+  const [allDecks, setAllDecks] = useState<DeckListItem[]>([])
+
+  useEffect(() => {
+    listDecks({ source: 'textbook' }).then(setAllDecks)
+  }, [])
+
+  const filtered = allDecks.filter(
     (d) =>
       d.name.toLowerCase().includes(search.toLowerCase()) ||
       (d.textbook ?? '').toLowerCase().includes(search.toLowerCase()),
   )
 
-  const grouped = filtered.reduce<Record<string, typeof filtered>>((acc, deck) => {
+  const grouped = filtered.reduce<Record<string, DeckListItem[]>>((acc, deck) => {
     const key = deck.textbook ?? 'Khác'
     if (!acc[key]) acc[key] = []
     acc[key].push(deck)
