@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router'
 import {
   BookmarkSimpleIcon,
   BookmarkIcon,
@@ -27,11 +28,15 @@ interface DeckCardProps {
 }
 
 export function DeckCard({ deck, showReview }: DeckCardProps) {
+  const navigate = useNavigate()
   const [bookmarked, setBookmarked] = useState(deck.isBookmarked)
   const pct = deck.totalCards > 0 ? (deck.learnedCards / deck.totalCards) * 100 : 0
 
   return (
-    <div className="flex flex-col overflow-hidden rounded-2xl bg-background shadow-[0_2px_12px_0_rgba(29,28,19,0.07)] transition-shadow hover:shadow-[0_4px_20px_0_rgba(29,28,19,0.12)]">
+    <div
+      onClick={() => navigate(`/deck/${deck.id}`)}
+      className="flex flex-col overflow-hidden cursor-pointer rounded-2xl bg-background shadow-[0_2px_12px_0_rgba(29,28,19,0.07)] transition-shadow hover:shadow-[0_4px_20px_0_rgba(29,28,19,0.12)]"
+    >
       <div
         className={`relative h-28 bg-gradient-to-br ${COVER_GRADIENTS[deck.coverIndex % 6]}`}
       >
@@ -95,7 +100,7 @@ export function DeckCard({ deck, showReview }: DeckCardProps) {
         </div>
 
         {showReview && (deck.reviewDue ?? 0) > 0 && (
-          <button className="mt-1 flex items-center gap-1.5 self-start rounded-lg bg-rose-50 px-3 py-1.5 text-xs font-semibold text-rose-600 transition-colors hover:bg-rose-100">
+          <button onClick={(e) => e.stopPropagation()} className="mt-1 flex items-center gap-1.5 self-start rounded-lg bg-rose-50 px-3 py-1.5 text-xs font-semibold text-rose-600 transition-colors hover:bg-rose-100">
             <ArrowsClockwiseIcon size={12} />
             {LIBRARY_COPY.reviewLabel}
             <span className="rounded-full bg-rose-100 px-1.5 py-0.5 text-[10px] text-rose-700">

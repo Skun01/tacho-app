@@ -19,6 +19,7 @@ export const LIBRARY_COPY = {
   emptyState: 'Chưa có bộ thẻ nào.',
   bookmarkAriaLabel: 'Đánh dấu bộ thẻ',
   textbookGroupLabel: 'Giáo trình',
+  createBtn: 'Tạo bộ thẻ',
 } as const
 
 export type LibraryMainTab = (typeof LIBRARY_COPY.tabs)[number]

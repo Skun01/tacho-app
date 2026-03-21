@@ -1,6 +1,8 @@
 import { useState } from 'react'
-import { MagnifyingGlassIcon } from '@phosphor-icons/react'
+import { useNavigate } from 'react-router'
+import { MagnifyingGlassIcon, PlusIcon } from '@phosphor-icons/react'
 import { DashboardLayout } from '@/components/layout/DashboardLayout'
+import { DeckFormModal } from '@/components/library/DeckFormModal'
 import { MyDecksTab } from '@/components/library/MyDecksTab'
 import { AppDecksTab } from '@/components/library/AppDecksTab'
 import { TextbookTab } from '@/components/library/TextbookTab'
@@ -8,8 +10,10 @@ import { CommunityTab } from '@/components/library/CommunityTab'
 import { LIBRARY_COPY, type LibraryMainTab } from '@/constants/library'
 
 export function LibraryPage() {
+  const navigate = useNavigate()
   const [activeTab, setActiveTab] = useState<LibraryMainTab>('Bộ thẻ của tôi')
   const [search, setSearch] = useState('')
+  const [showCreate, setShowCreate] = useState(false)
 
   return (
     <DashboardLayout>
@@ -17,7 +21,16 @@ export function LibraryPage() {
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <h1 className="text-2xl font-bold text-foreground">{LIBRARY_COPY.heading}</h1>
 
-          <div className="flex items-center gap-2 rounded-full bg-background px-4 py-2 shadow-[0_1px_8px_0_rgba(29,28,19,0.08)] sm:w-72">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setShowCreate(true)}
+              className="flex shrink-0 items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-background transition-colors hover:bg-primary-container"
+            >
+              <PlusIcon size={14} weight="bold" />
+              {LIBRARY_COPY.createBtn}
+            </button>
+
+          <div className="flex items-center gap-2 rounded-full bg-background px-4 py-2 shadow-[0_1px_8px_0_rgba(29,28,19,0.08)] sm:w-64">
             <MagnifyingGlassIcon size={15} className="shrink-0 text-muted-foreground" />
             <input
               type="text"
@@ -26,6 +39,7 @@ export function LibraryPage() {
               placeholder={LIBRARY_COPY.searchPlaceholder}
               className="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground/60"
             />
+          </div>
           </div>
         </div>
 
@@ -52,6 +66,17 @@ export function LibraryPage() {
           {activeTab === 'Cộng đồng' && <CommunityTab search={search} />}
         </div>
       </div>
+
+      {showCreate && (
+        <DeckFormModal
+          mode="create"
+          onClose={() => setShowCreate(false)}
+          onSubmit={() => {
+            setShowCreate(false)
+            navigate('/deck/me1/edit')
+          }}
+        />
+      )}
     </DashboardLayout>
   )
 }

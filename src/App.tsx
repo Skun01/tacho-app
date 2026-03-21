@@ -6,6 +6,8 @@ import { ForgotPasswordPage } from './pages/ForgotPasswordPage'
 import { ResetPasswordPage } from './pages/ResetPasswordPage'
 import { DashboardPage } from './pages/DashboardPage'
 import { LibraryPage } from './pages/LibraryPage'
+import { DeckEditPage } from './pages/DeckEditPage'
+import { DeckViewPage } from './pages/DeckViewPage'
 import { GooeyToaster } from './components/ui/goey-toaster'
 
 function App() {
@@ -44,6 +46,14 @@ function App() {
         <Route
           path='/library'
           element={<LibraryPage/>}
+        />
+        <Route
+          path='/deck/:id'
+          element={<DeckViewPage/>}
+        />
+        <Route
+          path='/deck/:id/edit'
+          element={<DeckEditPage/>}
         />
       </Routes>
     </BrowserRouter>
