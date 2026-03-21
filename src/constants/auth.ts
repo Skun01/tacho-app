@@ -29,6 +29,8 @@ export const AUTH_REGISTER_COPY = {
   passwordLabel: 'Mật khẩu',
   passwordPlaceholder: '••••••••',
   passwordHint: 'Tối thiểu 8 ký tự.',
+  confirmPasswordLabel: 'Xác nhận mật khẩu',
+  confirmPasswordPlaceholder: '••••••••',
   submitButton: 'Đăng ký',
   loadingButton: 'Đang tạo tài khoản...',
   loginPrompt: 'Đã có tài khoản?',

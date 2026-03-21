@@ -63,6 +63,19 @@ export function RegisterForm() {
         )}
       </div>
 
+      <div className="flex flex-col gap-2">
+        <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          {AUTH_REGISTER_COPY.confirmPasswordLabel}
+        </label>
+        <PasswordInput
+          {...register('confirmPassword')}
+          placeholder={AUTH_REGISTER_COPY.confirmPasswordPlaceholder}
+        />
+        {errors.confirmPassword && (
+          <span className="text-xs text-destructive">{errors.confirmPassword.message}</span>
+        )}
+      </div>
+
       <button
         type="submit"
         disabled={isSubmitting}
