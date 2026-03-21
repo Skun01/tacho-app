@@ -7,10 +7,10 @@ export function CTASection() {
   return (
     <section id="about" className="bg-gradient-to-br from-primary to-primary-container py-32">
       <div className="mx-auto flex max-w-2xl flex-col items-center gap-8 px-8 text-center">
-        <span className="font-['Kiwi_Maru'] text-8xl font-medium text-background/10">
+        <span className="font-kiwi text-8xl font-medium text-background/10">
           {HOME_CTA.kanjiDecor}
         </span>
-        <h2 className="font-['Kiwi_Maru'] -mt-16 text-5xl font-medium text-background">
+        <h2 className="font-kiwi -mt-16 text-5xl font-medium text-background">
           {HOME_CTA.heading}
         </h2>
         <p className="max-w-md text-base leading-relaxed text-background/70">

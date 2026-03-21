@@ -2,7 +2,7 @@ import { HOME_FOOTER } from '@/constants/home'
 
 export function FooterSection() {
   return (
-    <footer className="bg-surface-container-low py-16">
+    <footer className="bg-surface-container-highest py-16">
       <div className="mx-auto max-w-6xl px-8">
         <div className="grid grid-cols-1 gap-12 lg:grid-cols-3">
           <div className="flex flex-col gap-4">

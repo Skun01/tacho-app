@@ -4,7 +4,7 @@ export function TestimonialsSection() {
   return (
     <section id="feels" className="bg-surface-container-low py-24">
       <div className="mx-auto max-w-6xl px-8">
-        <h2 className="mb-16 font-['Kiwi_Maru'] text-4xl font-medium text-primary">
+        <h2 className="mb-16 font-kiwi text-4xl font-medium text-primary">
           {HOME_TESTIMONIALS.heading}
         </h2>
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">

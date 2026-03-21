@@ -10,13 +10,13 @@ export function AuthLayout({ kanjiDecor, children }: AuthLayoutProps) {
   return (
     <div className="flex min-h-screen">
       <aside className="relative hidden overflow-hidden bg-gradient-to-br from-primary to-primary-container lg:flex lg:w-[44%] lg:flex-col lg:items-start lg:justify-between lg:p-16">
-        <span className="pointer-events-none absolute -bottom-12 -right-12 select-none font-['Kiwi_Maru'] text-[22rem] font-medium leading-none text-background/[0.045]">
+        <span className="pointer-events-none absolute -bottom-12 -right-12 select-none font-kiwi text-[22rem] font-medium leading-none text-background/[0.045]">
           {kanjiDecor}
         </span>
 
         <BrandLogo size="md" variant="light" />
 
-        <p className="max-w-xs font-['Kiwi_Maru'] text-2xl font-medium leading-relaxed text-background/75">
+        <p className="max-w-xs font-kiwi text-2xl font-medium leading-relaxed text-background/75">
           {AUTH_BRAND.tagline}
         </p>
       </aside>

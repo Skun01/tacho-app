@@ -32,7 +32,7 @@ export function ForgotPasswordForm() {
           <CheckCircleIcon size={32} weight="fill" className="text-secondary" />
         </div>
         <div className="flex flex-col gap-2">
-          <h3 className="font-['Kiwi_Maru'] text-xl font-medium text-primary">
+          <h3 className="font-kiwi text-xl font-medium text-primary">
             {AUTH_FORGOT_PASSWORD_COPY.successHeading}
           </h3>
           <p className="max-w-xs text-sm leading-relaxed text-muted-foreground">

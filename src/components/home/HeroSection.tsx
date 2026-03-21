@@ -8,13 +8,13 @@ export function HeroSection() {
       <div className="mx-auto flex max-w-6xl flex-col items-center gap-16 px-8 py-16 lg:flex-row lg:items-center lg:py-24">
         <div className="flex flex-1 flex-col gap-8">
           <div className="inline-flex w-fit items-center gap-2 rounded-full bg-secondary-container px-4 py-2">
-            <span className="font-['Kiwi_Maru'] text-xs text-secondary">{HOME_HERO.kanjiBadge}</span>
+            <span className="font-kiwi text-xs text-secondary">{HOME_HERO.kanjiBadge}</span>
             <span className="text-xs font-semibold uppercase tracking-wider text-secondary">
               {HOME_HERO.badgeLabel}
             </span>
           </div>
 
-          <h1 className="font-['Kiwi_Maru'] text-5xl font-medium leading-[1.15] text-primary lg:text-6xl">
+          <h1 className="font-kiwi text-5xl font-medium leading-[1.15] text-primary lg:text-6xl">
             {HOME_HERO.headline}
           </h1>
 
@@ -47,7 +47,7 @@ function HeroIllustration() {
         <img src={heroIllustrationUrl} alt="" className="h-full w-full object-cover" />
       </div>
       <div className="absolute -bottom-4 -right-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-tertiary shadow-[0_8px_32px_0_rgba(61,29,0,0.25)]">
-        <span className="font-['Kiwi_Maru'] text-xl text-background">太</span>
+        <span className="font-kiwi text-xl text-background">太</span>
       </div>
     </div>
   )

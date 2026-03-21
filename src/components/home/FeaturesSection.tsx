@@ -4,7 +4,7 @@ export function FeaturesSection() {
   return (
     <section id="knowledge" className="bg-surface-container-low py-24">
       <div className="mx-auto max-w-6xl px-8">
-        <h2 className="mb-16 font-['Kiwi_Maru'] text-4xl font-medium text-primary">
+        <h2 className="mb-16 font-kiwi text-4xl font-medium text-primary">
           {HOME_FEATURES.heading}
         </h2>
 
@@ -20,7 +20,7 @@ export function FeaturesSection() {
                     {card.label}
                   </span>
                 )}
-                <span className="font-['Kiwi_Maru'] text-5xl font-medium text-background/20">
+                <span className="font-kiwi text-5xl font-medium text-background/20">
                   {card.kanji}
                 </span>
                 <div className="flex flex-col gap-3">
@@ -33,7 +33,7 @@ export function FeaturesSection() {
                 key={card.title}
                 className="flex flex-col gap-6 rounded-3xl bg-background p-8 transition-shadow hover:shadow-[0_8px_32px_0_rgba(29,28,19,0.06)]"
               >
-                <span className="font-['Kiwi_Maru'] text-5xl font-medium text-primary/15">
+                <span className="font-kiwi text-5xl font-medium text-primary/15">
                   {card.kanji}
                 </span>
                 <div className="flex flex-col gap-3">
