@@ -1,6 +1,11 @@
 @import "tailwindcss";
 @import "shadcn/tailwind.css";
 
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 80px;
+}
+
 /* ─── Tacho Design System ─────────────────────────────────────── */
 :root {
   /* Typography */

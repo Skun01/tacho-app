@@ -159,10 +159,3 @@
   ## 6. CODE QUALITY & EXECUTION
   - Semantic HTML is mandatory (use `<header>`, `<main>`, `<section>`, `<article>`, `<nav>`).
   - Avoid deeply nested `<div>` soup.
-
-  ## 7. Borders & dividers
-  - NEVER use `border`, `border-b`, `divide-y` to separate sections — this violates the No-Line Rule.
-  - Separate sections using background color shifts instead:
-    - `bg-[#fff9eb]` → `bg-[#f9f3e5]` → `bg-[#e8e2d4]` (light to darker surface)
-  - Separate list items using vertical spacing (`space-y-4`) or alternating `bg-*`, never `divide-y`.
-  - Ghost border (accessibility fallback only): `border border-[#1d1c13]/15`
