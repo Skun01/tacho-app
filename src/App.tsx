@@ -1,8 +1,10 @@
-import {BrowserRouter, Route, Routes} from 'react-router'
+import { BrowserRouter, Route, Routes } from 'react-router'
+import { HomePage } from './pages/HomePage'
 import { LoginPage } from './pages/LoginPage'
 import { RegisterPage } from './pages/RegisterPage'
+import { ForgotPasswordPage } from './pages/ForgotPasswordPage'
+import { ResetPasswordPage } from './pages/ResetPasswordPage'
 import { DashboardPage } from './pages/DashboardPage'
-import { HomePage } from './pages/HomePage'
 import { GooeyToaster } from './components/ui/goey-toaster'
 
 function App() {
@@ -23,6 +25,14 @@ function App() {
         <Route
           path='/register'
           element={<RegisterPage/>}
+        />
+        <Route
+          path='/forgot-password'
+          element={<ForgotPasswordPage/>}
+        />
+        <Route
+          path='/reset-password'
+          element={<ResetPasswordPage/>}
         />
 
         {/* protected routes */}

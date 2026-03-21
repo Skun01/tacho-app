@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router'
-import kitsuneUrl from '@/assets/icons/kitsune.svg'
+import { BrandLogo } from '@/components/ui/brand-logo'
 import { HOME_NAV } from '@/constants/home'
 
 export function Navbar() {
@@ -39,12 +39,7 @@ export function Navbar() {
       }`}
     >
       <nav className="mx-auto flex max-w-6xl items-center justify-between px-8 py-4">
-        <Link to="/" className="flex items-center gap-2.5">
-          <img src={kitsuneUrl} alt="Tacho" className="h-10 w-10 object-contain" />
-          <span className="text-lg font-bold italic tracking-wide text-primary">
-            Tacho
-          </span>
-        </Link>
+        <BrandLogo size="md" variant="dark" />
 
         <div className="hidden items-center gap-8 lg:flex">
           {HOME_NAV.links.map((link) => {

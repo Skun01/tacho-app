@@ -1,4 +1,10 @@
+export const AUTH_BRAND = {
+  name: 'Tacho',
+  tagline: 'Học tiếng Nhật, theo cách của người Nhật.',
+} as const
+
 export const AUTH_LOGIN_COPY = {
+  kanjiDecor: '入',
   heading: 'Chào mừng trở lại',
   subheading: 'Đăng nhập để tiếp tục hành trình của bạn.',
   emailLabel: 'Email',
@@ -13,6 +19,7 @@ export const AUTH_LOGIN_COPY = {
 } as const
 
 export const AUTH_REGISTER_COPY = {
+  kanjiDecor: '始',
   heading: 'Tạo tài khoản',
   subheading: 'Bắt đầu hành trình học tiếng Nhật của bạn.',
   displayNameLabel: 'Tên hiển thị',
@@ -21,8 +28,39 @@ export const AUTH_REGISTER_COPY = {
   emailPlaceholder: 'you@example.com',
   passwordLabel: 'Mật khẩu',
   passwordPlaceholder: '••••••••',
+  passwordHint: 'Tối thiểu 8 ký tự.',
   submitButton: 'Đăng ký',
   loadingButton: 'Đang tạo tài khoản...',
   loginPrompt: 'Đã có tài khoản?',
   loginLink: 'Đăng nhập',
+} as const
+
+export const AUTH_RESET_PASSWORD_COPY = {
+  kanjiDecor: '新',
+  heading: 'Đặt lại mật khẩu',
+  subheading: 'Tạo mật khẩu mới cho tài khoản của bạn.',
+  passwordLabel: 'Mật khẩu mới',
+  passwordPlaceholder: '••••••••',
+  passwordHint: 'Tối thiểu 8 ký tự.',
+  confirmPasswordLabel: 'Xác nhận mật khẩu',
+  confirmPasswordPlaceholder: '••••••••',
+  submitButton: 'Đặt lại mật khẩu',
+  loadingButton: 'Đang cập nhật...',
+  successHeading: 'Mật khẩu đã được đặt lại!',
+  successMessage: 'Bạn có thể đăng nhập bằng mật khẩu mới ngay bây giờ.',
+  loginLink: 'Đăng nhập ngay',
+  tokenError: 'Đường link không hợp lệ hoặc đã hết hạn. Vui lòng yêu cầu link mới.',
+} as const
+
+export const AUTH_FORGOT_PASSWORD_COPY = {
+  kanjiDecor: '忘',
+  heading: 'Quên mật khẩu',
+  subheading: 'Nhập email để nhận link đặt lại mật khẩu.',
+  emailLabel: 'Email',
+  emailPlaceholder: 'you@example.com',
+  submitButton: 'Gửi link đặt lại',
+  loadingButton: 'Đang gửi...',
+  successHeading: 'Đã gửi!',
+  successMessage: 'Kiểm tra hộp thư của bạn và làm theo hướng dẫn trong email.',
+  backToLogin: 'Quay lại đăng nhập',
 } as const
