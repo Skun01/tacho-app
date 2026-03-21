@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { ArrowUp } from '@phosphor-icons/react'
+import { ArrowUpIcon } from '@phosphor-icons/react'
 
 export function ScrollToTop() {
   const [visible, setVisible] = useState(false)
@@ -18,7 +18,7 @@ export function ScrollToTop() {
         visible ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0 pointer-events-none'
       }`}
     >
-      <ArrowUp size={18} weight="bold" />
+      <ArrowUpIcon size={18} weight="bold" />
     </button>
   )
 }

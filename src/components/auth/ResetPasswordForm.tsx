@@ -2,7 +2,8 @@ import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Link } from 'react-router'
-import { CheckCircle, WarningCircle } from '@phosphor-icons/react'
+import { CheckCircleIcon, WarningCircleIcon } from '@phosphor-icons/react'
+import { gooeyToast } from '@/components/ui/goey-toaster'
 import { AUTH_RESET_PASSWORD_COPY } from '@/constants/auth'
 import { resetPasswordSchema, type ResetPasswordSchema } from '@/lib/validations/auth'
 import { PasswordInput } from '@/components/ui/password-input'
@@ -20,15 +21,20 @@ export function ResetPasswordForm({ token }: ResetPasswordFormProps) {
   } = useForm<ResetPasswordSchema>({ resolver: zodResolver(resetPasswordSchema) })
 
   const onSubmit = async (_data: ResetPasswordSchema) => {
-    // TODO: wire up authService.resetPassword({ token, password: _data.password })
-    setDone(true)
+    try {
+      // TODO: wire up authService.resetPassword({ token, password: _data.password })
+      setDone(true)
+      gooeyToast.success('Mật khẩu đã được đặt lại thành công!')
+    } catch {
+      gooeyToast.error('Không thể đặt lại mật khẩu. Vui lòng thử lại.')
+    }
   }
 
   if (!token) {
     return (
       <div className="flex flex-col items-center gap-6 text-center">
         <div className="flex h-16 w-16 items-center justify-center rounded-full bg-destructive/10">
-          <WarningCircle size={32} weight="fill" className="text-destructive" />
+          <WarningCircleIcon size={32} weight="fill" className="text-destructive" />
         </div>
         <div className="flex flex-col gap-2">
           <h3 className="font-['Kiwi_Maru'] text-xl font-medium text-primary">
@@ -52,7 +58,7 @@ export function ResetPasswordForm({ token }: ResetPasswordFormProps) {
     return (
       <div className="flex flex-col items-center gap-6 text-center">
         <div className="flex h-16 w-16 items-center justify-center rounded-full bg-secondary-container">
-          <CheckCircle size={32} weight="fill" className="text-secondary" />
+          <CheckCircleIcon size={32} weight="fill" className="text-secondary" />
         </div>
         <div className="flex flex-col gap-2">
           <h3 className="font-['Kiwi_Maru'] text-xl font-medium text-primary">

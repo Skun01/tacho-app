@@ -1,4 +1,4 @@
-import { CheckCircle } from '@phosphor-icons/react'
+import { CheckCircleIcon } from '@phosphor-icons/react'
 import { HOME_WHY } from '@/constants/home'
 import teaIllustrationUrl from '@/assets/illustrations/tea-illustration.svg'
 
@@ -16,7 +16,7 @@ export function WhySection() {
             <div className="flex flex-col gap-8">
               {HOME_WHY.items.map((item) => (
                 <div key={item.title} className="flex gap-5">
-                  <CheckCircle size={24} weight="fill" className="mt-0.5 shrink-0 text-secondary" />
+                  <CheckCircleIcon size={24} weight="fill" className="mt-0.5 shrink-0 text-secondary" />
                   <div className="flex flex-col gap-2">
                     <h3 className="text-base font-bold text-foreground">{item.title}</h3>
                     <p className="text-sm leading-relaxed text-muted-foreground">

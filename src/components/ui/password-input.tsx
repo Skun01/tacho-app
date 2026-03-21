@@ -1,5 +1,5 @@
 import { forwardRef, useState } from 'react'
-import { Eye, EyeSlash } from '@phosphor-icons/react'
+import { EyeIcon, EyeSlashIcon } from '@phosphor-icons/react'
 
 export const PasswordInput = forwardRef<
   HTMLInputElement,
@@ -22,7 +22,7 @@ export const PasswordInput = forwardRef<
         className="absolute right-0 bottom-3 text-muted-foreground transition-colors hover:text-foreground"
         aria-label={show ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
       >
-        {show ? <EyeSlash size={16} /> : <Eye size={16} />}
+        {show ? <EyeSlashIcon size={16} /> : <EyeIcon size={16} />}
       </button>
     </div>
   )

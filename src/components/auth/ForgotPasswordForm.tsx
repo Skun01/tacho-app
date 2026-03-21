@@ -2,7 +2,8 @@ import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Link } from 'react-router'
-import { CheckCircle } from '@phosphor-icons/react'
+import { CheckCircleIcon } from '@phosphor-icons/react'
+import { gooeyToast } from '@/components/ui/goey-toaster'
 import { AUTH_FORGOT_PASSWORD_COPY } from '@/constants/auth'
 import { forgotPasswordSchema, type ForgotPasswordSchema } from '@/lib/validations/auth'
 
@@ -15,15 +16,20 @@ export function ForgotPasswordForm() {
   } = useForm<ForgotPasswordSchema>({ resolver: zodResolver(forgotPasswordSchema) })
 
   const onSubmit = async (_data: ForgotPasswordSchema) => {
-    // TODO: wire up authService.forgotPassword
-    setSent(true)
+    try {
+      // TODO: wire up authService.forgotPassword(_data.email)
+      setSent(true)
+      gooeyToast.success('Email đặt lại mật khẩu đã được gửi!')
+    } catch {
+      gooeyToast.error('Không thể gửi email. Vui lòng thử lại.')
+    }
   }
 
   if (sent) {
     return (
       <div className="flex flex-col items-center gap-6 text-center">
         <div className="flex h-16 w-16 items-center justify-center rounded-full bg-secondary-container">
-          <CheckCircle size={32} weight="fill" className="text-secondary" />
+          <CheckCircleIcon size={32} weight="fill" className="text-secondary" />
         </div>
         <div className="flex flex-col gap-2">
           <h3 className="font-['Kiwi_Maru'] text-xl font-medium text-primary">
