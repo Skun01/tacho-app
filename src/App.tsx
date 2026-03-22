@@ -10,6 +10,7 @@ import { DeckEditPage } from './pages/DeckEditPage'
 import { DeckViewPage } from './pages/DeckViewPage'
 import { SearchPage } from './pages/SearchPage'
 import { CardDetailPage } from './pages/CardDetailPage'
+import { StudyPage } from './pages/StudyPage'
 import { GooeyToaster } from './components/ui/goey-toaster'
 
 function App() {
@@ -56,6 +57,10 @@ function App() {
         <Route
           path='/card/:id'
           element={<CardDetailPage/>}
+        />
+        <Route
+          path='/study'
+          element={<StudyPage/>}
         />
         <Route
           path='/deck/:id'
