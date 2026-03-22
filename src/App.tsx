@@ -11,6 +11,7 @@ import { DeckViewPage } from './pages/DeckViewPage'
 import { SearchPage } from './pages/SearchPage'
 import { CardDetailPage } from './pages/CardDetailPage'
 import { StudyPage } from './pages/StudyPage'
+import { QuizPage } from './pages/QuizPage'
 import { GooeyToaster } from './components/ui/goey-toaster'
 
 function App() {
@@ -61,6 +62,10 @@ function App() {
         <Route
           path='/study'
           element={<StudyPage/>}
+        />
+        <Route
+          path='/quiz'
+          element={<QuizPage/>}
         />
         <Route
           path='/deck/:id'
