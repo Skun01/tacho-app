@@ -4,7 +4,6 @@ import { XIcon, ArrowRightIcon, ArrowCounterClockwiseIcon, InfoIcon, SpeakerHigh
 import { TypeAQuestion } from '@/components/quiz/TypeAQuestion'
 import { TypeBQuestion } from '@/components/quiz/TypeBQuestion'
 import { TypeCQuestion } from '@/components/quiz/TypeCQuestion'
-import { QuizSummary } from '@/components/quiz/QuizSummary'
 import { getCardDetail } from '@/services/cardDetailService'
 import { generateQuestion, checkAnswer } from '@/utils/quizGenerator'
 import { STUDY_BATCH_IDS } from '@/mocks/studyBatch'
@@ -12,12 +11,15 @@ import { QUIZ_COPY } from '@/constants/quiz'
 import type { CardDetail } from '@/types/card'
 import type { QuizQuestion, AnswerState, QuizAttempt } from '@/types/quiz'
 
-type Phase = 'loading' | 'quiz' | 'summary'
+type Phase = 'loading' | 'quiz'
+
+type CardDisplayInfo = { content: string; reading?: string; jlptLevel: string }
 
 export function QuizPage() {
   const navigate = useNavigate()
   const location = useLocation()
   const inputRef = useRef<HTMLInputElement>(null)
+  const cardInfosRef = useRef(new Map<string, CardDisplayInfo>()) as MutableRefObject<Map<string, CardDisplayInfo>>
 
   const batchIds: string[] = (location.state as any)?.batchIds ?? STUDY_BATCH_IDS
 
@@ -41,6 +43,15 @@ export function QuizPage() {
       const valid = cards.filter((c): c is CardDetail => c !== null)
       const allMeanings = valid.map((c) => c.meaning)
       const questions = valid.map((c) => generateQuestion(c, allMeanings))
+      questions.forEach((q) => {
+        if (!cardInfosRef.current.has(q.cardId)) {
+          cardInfosRef.current.set(q.cardId, {
+            content: q.cardContent,
+            reading: q.cardReading,
+            jlptLevel: q.jlptLevel,
+          })
+        }
+      })
       setQueue(questions)
       setInitialCount(questions.length)
       const mc = new Map<string, { before: number; after: number }>()
@@ -111,8 +122,27 @@ export function QuizPage() {
 
     const remaining = queue.slice(1)
     if (isCorrect && remaining.length === 0) {
-      setPhase('summary')
-      setQueue([])
+      const nextAttempts = [
+        ...attempts,
+        { cardId: current.cardId, questionId: current.id, correct: true, wasRetry: current.isRetry },
+      ]
+      const finalMastery = new Map(masteryChanges)
+      const ex = finalMastery.get(current.cardId)!
+      finalMastery.set(current.cardId, { ...ex, after: Math.max(0, Math.min(14, ex.after + 1)) })
+      navigate('/quiz/result', {
+        state: {
+          attempts: nextAttempts,
+          totalCards: initialCount,
+          cardInfos: Array.from(finalMastery.entries()).map(([cardId, mc]) => ({
+            cardId,
+            content: cardInfosRef.current.get(cardId)?.content ?? cardId,
+            reading: cardInfosRef.current.get(cardId)?.reading,
+            jlptLevel: cardInfosRef.current.get(cardId)?.jlptLevel ?? '',
+            before: mc.before,
+            after: mc.after,
+          })),
+        },
+      })
       return
     }
 
@@ -145,27 +175,6 @@ export function QuizPage() {
   useEffect(() => {
     if (current?.type !== 'C') setTimeout(() => inputRef.current?.focus(), 100)
   }, [current?.id])
-
-  // ── Summary ───────────────────────────────────────────────────────────────────
-  if (phase === 'summary') {
-    return (
-      <div className="min-h-screen bg-background">
-        <header className="fixed inset-x-0 top-0 z-40 flex h-12 items-center justify-between bg-background/90 px-4 backdrop-blur-sm">
-          <button
-            onClick={() => navigate('/dashboard')}
-            className="flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground/60 transition-colors hover:text-foreground"
-          >
-            <XIcon size={16} />
-          </button>
-          <p className="text-sm font-semibold text-foreground">{QUIZ_COPY.title}</p>
-          <div className="h-8 w-8" />
-        </header>
-        <div className="pt-12">
-          <QuizSummary attempts={attempts} totalCards={initialCount} masteryChanges={masteryChanges} />
-        </div>
-      </div>
-    )
-  }
 
   // ── Loading ───────────────────────────────────────────────────────────────────
   if (phase === 'loading' || !current) {
