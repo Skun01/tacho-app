@@ -8,6 +8,8 @@ import { DashboardPage } from './pages/DashboardPage'
 import { LibraryPage } from './pages/LibraryPage'
 import { DeckEditPage } from './pages/DeckEditPage'
 import { DeckViewPage } from './pages/DeckViewPage'
+import { SearchPage } from './pages/SearchPage'
+import { CardDetailPage } from './pages/CardDetailPage'
 import { GooeyToaster } from './components/ui/goey-toaster'
 
 function App() {
@@ -46,6 +48,14 @@ function App() {
         <Route
           path='/library'
           element={<LibraryPage/>}
+        />
+        <Route
+          path='/search'
+          element={<SearchPage/>}
+        />
+        <Route
+          path='/card/:id'
+          element={<CardDetailPage/>}
         />
         <Route
           path='/deck/:id'

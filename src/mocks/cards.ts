@@ -23,14 +23,21 @@ export const MOCK_CARDS: FlashCard[] = [
   { id: 'fc20', type: 'grammar', jlptLevel: 'N3', content: '〜だけでなく',         meaning: 'Không chỉ... mà còn...' },
 ]
 
-const MOCK_MASTERY: Record<string, number> = {
-  fc1: 4, fc2: 3, fc4: 5, fc5: 2,
-  fc8: 4, fc11: 1, fc14: 3, fc17: 2,
+type ProgressSeed = { masteryLevel: number; isInReview: boolean; isSaved: boolean }
+const MOCK_PROGRESS: Record<string, ProgressSeed> = {
+  fc1:  { masteryLevel: 4, isInReview: true,  isSaved: false },
+  fc2:  { masteryLevel: 3, isInReview: true,  isSaved: true  },
+  fc4:  { masteryLevel: 5, isInReview: true,  isSaved: false },
+  fc5:  { masteryLevel: 2, isInReview: true,  isSaved: false },
+  fc8:  { masteryLevel: 4, isInReview: true,  isSaved: true  },
+  fc11: { masteryLevel: 1, isInReview: true,  isSaved: false },
+  fc14: { masteryLevel: 3, isInReview: true,  isSaved: false },
+  fc17: { masteryLevel: 2, isInReview: true,  isSaved: true  },
 }
 
 export const MOCK_CARDS_WITH_PROGRESS: FlashCardWithProgress[] = MOCK_CARDS.map((card) => ({
   ...card,
-  progress: MOCK_MASTERY[card.id] !== undefined
-    ? { cardId: card.id, masteryLevel: MOCK_MASTERY[card.id] }
+  progress: MOCK_PROGRESS[card.id] !== undefined
+    ? { cardId: card.id, ...MOCK_PROGRESS[card.id] }
     : undefined,
 }))

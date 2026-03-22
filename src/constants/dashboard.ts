@@ -1,9 +1,9 @@
 export const DASHBOARD_NAV = {
   links: [
-    { label: 'Trang chủ', href: '/' },
+    { label: 'Dashboard', href: '/dashboard' },
     { label: 'Thư viện', href: '/library' },
   ],
-  searchPlaceholder: 'Tìm kiếm từ vựng, ngữ pháp...',
+  searchLabel: 'Tìm kiếm',
 } as const
 
 export const DASHBOARD_QUOTE = {

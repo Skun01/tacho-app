@@ -144,14 +144,6 @@
   - **CSS Grid:** Use Grid exclusively for 2-dimensional layouts (both rows and columns simultaneously). Ideal for page skeletons, dashboard layouts, image galleries, and card grids.
   - **Alignment:** Never leave items floating aimlessly. Always explicitly use `align-items` and `justify-content` to control positioning.
 
-  ## 4. RESPONSIVE DESIGN (MOBILE-FIRST MINDSET)
-  - **Base Styles:** All default CSS rules must be written for Mobile devices first (smallest screens).
-  - **Scaling Up:** Use `min-width` media queries to adjust layouts for larger screens. 
-  - **Standard Breakpoints:** - Tablet: `min-width: 768px`
-    - Desktop: `min-width: 1024px`
-    - Large Desktop: `min-width: 1280px`
-  - **Behavior:** Stack elements vertically on mobile. Use Flex/Grid to place them side-by-side only at Tablet/Desktop breakpoints.
-
   ## 5. VISUAL HIERARCHY & NEGATIVE SPACE
   - **Let it breathe:** Default to generous padding/margins for macro-sections (e.g., `padding: 64px 0` or `96px 0` for landing page sections) to create a premium, clean vibe.
   - **Contrast:** Ensure clear visual distinction between Primary, Secondary, and Tertiary elements (using size, font-weight, or color opacity).

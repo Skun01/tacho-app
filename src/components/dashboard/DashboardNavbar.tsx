@@ -1,36 +1,59 @@
-import { Link } from 'react-router'
+import { Link, useLocation } from 'react-router'
 import { MagnifyingGlassIcon, BellIcon } from '@phosphor-icons/react'
 import { BrandLogo } from '@/components/ui/brand-logo'
 import { DASHBOARD_NAV } from '@/constants/dashboard'
 
 export function DashboardNavbar() {
+  const { pathname } = useLocation()
+
+  function isActive(href: string) {
+    return pathname === href || (href !== '/dashboard' && pathname.startsWith(href))
+  }
+
+  const searchActive = pathname === '/search'
+
   return (
     <header className="sticky top-0 z-50 bg-background/90 backdrop-blur-[12px] shadow-[0_1px_0_0_rgba(29,28,19,0.06)]">
       <nav className="mx-auto flex max-w-5xl items-center gap-8 px-6 py-3">
         <BrandLogo size="sm" variant="dark" />
 
-        <div className="flex items-center gap-2 rounded-full bg-surface-container px-4 py-2">
-          <MagnifyingGlassIcon size={14} className="shrink-0 text-muted-foreground" />
-          <input
-            type="text"
-            placeholder={DASHBOARD_NAV.searchPlaceholder}
-            className="w-44 bg-transparent text-sm outline-none placeholder:text-muted-foreground/60"
-          />
-        </div>
-
+        {/* Nav links */}
         <div className="flex items-center gap-6">
-          {DASHBOARD_NAV.links.map((link) => (
-            <Link
-              key={link.label}
-              to={link.href}
-              className="text-sm font-medium text-secondary transition-colors hover:text-primary"
-            >
-              {link.label}
-            </Link>
-          ))}
+          {DASHBOARD_NAV.links.map((link) => {
+            const active = isActive(link.href)
+            return (
+              <Link
+                key={link.label}
+                to={link.href}
+                className={`relative pb-0.5 text-sm transition-colors duration-200 ${
+                  active
+                    ? 'font-semibold text-primary'
+                    : 'font-medium text-secondary hover:text-primary'
+                }`}
+              >
+                {link.label}
+                {active && (
+                  <span className="absolute -bottom-0.5 left-1/2 h-1 w-1 -translate-x-1/2 rounded-full bg-primary" />
+                )}
+              </Link>
+            )
+          })}
         </div>
 
-        <div className="ml-auto flex items-center gap-3">
+        <div className="ml-auto flex items-center gap-2">
+          {/* Search icon → /search */}
+          <Link
+            to="/search"
+            aria-label={DASHBOARD_NAV.searchLabel}
+            className={`flex h-9 w-9 items-center justify-center rounded-full transition-colors ${
+              searchActive
+                ? 'bg-primary/10 text-primary'
+                : 'text-secondary hover:bg-surface-container hover:text-primary'
+            }`}
+          >
+            <MagnifyingGlassIcon size={18} weight={searchActive ? 'bold' : 'regular'} />
+          </Link>
+
           <button
             aria-label="Thông báo"
             className="flex h-9 w-9 items-center justify-center rounded-full transition-colors hover:bg-surface-container"
