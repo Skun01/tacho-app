@@ -1,9 +1,12 @@
 import { useState, useEffect, useCallback, useRef, type MutableRefObject } from 'react'
 import { useNavigate, useLocation } from 'react-router'
-import { XIcon, ArrowRightIcon, ArrowCounterClockwiseIcon, InfoIcon, SpeakerHighIcon } from '@phosphor-icons/react'
+import { XIcon, ArrowRightIcon, ArrowCounterClockwiseIcon, InfoIcon, SpeakerHighIcon, ArrowUpIcon } from '@phosphor-icons/react'
 import { TypeAQuestion } from '@/components/quiz/TypeAQuestion'
 import { TypeBQuestion } from '@/components/quiz/TypeBQuestion'
 import { TypeCQuestion } from '@/components/quiz/TypeCQuestion'
+import { VocabDetailView } from '@/components/card-detail/VocabDetailView'
+import { GrammarDetailView } from '@/components/card-detail/GrammarDetailView'
+import { ProgressBar } from '@/components/ui/progress-bar'
 import { commitQuizProgress } from '@/services/cardService'
 import { getCardDetail } from '@/services/cardDetailService'
 import { getStudyBatchIds } from '@/services/dashboardService'
@@ -27,6 +30,8 @@ export function QuizPage() {
   const location = useLocation()
   const inputRef = useRef<HTMLInputElement>(null)
   const cardInfosRef = useRef(new Map<string, CardDisplayInfo>()) as MutableRefObject<Map<string, CardDisplayInfo>>
+  const skipNextEnterRef = useRef(false)
+  const cardInfoRef = useRef<HTMLDivElement>(null)
   const routeState = location.state as QuizLocationState | null
 
   const [phase, setPhase] = useState<Phase>('loading')
@@ -42,6 +47,10 @@ export function QuizPage() {
     Map<string, { before: number; after: number }>
   >(new Map())
   const [visible, setVisible] = useState(true)
+  const [showCardInfo, setShowCardInfo] = useState(false)
+  const [cardInfoData, setCardInfoData] = useState<CardDetail | null>(null)
+  const [cardInfoLoading, setCardInfoLoading] = useState(false)
+  const [scrollY, setScrollY] = useState(0)
 
   // ── Load ─────────────────────────────────────────────────────────────────────
   useEffect(() => {
@@ -90,6 +99,8 @@ export function QuizPage() {
 
   // ── Correct counter (first attempts only) ────────────────────────────────────
   const correctFirst = attempts.filter((a) => !a.wasRetry && a.correct).length
+  const answeredFirst = attempts.filter((a) => !a.wasRetry).length
+  const progressPct = initialCount > 0 ? (answeredFirst / initialCount) * 100 : 0
 
   // ── Check answer ──────────────────────────────────────────────────────────────
   const handleCheck = useCallback(() => {
@@ -179,16 +190,45 @@ export function QuizPage() {
       setInputValue('')
       setSelectedChoiceId(null)
       setAudioPlayed(false)
+      setShowCardInfo(false)
+      setCardInfoData(null)
       setVisible(true)
       window.scrollTo({ top: 0, behavior: 'instant' })
       setTimeout(() => inputRef.current?.focus(), 80)
     }, 150)
   }
 
+  // ── Scroll tracker ────────────────────────────────────────────────────────────
+  useEffect(() => {
+    function onScroll() { setScrollY(window.scrollY) }
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
+
+  // ── Show card info ──────────────────────────────────────────────────────
+  async function handleShowCardInfo() {
+    if (showCardInfo && cardInfoData) {
+      cardInfoRef.current?.scrollIntoView({ behavior: 'smooth' })
+      return
+    }
+    if (!current) return
+    setShowCardInfo(true)
+    setCardInfoLoading(true)
+    const detail = await getCardDetail(current.cardId)
+    setCardInfoData(detail)
+    setCardInfoLoading(false)
+    setTimeout(() => cardInfoRef.current?.scrollIntoView({ behavior: 'smooth' }), 80)
+  }
+
   // ── Keyboard ──────────────────────────────────────────────────────────────────
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
-      if (e.key === 'Enter' && answerState !== 'idle') handleNext()
+      if (e.key !== 'Enter') return
+      if (skipNextEnterRef.current) {
+        skipNextEnterRef.current = false
+        return
+      }
+      if (answerState !== 'idle') handleNext()
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
@@ -263,6 +303,11 @@ export function QuizPage() {
         </div>
       </header>
 
+      {/* ── Quiz progress bar ── */}
+      {initialCount > 0 && (
+        <ProgressBar value={progressPct} className="fixed inset-x-0 top-12 z-40" />
+      )}
+
       {/* ── Vertically centered question ── */}
       <main
         className="flex flex-1 flex-col items-center justify-center px-8"
@@ -301,6 +346,39 @@ export function QuizPage() {
         </div>
       </main>
 
+      {/* ── Inline card detail (below quiz) ── */}
+      {showCardInfo && (
+        <div ref={cardInfoRef} className="border-t border-[#1d1c13]/08 px-4 pb-36 pt-8">
+          <div className="mx-auto max-w-2xl">
+            <p className="mb-6 text-xs font-semibold uppercase tracking-widest text-muted-foreground/50">
+              Thông tin thẻ
+            </p>
+            {cardInfoLoading && (
+              <div className="flex justify-center py-16">
+                <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+              </div>
+            )}
+            {!cardInfoLoading && cardInfoData?.type === 'vocab' && (
+              <VocabDetailView card={cardInfoData} />
+            )}
+            {!cardInfoLoading && cardInfoData?.type === 'grammar' && (
+              <GrammarDetailView card={cardInfoData} />
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* ── Floating scroll-to-top ── */}
+      {scrollY > 200 && (
+        <button
+          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+          aria-label="Lên đầu trang"
+          className="fixed bottom-28 right-4 z-50 flex h-10 w-10 items-center justify-center rounded-full bg-primary text-background shadow-lg transition-colors hover:bg-primary-container"
+        >
+          <ArrowUpIcon size={16} weight="bold" />
+        </button>
+      )}
+
       {/* ── Action buttons (appear after answering, above input bar) ── */}
       {answerState !== 'idle' && (
         <div
@@ -310,8 +388,8 @@ export function QuizPage() {
           <ActionBtn icon={<ArrowCounterClockwiseIcon size={12} />} onClick={handleUndo}>
             Hoàn tác
           </ActionBtn>
-          <ActionBtn icon={<InfoIcon size={12} />}>
-            Xem gợi ý
+          <ActionBtn icon={<InfoIcon size={12} />} onClick={handleShowCardInfo}>
+            {showCardInfo ? 'Thông tin thẻ ↓' : 'Xem thông tin thẻ'}
           </ActionBtn>
           {answerState === 'wrong' ? (
             <ActionBtn onClick={handleSeeAnswer} highlight>
@@ -347,7 +425,10 @@ export function QuizPage() {
               value={inputValue}
               onChange={(e) => answerState === 'idle' && setInputValue(e.target.value)}
               onKeyDown={(e) => {
-                if (e.key === 'Enter' && answerState === 'idle' && inputValue.trim()) handleCheck()
+                if (e.key === 'Enter' && answerState === 'idle' && inputValue.trim()) {
+                  skipNextEnterRef.current = true
+                  handleCheck()
+                }
               }}
               readOnly={answerState !== 'idle'}
               placeholder={QUIZ_COPY.inputPlaceholder}
