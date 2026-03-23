@@ -17,18 +17,13 @@ import { QuizResultPage } from './pages/QuizResultPage'
 import { GuestRoute } from './components/auth/GuestRoute'
 import { ProtectedRoute } from './components/auth/ProtectedRoute'
 import { GooeyToaster } from './components/ui/goey-toaster'
+import { TopLoadingBar } from './components/ui/top-loading-bar'
 import { useAuthStore } from './stores/authStore'
 
-function App() {
-  const init = useAuthStore((state) => state.init)
-
-  useEffect(() => {
-    void init()
-  }, [init])
-
-  return <>
-    <GooeyToaster position='top-right'/>
-    <BrowserRouter>
+function AppRoutes() {
+  return (
+    <>
+      <TopLoadingBar />
       <Routes>
         {/* public routes */}
         <Route
@@ -95,8 +90,25 @@ function App() {
           />
         </Route>
       </Routes>
-    </BrowserRouter>
-  </>
+    </>
+  )
+}
+
+function App() {
+  const init = useAuthStore((state) => state.init)
+
+  useEffect(() => {
+    void init()
+  }, [init])
+
+  return (
+    <>
+      <GooeyToaster position='top-right' />
+      <BrowserRouter>
+        <AppRoutes />
+      </BrowserRouter>
+    </>
+  )
 }
 
 export default App

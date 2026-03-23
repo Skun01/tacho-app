@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router'
+import { useNavigate, useSearchParams } from 'react-router'
 import { MagnifyingGlassIcon, PlusIcon } from '@phosphor-icons/react'
 import { DashboardLayout } from '@/components/layout/DashboardLayout'
 import { DeckFormModal } from '@/components/library/DeckFormModal'
@@ -12,7 +12,12 @@ import { createDeck } from '@/services/deckService'
 
 export function LibraryPage() {
   const navigate = useNavigate()
-  const [activeTab, setActiveTab] = useState<LibraryMainTab>('Bộ thẻ của tôi')
+  const [searchParams, setSearchParams] = useSearchParams()
+  const tabIndex = Math.min(
+    parseInt(searchParams.get('tab') ?? '0', 10),
+    LIBRARY_COPY.tabs.length - 1,
+  )
+  const activeTab: LibraryMainTab = LIBRARY_COPY.tabs[tabIndex] ?? LIBRARY_COPY.tabs[0]
   const [search, setSearch] = useState('')
   const [showCreate, setShowCreate] = useState(false)
 
@@ -45,10 +50,10 @@ export function LibraryPage() {
         </div>
 
         <div className="flex gap-1 overflow-x-auto rounded-xl bg-surface-container p-1">
-          {LIBRARY_COPY.tabs.map((tab) => (
+          {LIBRARY_COPY.tabs.map((tab, idx) => (
             <button
               key={tab}
-              onClick={() => setActiveTab(tab)}
+              onClick={() => setSearchParams({ tab: String(idx) }, { replace: false })}
               className={`shrink-0 rounded-lg px-5 py-2 text-sm font-semibold transition-all duration-200 ${
                 activeTab === tab
                   ? 'bg-background text-foreground shadow-sm'
