@@ -4,9 +4,10 @@ interface Props {
   question: QuizQuestion
   answerState: AnswerState
   submittedValue: string
+  hint?: string
 }
 
-export function TypeAQuestion({ question, answerState, submittedValue }: Props) {
+export function TypeAQuestion({ question, answerState, submittedValue, hint }: Props) {
   const answerColorClass =
     answerState === 'correct'
       ? 'text-emerald-600 border-emerald-500'
@@ -41,6 +42,12 @@ export function TypeAQuestion({ question, answerState, submittedValue }: Props) 
       <p className="max-w-sm text-sm leading-relaxed text-muted-foreground">
         {question.cardMeaning}
       </p>
+
+      {answerState === 'wrong' && hint && (
+        <p className="text-sm text-amber-600">
+          Gợi ý: <span className="font-medium">{hint}</span>
+        </p>
+      )}
     </div>
   )
 }

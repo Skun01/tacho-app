@@ -63,7 +63,7 @@ export function QuizPage() {
       {/* ── Top bar ── */}
       <header className="fixed inset-x-0 top-0 z-40 flex h-12 items-center justify-between px-4">
         <button
-          onClick={() => navigate(-1)}
+          onClick={() => navigate('/dashboard')}
           className="flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground/50 transition-colors hover:text-foreground"
         >
           <XIcon size={15} />
