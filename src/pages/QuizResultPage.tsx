@@ -1,5 +1,5 @@
 import { useNavigate, useLocation } from 'react-router'
-import { XIcon, TrophyIcon, ArrowRightIcon, HouseIcon, RepeatIcon } from '@phosphor-icons/react'
+import { XIcon, TrophyIcon, ArrowRightIcon, HouseIcon } from '@phosphor-icons/react'
 import { JlptBadge } from '@/components/ui/jlpt-badge'
 import type { QuizAttempt } from '@/types/quiz'
 
@@ -53,16 +53,11 @@ export function QuizResultPage() {
   const trophyHex =
     accuracy >= 80 ? '#059669'          : accuracy >= 60 ? '#d97706'        : '#f43f5e'
 
-  const nextReview = new Date(Date.now() + 4 * 60 * 60 * 1000).toLocaleTimeString('vi-VN', {
-    hour: '2-digit',
-    minute: '2-digit',
-  })
-
   return (
-    <div className="min-h-screen bg-background">
+    <div className="flex h-screen flex-col bg-background">
 
       {/* ── Header ── */}
-      <header className="sticky top-0 z-40 flex h-12 items-center justify-between bg-background/90 px-4 backdrop-blur-sm">
+      <header className="flex h-12 shrink-0 items-center justify-between bg-background/90 px-4 backdrop-blur-sm">
         <button
           onClick={() => navigate('/dashboard')}
           className="flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground/50 transition-colors hover:text-foreground"
@@ -73,79 +68,62 @@ export function QuizResultPage() {
         <div className="h-8 w-8" />
       </header>
 
-      <div className="mx-auto max-w-md px-4 pb-16 pt-6">
+      {/* ── Body: fills remaining height, no outer scroll ── */}
+      <div className="flex min-h-0 flex-1 flex-col px-4 py-4">
+        <div className="mx-auto flex w-full max-w-md min-h-0 flex-1 flex-col gap-3">
 
-        {/* ── Trophy + grade ── */}
-        <div className="mb-8 flex flex-col items-center gap-3 text-center">
-          <div className={`flex h-20 w-20 items-center justify-center rounded-full ${accentBg}`}>
-            <TrophyIcon size={42} weight="fill" style={{ color: trophyHex }} />
-          </div>
-          <div>
-            <h1 className="text-2xl font-bold text-foreground">{grade.title}</h1>
-            <p className="mt-1 text-sm text-muted-foreground">{grade.sub}</p>
-          </div>
-        </div>
-
-        {/* ── Accuracy big number ── */}
-        <div className={`mb-4 rounded-3xl px-6 py-6 text-center ${accentBg}`}>
-          <p className={`text-6xl font-bold tracking-tight ${accentColor}`}>{accuracy}%</p>
-          <p className="mt-2 text-sm font-medium text-muted-foreground">Độ chính xác</p>
-        </div>
-
-        {/* ── Stats row ── */}
-        <div className="mb-6 grid grid-cols-4 gap-2">
-          <StatCard label="Tổng"     value={totalCards}    />
-          <StatCard label="Đúng"     value={correctOnFirst} color="text-emerald-600" />
-          <StatCard label="Sai"      value={wrongOnFirst}  color="text-rose-500" />
-          <StatCard label="Tăng bậc" value={promoted}      color="text-primary" />
-        </div>
-
-        {/* ── Per-card mastery changes ── */}
-        {cardInfos.length > 0 && (
-          <section className="mb-6">
-            <p className="mb-3 text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
-              Thay đổi bậc học
-            </p>
-            <div className="flex flex-col gap-2">
-              {cardInfos.map((c) => (
-                <MasteryRow key={c.cardId} card={c} />
-              ))}
+          {/* ── Trophy + grade (horizontal to save vertical space) ── */}
+          <div className={`flex items-center gap-4 rounded-3xl px-5 py-4 ${accentBg}`}>
+            <div className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-white/60`}>
+              <TrophyIcon size={32} weight="fill" style={{ color: trophyHex }} />
             </div>
-          </section>
-        )}
-
-        {/* ── Next review ── */}
-        <div className="mb-8 flex items-center justify-between rounded-2xl bg-surface-container-low px-4 py-3.5">
-          <div>
-            <p className="text-xs text-muted-foreground">Ôn tập tiếp theo</p>
-            <p className="mt-0.5 text-sm font-semibold text-foreground">Hôm nay lúc {nextReview}</p>
+            <div className="min-w-0 flex-1">
+              <h1 className="text-xl font-bold text-foreground">{grade.title}</h1>
+              <p className="text-xs text-muted-foreground">{grade.sub}</p>
+            </div>
+            <p className={`shrink-0 text-5xl font-bold tracking-tight ${accentColor}`}>{accuracy}%</p>
           </div>
-          <span className="text-xl">🔔</span>
-        </div>
 
-        {/* ── Actions ── */}
-        <div className="flex flex-col gap-2">
-          <button
-            onClick={() => navigate('/study', { state: { batchIds, mode } })}
-            className="flex items-center justify-center gap-2 rounded-2xl bg-primary px-4 py-3.5 text-sm font-semibold text-background transition-colors hover:bg-primary-container"
-          >
-            Tiếp tục học
-            <ArrowRightIcon size={15} />
-          </button>
-          <button
-            onClick={() => navigate('/quiz', { state: { batchIds, mode } })}
-            className="flex items-center justify-center gap-2 rounded-2xl border border-[#1d1c13]/10 px-4 py-3 text-sm font-medium text-secondary transition-colors hover:bg-surface-container"
-          >
-            <RepeatIcon size={14} />
-            Làm lại
-          </button>
-          <button
-            onClick={() => navigate('/dashboard')}
-            className="flex items-center justify-center gap-2 rounded-2xl px-4 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-surface-container"
-          >
-            <HouseIcon size={14} />
-            Về trang chủ
-          </button>
+          {/* ── Stats row ── */}
+          <div className="grid grid-cols-4 gap-2">
+            <StatCard label="Tổng"     value={totalCards}     />
+            <StatCard label="Đúng"     value={correctOnFirst} color="text-emerald-600" />
+            <StatCard label="Sai"      value={wrongOnFirst}   color="text-rose-500" />
+            <StatCard label="Tăng bậc" value={promoted}       color="text-primary" />
+          </div>
+
+          {/* ── Per-card mastery changes — scrollable ── */}
+          {cardInfos.length > 0 && (
+            <section className="flex min-h-0 flex-1 flex-col">
+              <p className="mb-2 shrink-0 text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
+                Thay đổi bậc học
+              </p>
+              <div className="flex min-h-0 flex-1 flex-col gap-1.5 overflow-y-auto pr-0.5">
+                {cardInfos.map((c) => (
+                  <MasteryRow key={c.cardId} card={c} />
+                ))}
+              </div>
+            </section>
+          )}
+
+          {/* ── Actions ── */}
+          <div className="flex shrink-0 flex-col gap-2 pt-1">
+            <button
+              onClick={() => navigate('/study', { state: { batchIds, mode } })}
+              className="flex items-center justify-center gap-2 rounded-2xl bg-primary px-4 py-3 text-sm font-semibold text-background transition-colors hover:bg-primary-container"
+            >
+              Tiếp tục học
+              <ArrowRightIcon size={15} />
+            </button>
+            <button
+              onClick={() => navigate('/dashboard')}
+              className="flex items-center justify-center gap-2 rounded-2xl border border-[#1d1c13]/10 px-4 py-2.5 text-sm font-medium text-secondary transition-colors hover:bg-surface-container"
+            >
+              <HouseIcon size={14} />
+              Về trang chủ
+            </button>
+          </div>
+
         </div>
       </div>
     </div>
