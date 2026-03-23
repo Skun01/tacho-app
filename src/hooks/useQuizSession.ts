@@ -3,7 +3,8 @@ import type { NavigateFunction } from 'react-router'
 import { getCardDetail } from '@/services/cardDetailService'
 import { getStudyBatchIds } from '@/services/dashboardService'
 import { commitQuizProgress } from '@/services/cardService'
-import { generateQuestion, checkAnswer } from '@/utils/quizGenerator'
+import { getQuizBatch } from '@/services/quizService'
+import { checkAnswer } from '@/utils/quizGenerator'
 import type { CardDetail } from '@/types/card'
 import type { QuizQuestion, AnswerState, QuizAttempt } from '@/types/quiz'
 import type { QuizForceType } from '@/constants/quiz'
@@ -48,12 +49,7 @@ export function useQuizSession(
         ? routeState.batchIds
         : await getStudyBatchIds(routeState?.mode ?? 'learn')
       setBatchIds(nextBatchIds)
-      const cards = await Promise.all(nextBatchIds.map((id) => getCardDetail(id)))
-      const valid = cards.filter((c): c is CardDetail => c !== null)
-      const allMeanings = valid.map((c) => c.meaning)
-      const ft = routeState?.forceType
-      const resolvedType = !ft || ft === 'mixed' ? undefined : ft
-      const questions = valid.map((c) => generateQuestion(c, allMeanings, resolvedType))
+      const { questions, masteryMap } = await getQuizBatch(nextBatchIds, routeState?.forceType)
       questions.forEach((q) => {
         if (!cardInfosRef.current.has(q.cardId)) {
           cardInfosRef.current.set(q.cardId, {
@@ -66,9 +62,8 @@ export function useQuizSession(
       setQueue(questions)
       setInitialCount(questions.length)
       const mc = new Map<string, { before: number; after: number }>()
-      valid.forEach((c) => {
-        const stage = c.userProgress?.masteryStage ?? 0
-        mc.set(c.id, { before: stage, after: stage })
+      Object.entries(masteryMap).forEach(([cardId, stage]) => {
+        mc.set(cardId, { before: stage, after: stage })
       })
       setMasteryChanges(mc)
       setPhase('quiz')

@@ -49,8 +49,9 @@ export const MOCK_VOCAB_DETAILS: Record<string, VocabCardDetail> = {
       },
     ],
     examples: [
-      { id: 'ex-fc2-1', japaneseSentence: '朝ごはんを食べます。', vietnameseMeaning: 'Tôi ăn bữa sáng.', jlptLevel: 'N5', audioUrl: '/audio/ex-fc2-1.mp3' },
-      { id: 'ex-fc2-2', japaneseSentence: '何を食べたいですか？', vietnameseMeaning: 'Bạn muốn ăn gì?', jlptLevel: 'N5', audioUrl: '/audio/ex-fc2-2.mp3' },
+      { id: 'ex-fc2-1', japaneseSentence: '野菜を食べることが大切です。', vietnameseMeaning: 'Ăn rau củ rất quan trọng.', jlptLevel: 'N5', audioUrl: '/audio/ex-fc2-1.mp3' },
+      { id: 'ex-fc2-2', japaneseSentence: '朝ごはんを食べます。', vietnameseMeaning: 'Tôi ăn bữa sáng.', jlptLevel: 'N5', audioUrl: '/audio/ex-fc2-2.mp3' },
+      { id: 'ex-fc2-3', japaneseSentence: '何を食べたいですか？', vietnameseMeaning: 'Bạn muốn ăn gì?', jlptLevel: 'N5' },
     ],
     userProgress: {
       masteryStage: 3,
