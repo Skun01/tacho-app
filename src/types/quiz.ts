@@ -18,7 +18,10 @@ export interface QuizQuestion {
   cardReading?: string
   promptSentence?: string    // Type A: example sentence with ___
   promptLabel?: string       // Type A fallback: "Từ có nghĩa là …?"
-  audioUrl?: string          // Type B + C
+  audioUrl?: string          // Type B (word audio) + C
+  exampleSentence?: string   // Type B: full sentence user must type
+  exampleAudioUrl?: string   // Type B: audio of the example sentence
+  exampleMeaning?: string    // Type B: Vietnamese meaning shown after answer
   correctAnswer: string
   acceptedAnswers: string[]
   choices?: QuizChoice[]     // Type C only

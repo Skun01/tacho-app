@@ -7,7 +7,7 @@ export const QUIZ_COPY = {
   // Prompts
   promptA: (meaning: string) => `Từ/cấu trúc có nghĩa "${meaning}" là gì?`,
   promptASentence: 'Điền từ còn thiếu vào chỗ trống:',
-  promptB: 'Nhập từ bạn vừa nghe:',
+  promptB: 'Nghe câu ví dụ và gõ lại toàn bộ câu tiếng Nhật:',
   promptC: 'Chọn nghĩa đúng của từ vừa nghe:',
   // Buttons
   checkBtn: 'Kiểm tra',
@@ -33,6 +33,47 @@ export const QUIZ_COPY = {
   backDashboard: 'Về trang chủ',
   backStudy: 'Học lại batch này',
 }
+
+export type QuizForceType = 'mixed' | 'A' | 'B' | 'C'
+
+export const QUIZ_TYPE_OPTIONS: {
+  value: QuizForceType
+  label: string
+  desc: string
+  icon: string
+}[] = [
+  {
+    value: 'mixed',
+    label: 'Hỗn hợp',
+    desc: 'Ngẫu nhiên các dạng bài trong mỗi phiên',
+    icon: 'Shuffle',
+  },
+  {
+    value: 'C',
+    label: 'Trắc nghiệm',
+    desc: 'Chọn 1 trong 4 nghĩa đúng của từ / câu',
+    icon: 'ListChecks',
+  },
+  {
+    value: 'A',
+    label: 'Điền từ',
+    desc: 'Điền từ còn thiếu vào câu ví dụ',
+    icon: 'TextT',
+  },
+  {
+    value: 'B',
+    label: 'Nghe hiểu',
+    desc: 'Nghe câu ví dụ và gõ lại toàn bộ câu',
+    icon: 'SpeakerHigh',
+  },
+]
+
+export const QUIZ_CONFIG_COPY = {
+  heading: 'Chọn dạng bài tập',
+  subheading: 'Chọn hình thức câu hỏi cho phiên ôn tập này',
+  startBtn: 'Bắt đầu ôn tập',
+  backLabel: 'Quay lại',
+} as const
 
 export const DISTRACTOR_POOL = [
   'Đi lại, di chuyển',

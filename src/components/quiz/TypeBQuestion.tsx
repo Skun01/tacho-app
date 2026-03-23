@@ -26,24 +26,34 @@ export function TypeBQuestion({ question, answerState, submittedValue, hasPlayed
         <SpeakerHighIcon size={44} weight="fill" />
       </button>
 
-      {/* Instruction when idle; result when answered */}
+      {/* Instruction / result */}
       {answerState === 'idle' ? (
         <p className="text-sm text-muted-foreground">{QUIZ_COPY.promptB}</p>
       ) : (
-        <div className="flex flex-col items-center gap-2">
+        <div className="flex flex-col items-center gap-3">
+          {/* Submitted sentence */}
           <p
-            className={`font-kiwi text-3xl font-medium ${
+            className={`font-kiwi text-2xl font-medium leading-relaxed ${
               answerState === 'correct' ? 'text-emerald-600' : 'text-rose-600'
             }`}
           >
             {submittedValue}
           </p>
+
+          {/* Correct sentence on wrong */}
           {answerState === 'wrong' && (
             <p className="text-sm text-muted-foreground">
               {QUIZ_COPY.correctAnswerPrefix}{' '}
               <span className="font-kiwi font-semibold text-foreground">
-                {question.acceptedAnswers.join(' / ')}
+                {question.exampleSentence ?? question.acceptedAnswers[0]}
               </span>
+            </p>
+          )}
+
+          {/* Vietnamese meaning as context */}
+          {question.exampleMeaning && (
+            <p className="mt-1 text-sm italic text-muted-foreground">
+              {question.exampleMeaning}
             </p>
           )}
         </div>

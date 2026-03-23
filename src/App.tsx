@@ -13,6 +13,7 @@ import { SearchPage } from './pages/SearchPage'
 import { CardDetailPage } from './pages/CardDetailPage'
 import { StudyPage } from './pages/StudyPage'
 import { QuizPage } from './pages/QuizPage'
+import { QuizConfigPage } from './pages/QuizConfigPage'
 import { QuizResultPage } from './pages/QuizResultPage'
 import { ProfilePage } from './pages/ProfilePage'
 import { SettingsPage } from './pages/SettingsPage'
@@ -73,6 +74,10 @@ function AppRoutes() {
           <Route
             path='/study'
             element={<StudyPage/>}
+          />
+          <Route
+            path='/quiz/config'
+            element={<QuizConfigPage/>}
           />
           <Route
             path='/quiz'

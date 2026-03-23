@@ -8,7 +8,7 @@ import { commitQuizProgress } from '@/services/cardService'
 import { getCardDetail } from '@/services/cardDetailService'
 import { getStudyBatchIds } from '@/services/dashboardService'
 import { generateQuestion, checkAnswer } from '@/utils/quizGenerator'
-import { QUIZ_COPY } from '@/constants/quiz'
+import { QUIZ_COPY, type QuizForceType } from '@/constants/quiz'
 import type { CardDetail } from '@/types/card'
 import type { QuizQuestion, AnswerState, QuizAttempt } from '@/types/quiz'
 
@@ -19,6 +19,7 @@ type CardDisplayInfo = { content: string; reading?: string; jlptLevel: string }
 type QuizLocationState = {
   batchIds?: string[]
   mode?: 'learn' | 'review'
+  forceType?: QuizForceType
 }
 
 export function QuizPage() {
@@ -52,7 +53,9 @@ export function QuizPage() {
       const cards = await Promise.all(nextBatchIds.map((id) => getCardDetail(id)))
       const valid = cards.filter((c): c is CardDetail => c !== null)
       const allMeanings = valid.map((c) => c.meaning)
-      const questions = valid.map((c) => generateQuestion(c, allMeanings))
+      const ft = routeState?.forceType
+      const resolvedType = (!ft || ft === 'mixed') ? undefined : ft
+      const questions = valid.map((c) => generateQuestion(c, allMeanings, resolvedType))
       questions.forEach((q) => {
         if (!cardInfosRef.current.has(q.cardId)) {
           cardInfosRef.current.set(q.cardId, {
@@ -329,9 +332,9 @@ export function QuizPage() {
             className={`mx-auto flex max-w-xl items-center gap-3 rounded-2xl border px-4 py-3.5 shadow-sm transition-all duration-200 ${barBorderClass}`}
           >
             <button
-              disabled={!current.audioUrl}
+              disabled={!(current.type === 'B' ? current.exampleAudioUrl : current.audioUrl)}
               className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full transition-colors ${
-                current.audioUrl
+                (current.type === 'B' ? current.exampleAudioUrl : current.audioUrl)
                   ? 'text-secondary hover:bg-surface-container'
                   : 'text-muted-foreground/25'
               }`}

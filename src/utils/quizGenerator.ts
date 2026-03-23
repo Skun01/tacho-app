@@ -61,16 +61,36 @@ export function generateQuestion(
     }
 
     if (type === 'B') {
+      const exWithAudio = vocab.examples.find((e) => e.audioUrl)
+      if (!exWithAudio) {
+        // No example audio — fall back to Type A
+        const blanked = firstExample
+          ? blankify(firstExample.japaneseSentence, vocab.content) ??
+            blankify(firstExample.japaneseSentence, vocab.reading)
+          : null
+        return {
+          id, cardId: card.id, type: 'A', isRetry: false,
+          jlptLevel: card.jlptLevel,
+          cardContent: vocab.content,
+          cardMeaning: vocab.meaning,
+          cardReading: vocab.reading,
+          promptSentence: blanked ?? undefined,
+          promptLabel: blanked ? undefined : `Từ có nghĩa là "${vocab.meaning}" là gì?`,
+          correctAnswer: vocab.content,
+          acceptedAnswers: [vocab.content, vocab.reading].filter(Boolean),
+        }
+      }
       return {
         id, cardId: card.id, type: 'B', isRetry: false,
         jlptLevel: card.jlptLevel,
         cardContent: vocab.content,
         cardMeaning: vocab.meaning,
         cardReading: vocab.reading,
-        audioUrl: vocab.audioUrl,
-        promptLabel: undefined,
-        correctAnswer: vocab.content,
-        acceptedAnswers: [vocab.content, vocab.reading].filter(Boolean),
+        exampleSentence: exWithAudio.japaneseSentence,
+        exampleAudioUrl: exWithAudio.audioUrl,
+        exampleMeaning: exWithAudio.vietnameseMeaning,
+        correctAnswer: exWithAudio.japaneseSentence,
+        acceptedAnswers: [exWithAudio.japaneseSentence],
       }
     }
 

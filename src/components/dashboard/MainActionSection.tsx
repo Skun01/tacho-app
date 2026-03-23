@@ -192,10 +192,10 @@ function ReviewCard({ review }: { review: DashboardSummary['review'] }) {
 
   return (
     <div
-      onClick={() => navigate('/study', { state: { batchIds: review.batchIds, mode: 'review' } })}
+      onClick={() => navigate('/quiz/config', { state: { batchIds: review.batchIds, mode: 'review' } })}
       role="button"
       tabIndex={0}
-      onKeyDown={(e) => e.key === 'Enter' && navigate('/study', { state: { batchIds: review.batchIds, mode: 'review' } })}
+      onKeyDown={(e) => e.key === 'Enter' && navigate('/quiz/config', { state: { batchIds: review.batchIds, mode: 'review' } })}
       className="flex cursor-pointer flex-col rounded-2xl bg-[#e5eff0] shadow-[0_2px_16px_0_rgba(29,28,19,0.06)] transition-shadow hover:shadow-[0_4px_24px_0_rgba(74,98,103,0.18)]"
     >
       <div className="flex items-start justify-between p-5 pb-3">
@@ -226,7 +226,7 @@ function ReviewCard({ review }: { review: DashboardSummary['review'] }) {
           <button
             onClick={(e) => {
               e.stopPropagation()
-              navigate('/study', { state: { batchIds: review.batchIds, mode: 'review', type: 'vocab' } })
+              navigate('/quiz/config', { state: { batchIds: review.batchIds, mode: 'review', type: 'vocab' } })
             }}
             className="flex flex-1 flex-col gap-0.5 rounded-xl bg-background/60 p-3 transition-colors hover:bg-background/90"
           >
@@ -236,7 +236,7 @@ function ReviewCard({ review }: { review: DashboardSummary['review'] }) {
           <button
             onClick={(e) => {
               e.stopPropagation()
-              navigate('/study', { state: { batchIds: review.batchIds, mode: 'review', type: 'grammar' } })
+              navigate('/quiz/config', { state: { batchIds: review.batchIds, mode: 'review', type: 'grammar' } })
             }}
             className="flex flex-1 flex-col gap-0.5 rounded-xl bg-background/60 p-3 transition-colors hover:bg-background/90"
           >
