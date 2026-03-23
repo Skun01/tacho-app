@@ -14,6 +14,8 @@ import { CardDetailPage } from './pages/CardDetailPage'
 import { StudyPage } from './pages/StudyPage'
 import { QuizPage } from './pages/QuizPage'
 import { QuizResultPage } from './pages/QuizResultPage'
+import { ProfilePage } from './pages/ProfilePage'
+import { SettingsPage } from './pages/SettingsPage'
 import { GuestRoute } from './components/auth/GuestRoute'
 import { ProtectedRoute } from './components/auth/ProtectedRoute'
 import { GooeyToaster } from './components/ui/goey-toaster'
@@ -79,6 +81,14 @@ function AppRoutes() {
           <Route
             path='/quiz/result'
             element={<QuizResultPage/>}
+          />
+          <Route
+            path='/profile'
+            element={<ProfilePage/>}
+          />
+          <Route
+            path='/settings'
+            element={<SettingsPage/>}
           />
           <Route
             path='/deck/:id'

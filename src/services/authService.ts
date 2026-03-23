@@ -22,4 +22,10 @@ export const authService = {
     mockDataStore.resetPassword(token, password),
 
   getCurrentUser: () => mockDataStore.getCurrentUser(),
+
+  changePassword: (currentPassword: string, newPassword: string) =>
+    mockDataStore.changePassword(currentPassword, newPassword),
+
+  updateDisplayName: (name: string) =>
+    mockDataStore.updateDisplayName(name),
 }

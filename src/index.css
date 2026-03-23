@@ -76,6 +76,48 @@ html {
   --outline-variant: #1d1c1326;
 }
 
+/* ─── Dark Mode — "Giấy đêm" palette ─────────────────────────── */
+.dark {
+  --background: #1c1b14;
+  --foreground: #ece6d4;
+
+  --card: #242319;
+  --card-foreground: #ece6d4;
+
+  --popover: #1c1b14;
+  --popover-foreground: #ece6d4;
+
+  --primary: #7ea8df;
+  --primary-foreground: #0d1a33;
+  --primary-container: #4a7ab5;
+
+  --secondary: #8fadb2;
+  --secondary-foreground: #0d1a33;
+  --secondary-container: #2a3d40;
+
+  --tertiary: #c9976a;
+  --tertiary-foreground: #1a0800;
+
+  --muted: #242319;
+  --muted-foreground: #7a9499;
+
+  --accent: #3a3929;
+  --accent-foreground: #ece6d4;
+
+  --destructive: #f87171;
+
+  --border: #ece6d41a;
+  --input: #2d2c21;
+  --ring: #7ea8df;
+
+  --surface: #1c1b14;
+  --surface-container-low: #242319;
+  --surface-container: #2d2c21;
+  --surface-container-highest: #3a3929;
+  --on-surface: #ece6d4;
+  --outline-variant: #ece6d41a;
+}
+
 @theme inline {
   /* Typography */
   --font-kiwi: 'Kiwi Maru', system-ui, sans-serif;

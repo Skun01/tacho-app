@@ -8,6 +8,8 @@ export const DASHBOARD_NAV = {
   logoutLabel: 'Đăng xuất',
   welcomePrefix: 'Xin chào,',
   guestName: 'Người học',
+  profileLabel: 'Hồ sơ',
+  settingsLabel: 'Cài đặt',
 } as const
 
 export const DASHBOARD_QUOTE = {

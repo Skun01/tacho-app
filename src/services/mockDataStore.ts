@@ -445,6 +445,26 @@ export const mockDataStore = {
     await wait(undefined)
   },
 
+  async changePassword(currentPassword: string, newPassword: string): Promise<void> {
+    const currentUser = getCurrentUser()
+    if (!currentUser) throw new Error('UNAUTHENTICATED')
+    const record = state.authUsers[currentUser.email.toLowerCase()]
+    if (!record || record.password !== currentPassword) {
+      throw new Error('WRONG_CURRENT_PASSWORD')
+    }
+    record.password = newPassword
+    await wait(undefined)
+  },
+
+  async updateDisplayName(name: string): Promise<void> {
+    const currentUser = getCurrentUser()
+    if (!currentUser) throw new Error('UNAUTHENTICATED')
+    const record = state.authUsers[currentUser.email.toLowerCase()]
+    if (!record) throw new Error('USER_NOT_FOUND')
+    record.displayName = name
+    await wait(undefined)
+  },
+
   async listDecks(params: ListDecksParams = {}): Promise<DeckListItem[]> {
     return wait(getFilteredDecks(params))
   },
