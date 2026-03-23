@@ -1,35 +1,14 @@
 import { useState } from 'react'
 import { DASHBOARD_PERSONAL } from '@/constants/dashboard'
+import type { DashboardSummary } from '@/types/dashboard'
 
-const MOCK_JLPT: Record<string, { current: number; total: number; done?: boolean }[]> = {
-  'Từ vựng': [
-    { current: 42, total: 3000 },
-    { current: 300, total: 2000 },
-    { current: 650, total: 1200 },
-    { current: 480, total: 800 },
-    { current: 800, total: 800, done: true },
-  ],
-  'Ngữ pháp': [
-    { current: 5, total: 200 },
-    { current: 40, total: 160 },
-    { current: 80, total: 120 },
-    { current: 90, total: 100 },
-    { current: 100, total: 100, done: true },
-  ],
-  'Cả hai': [
-    { current: 47, total: 3200 },
-    { current: 340, total: 2160 },
-    { current: 730, total: 1320 },
-    { current: 570, total: 900 },
-    { current: 900, total: 900, done: true },
-  ],
+interface JLPTStatsProps {
+  jlpt: DashboardSummary['personal']['jlpt']
 }
 
-const LEVELS = ['N1', 'N2', 'N3', 'N4', 'N5'] as const
-
-export function JLPTStats() {
+export function JLPTStats({ jlpt }: JLPTStatsProps) {
   const [activeTab, setActiveTab] = useState<'Từ vựng' | 'Ngữ pháp' | 'Cả hai'>('Từ vựng')
-  const data = MOCK_JLPT[activeTab]
+  const data = jlpt[activeTab]
 
   return (
     <div className="flex flex-col gap-4 rounded-2xl bg-background p-5 shadow-[0_2px_16px_0_rgba(29,28,19,0.06)]">
@@ -52,8 +31,7 @@ export function JLPTStats() {
       </div>
 
       <div className="flex flex-col gap-3">
-        {LEVELS.map((level, i) => {
-          const { current, total, done } = data[i]
+        {data.map(({ level, current, total, done }) => {
           const pct = Math.min((current / total) * 100, 100)
           return (
             <div key={level} className="flex items-center gap-3">

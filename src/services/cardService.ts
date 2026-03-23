@@ -1,20 +1,12 @@
-import type { FlashCard, FlashCardWithProgress } from '@/types/card'
-import { MOCK_CARDS_WITH_PROGRESS } from '@/mocks/cards'
+import type { CardProgress, FlashCard, FlashCardWithProgress } from '@/types/card'
+import { mockDataStore } from './mockDataStore'
 
 /**
  * Search cards by query string.
  * Replace body with: return apiClient.get('/cards', { params: { q: query } })
  */
 export async function searchCards(query: string): Promise<FlashCardWithProgress[]> {
-  if (!query.trim()) return MOCK_CARDS_WITH_PROGRESS
-
-  const q = query.toLowerCase()
-  return MOCK_CARDS_WITH_PROGRESS.filter(
-    (card) =>
-      card.content.includes(q) ||
-      (card.type === 'vocab' && card.reading.toLowerCase().includes(q)) ||
-      card.meaning.toLowerCase().includes(q),
-  )
+  return mockDataStore.searchCards(query)
 }
 
 /**
@@ -22,7 +14,7 @@ export async function searchCards(query: string): Promise<FlashCardWithProgress[
  * Replace body with: return apiClient.get(`/cards/${id}`)
  */
 export async function getCard(id: string): Promise<FlashCardWithProgress | null> {
-  return MOCK_CARDS_WITH_PROGRESS.find((c) => c.id === id) ?? null
+  return mockDataStore.getCard(id)
 }
 
 /**
@@ -30,6 +22,18 @@ export async function getCard(id: string): Promise<FlashCardWithProgress | null>
  * Replace body with: return apiClient.get('/cards', { params: { ids } })
  */
 export async function getCardsByIds(ids: string[]): Promise<FlashCard[]> {
-  const idSet = new Set(ids)
-  return MOCK_CARDS_WITH_PROGRESS.filter((c) => idSet.has(c.id))
+  return mockDataStore.getCardsByIds(ids)
+}
+
+export async function updateCardProgress(
+  id: string,
+  patch: Partial<CardProgress>,
+): Promise<FlashCardWithProgress> {
+  return mockDataStore.updateCardProgress(id, patch)
+}
+
+export async function commitQuizProgress(
+  changes: Array<{ cardId: string; before: number; after: number }>,
+): Promise<void> {
+  await mockDataStore.commitQuizProgress(changes)
 }

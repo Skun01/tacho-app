@@ -26,7 +26,7 @@ export function CardRow({
   onDragEnd,
   onRemove,
 }: CardRowProps) {
-  const detailPath = card.type === 'vocab' ? `/vocab/${card.id}` : `/grammar/${card.id}`
+  const detailPath = `/card/${card.id}`
 
   return (
     <li

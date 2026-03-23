@@ -16,7 +16,7 @@ export const useAuthStore = create<AuthState>((set) => ({
   user: null,
   isLoading: true,
 
-  setToken: (token) => set({ token }),
+  setToken: (token) => set((state) => ({ token, user: state.user })),
 
   login: (token, user) => set({ token, user, isLoading: false }),
 
@@ -27,8 +27,10 @@ export const useAuthStore = create<AuthState>((set) => ({
     try {
       const { authService } = await import('@/services/authService')
       const { data } = await authService.refresh()
+      const user = authService.getCurrentUser()
       set({
         token: data.data.accessToken,
+        user,
         isLoading: false,
       })
     } catch {

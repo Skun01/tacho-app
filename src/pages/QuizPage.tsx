@@ -1,12 +1,13 @@
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useEffect, useCallback, useRef, type MutableRefObject } from 'react'
 import { useNavigate, useLocation } from 'react-router'
 import { XIcon, ArrowRightIcon, ArrowCounterClockwiseIcon, InfoIcon, SpeakerHighIcon } from '@phosphor-icons/react'
 import { TypeAQuestion } from '@/components/quiz/TypeAQuestion'
 import { TypeBQuestion } from '@/components/quiz/TypeBQuestion'
 import { TypeCQuestion } from '@/components/quiz/TypeCQuestion'
+import { commitQuizProgress } from '@/services/cardService'
 import { getCardDetail } from '@/services/cardDetailService'
+import { getStudyBatchIds } from '@/services/dashboardService'
 import { generateQuestion, checkAnswer } from '@/utils/quizGenerator'
-import { STUDY_BATCH_IDS } from '@/mocks/studyBatch'
 import { QUIZ_COPY } from '@/constants/quiz'
 import type { CardDetail } from '@/types/card'
 import type { QuizQuestion, AnswerState, QuizAttempt } from '@/types/quiz'
@@ -15,15 +16,20 @@ type Phase = 'loading' | 'quiz'
 
 type CardDisplayInfo = { content: string; reading?: string; jlptLevel: string }
 
+type QuizLocationState = {
+  batchIds?: string[]
+  mode?: 'learn' | 'review'
+}
+
 export function QuizPage() {
   const navigate = useNavigate()
   const location = useLocation()
   const inputRef = useRef<HTMLInputElement>(null)
   const cardInfosRef = useRef(new Map<string, CardDisplayInfo>()) as MutableRefObject<Map<string, CardDisplayInfo>>
-
-  const batchIds: string[] = (location.state as any)?.batchIds ?? STUDY_BATCH_IDS
+  const routeState = location.state as QuizLocationState | null
 
   const [phase, setPhase] = useState<Phase>('loading')
+  const [batchIds, setBatchIds] = useState<string[]>([])
   const [queue, setQueue] = useState<QuizQuestion[]>([])
   const [initialCount, setInitialCount] = useState(0)
   const [answerState, setAnswerState] = useState<AnswerState>('idle')
@@ -39,7 +45,11 @@ export function QuizPage() {
   // ── Load ─────────────────────────────────────────────────────────────────────
   useEffect(() => {
     async function init() {
-      const cards = await Promise.all(batchIds.map((id) => getCardDetail(id)))
+      const nextBatchIds = routeState?.batchIds?.length
+        ? routeState.batchIds
+        : await getStudyBatchIds(routeState?.mode ?? 'learn')
+      setBatchIds(nextBatchIds)
+      const cards = await Promise.all(nextBatchIds.map((id) => getCardDetail(id)))
       const valid = cards.filter((c): c is CardDetail => c !== null)
       const allMeanings = valid.map((c) => c.meaning)
       const questions = valid.map((c) => generateQuestion(c, allMeanings))
@@ -62,8 +72,8 @@ export function QuizPage() {
       setMasteryChanges(mc)
       setPhase('quiz')
     }
-    init()
-  }, [])
+    void init()
+  }, [routeState])
 
   const current = queue[0] ?? null
 
@@ -106,7 +116,7 @@ export function QuizPage() {
   }
 
   // ── Advance ───────────────────────────────────────────────────────────────────
-  function handleNext() {
+  async function handleNext() {
     if (!current) return
     const isCorrect = answerState === 'correct'
 
@@ -129,10 +139,19 @@ export function QuizPage() {
       const finalMastery = new Map(masteryChanges)
       const ex = finalMastery.get(current.cardId)!
       finalMastery.set(current.cardId, { ...ex, after: Math.max(0, Math.min(14, ex.after + 1)) })
+      await commitQuizProgress(
+        Array.from(finalMastery.entries()).map(([cardId, mc]) => ({
+          cardId,
+          before: mc.before,
+          after: mc.after,
+        })),
+      )
       navigate('/quiz/result', {
         state: {
           attempts: nextAttempts,
           totalCards: initialCount,
+          batchIds,
+          mode: routeState?.mode ?? 'learn',
           cardInfos: Array.from(finalMastery.entries()).map(([cardId, mc]) => ({
             cardId,
             content: cardInfosRef.current.get(cardId)?.content ?? cardId,

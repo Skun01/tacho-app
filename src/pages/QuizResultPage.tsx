@@ -16,6 +16,8 @@ type ResultState = {
   attempts: QuizAttempt[]
   totalCards: number
   cardInfos: CardInfo[]
+  batchIds?: string[]
+  mode?: 'learn' | 'review'
 }
 
 const GRADES = [
@@ -34,6 +36,8 @@ export function QuizResultPage() {
   }
 
   const { attempts, totalCards, cardInfos } = state
+  const batchIds = state.batchIds ?? []
+  const mode = state.mode ?? 'learn'
   const firstAttempts = attempts.filter((a) => !a.wasRetry)
   const correctOnFirst = firstAttempts.filter((a) => a.correct).length
   const wrongOnFirst   = firstAttempts.filter((a) => !a.correct).length
@@ -122,14 +126,14 @@ export function QuizResultPage() {
         {/* ── Actions ── */}
         <div className="flex flex-col gap-2">
           <button
-            onClick={() => navigate('/study')}
+            onClick={() => navigate('/study', { state: { batchIds, mode } })}
             className="flex items-center justify-center gap-2 rounded-2xl bg-primary px-4 py-3.5 text-sm font-semibold text-background transition-colors hover:bg-primary-container"
           >
             Tiếp tục học
             <ArrowRightIcon size={15} />
           </button>
           <button
-            onClick={() => navigate('/quiz')}
+            onClick={() => navigate('/quiz', { state: { batchIds, mode } })}
             className="flex items-center justify-center gap-2 rounded-2xl border border-[#1d1c13]/10 px-4 py-3 text-sm font-medium text-secondary transition-colors hover:bg-surface-container"
           >
             <RepeatIcon size={14} />

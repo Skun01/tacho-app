@@ -1,19 +1,36 @@
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Link } from 'react-router'
+import { Link, useNavigate } from 'react-router'
+import { gooeyToast } from '@/components/ui/goey-toaster'
 import { AUTH_REGISTER_COPY } from '@/constants/auth'
 import { registerSchema, type RegisterSchema } from '@/lib/validations/auth'
 import { PasswordInput } from '@/components/ui/password-input'
+import { authService } from '@/services/authService'
+import { useAuthStore } from '@/stores/authStore'
+import { getApiErrorMessage } from '@/utils/apiError'
 
 export function RegisterForm() {
+  const navigate = useNavigate()
+  const login = useAuthStore((state) => state.login)
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm<RegisterSchema>({ resolver: zodResolver(registerSchema) })
 
-  const onSubmit = async (_data: RegisterSchema) => {
-    // TODO: wire up authService.register
+  const onSubmit = async (data: RegisterSchema) => {
+    try {
+      const response = await authService.register({
+        displayName: data.displayName,
+        email: data.email,
+        password: data.password,
+      })
+      login(response.data.data.accessToken, response.data.data.user)
+      gooeyToast.success(AUTH_REGISTER_COPY.successToast)
+      navigate('/dashboard', { replace: true })
+    } catch (error) {
+      gooeyToast.error(getApiErrorMessage(error))
+    }
   }
 
   return (

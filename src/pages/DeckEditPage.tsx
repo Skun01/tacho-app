@@ -14,7 +14,15 @@ import { AddCardModal } from '@/components/library/AddCardModal'
 import { DECK_COPY } from '@/constants/deck'
 import type { FlashCard } from '@/types/card'
 import type { DeckDetailWithState } from '@/types/deck'
-import { getDeckDetail } from '@/services/deckService'
+import { gooeyToast } from '@/components/ui/goey-toaster'
+import {
+  addCardsToDeck,
+  deleteDeck,
+  getDeckDetail,
+  removeCardFromDeck,
+  reorderCards,
+  updateDeck,
+} from '@/services/deckService'
 import { CardRow } from '@/components/library/CardRow'
 
 const C = DECK_COPY.editPage
@@ -25,12 +33,15 @@ export function DeckEditPage() {
   const [deck, setDeck] = useState<DeckDetailWithState | null>(null)
   const [cards, setCards] = useState<FlashCard[]>([])
 
+  async function refreshDeck(deckId: string) {
+    const nextDeck = await getDeckDetail(deckId)
+    setDeck(nextDeck)
+    setCards(nextDeck.cards)
+  }
+
   useEffect(() => {
     if (id) {
-      getDeckDetail(id).then((d) => {
-        setDeck(d)
-        setCards(d.cards)
-      })
+      void refreshDeck(id)
     }
   }, [id])
   const [search, setSearch] = useState('')
@@ -57,7 +68,7 @@ export function DeckEditPage() {
     e.preventDefault()
     setDragOver(index)
   }
-  function handleDrop(index: number) {
+  async function handleDrop(index: number) {
     if (dragIndex.current === null || dragIndex.current === index) {
       setDragOver(null)
       return
@@ -66,6 +77,10 @@ export function DeckEditPage() {
     const [moved] = updated.splice(dragIndex.current, 1)
     updated.splice(index, 0, moved)
     setCards(updated)
+    if (id) {
+      await reorderCards(id, { orderedCardIds: updated.map((card) => card.id) })
+      await refreshDeck(id)
+    }
     dragIndex.current = null
     setDragOver(null)
   }
@@ -201,7 +216,11 @@ export function DeckEditPage() {
                 {C.cancelBtn}
               </button>
               <button
-                onClick={() => navigate('/library')}
+                onClick={async () => {
+                  if (!id) return
+                  await deleteDeck(id)
+                  navigate('/library')
+                }}
                 className="flex-1 rounded-xl bg-rose-500 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-rose-600"
               >
                 {C.confirmBtn}
@@ -216,9 +235,17 @@ export function DeckEditPage() {
           mode="edit"
           initialValues={{ name: deck.name, description: deck.description, category: deck.category }}
           onClose={() => setShowEditInfo(false)}
-          onSubmit={({ name, description, category }) => {
-            setDeck((d) => d ? { ...d, name, description, category } : null)
+          onSubmit={async ({ name, description, category, coverPreview }) => {
+            if (!id) return
+            await updateDeck(id, {
+              name,
+              description,
+              category,
+              coverUrl: coverPreview,
+            })
+            await refreshDeck(id)
             setShowEditInfo(false)
+            gooeyToast.success(C.savedToast)
           }}
         />
       )}
@@ -226,8 +253,16 @@ export function DeckEditPage() {
       {showAddCard && (
         <AddCardModal
           existingIds={existingIds}
-          onAdd={(card) => setCards((prev) => prev.length < 1000 ? [...prev, card] : prev)}
-          onRemove={(id) => setCards((prev) => prev.filter((c) => c.id !== id))}
+          onAdd={async (card) => {
+            if (!id || cards.length >= 1000) return
+            await addCardsToDeck(id, [card.id])
+            await refreshDeck(id)
+          }}
+          onRemove={async (cardId) => {
+            if (!id) return
+            await removeCardFromDeck(id, cardId)
+            await refreshDeck(id)
+          }}
           onClose={() => setShowAddCard(false)}
         />
       )}

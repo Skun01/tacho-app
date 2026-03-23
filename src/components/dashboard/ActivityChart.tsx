@@ -9,19 +9,13 @@ import {
 } from 'recharts'
 import { CaretLeftIcon, CaretRightIcon, GearIcon } from '@phosphor-icons/react'
 import { DASHBOARD_PERSONAL } from '@/constants/dashboard'
+import type { ActivityPoint } from '@/types/dashboard'
 
-const MOCK_DATA = [
-  { date: '08 CN', vocab: 20, grammar: 12 },
-  { date: '09 T2', vocab: 50, grammar: 18 },
-  { date: '10 T3', vocab: 32, grammar: 48 },
-  { date: '11 T4', vocab: 68, grammar: 28 },
-  { date: '12 T5', vocab: 42, grammar: 62 },
-  { date: '13 T6', vocab: 78, grammar: 38 },
-  { date: '14 T7', vocab: 55, grammar: 70 },
-  { date: '15 CN', vocab: 38, grammar: 50 },
-]
+interface ActivityChartProps {
+  activity: ActivityPoint[]
+}
 
-export function ActivityChart() {
+export function ActivityChart({ activity }: ActivityChartProps) {
   const [_week, setWeek] = useState(0)
 
   return (
@@ -65,7 +59,7 @@ export function ActivityChart() {
       </div>
 
       <ResponsiveContainer width="100%" height={180}>
-        <LineChart data={MOCK_DATA} margin={{ top: 4, right: 4, bottom: 0, left: -24 }}>
+        <LineChart data={activity} margin={{ top: 4, right: 4, bottom: 0, left: -24 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#e8e2d4" vertical={false} />
           <XAxis
             dataKey="date"

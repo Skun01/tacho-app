@@ -8,6 +8,7 @@ import { AppDecksTab } from '@/components/library/AppDecksTab'
 import { TextbookTab } from '@/components/library/TextbookTab'
 import { CommunityTab } from '@/components/library/CommunityTab'
 import { LIBRARY_COPY, type LibraryMainTab } from '@/constants/library'
+import { createDeck } from '@/services/deckService'
 
 export function LibraryPage() {
   const navigate = useNavigate()
@@ -71,9 +72,16 @@ export function LibraryPage() {
         <DeckFormModal
           mode="create"
           onClose={() => setShowCreate(false)}
-          onSubmit={() => {
+          onSubmit={async ({ name, description, category, coverPreview }) => {
+            const deck = await createDeck({
+              name,
+              description,
+              category,
+              isPublic: false,
+              coverUrl: coverPreview,
+            })
             setShowCreate(false)
-            navigate('/deck/me1/edit')
+            navigate(`/deck/${deck.id}/edit`)
           }}
         />
       )}

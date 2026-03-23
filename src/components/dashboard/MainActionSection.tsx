@@ -1,27 +1,21 @@
 import { useState } from 'react'
-import { useNavigate, Link } from 'react-router'
+import { useNavigate } from 'react-router'
 import { CaretDownIcon, BookOpenTextIcon, ArrowsClockwiseIcon } from '@phosphor-icons/react'
 import { DASHBOARD_LEARN, DASHBOARD_REVIEW } from '@/constants/dashboard'
+import type { DashboardSummary } from '@/types/dashboard'
 
-const MOCK_DECKS = [
-  { name: 'JLPT N5 - Từ vựng cơ bản', due: 5 },
-  { name: 'Động từ nhóm 1', due: 4 },
-]
-
-const MOCK_REVIEW = { vocab: 28, grammar: 14 }
-
-function LearnCard() {
+function LearnCard({ learn }: { learn: DashboardSummary['learn'] }) {
   const navigate = useNavigate()
   const [expanded, setExpanded] = useState(false)
-  const today = 0
-  const batchSize = 9
+  const today = learn.completedCount
+  const batchSize = learn.totalTarget
 
   return (
     <div
-      onClick={() => navigate('/learn')}
+      onClick={() => navigate('/study', { state: { batchIds: learn.batchIds, mode: 'learn' } })}
       role="button"
       tabIndex={0}
-      onKeyDown={(e) => e.key === 'Enter' && navigate('/learn')}
+      onKeyDown={(e) => e.key === 'Enter' && navigate('/study', { state: { batchIds: learn.batchIds, mode: 'learn' } })}
       className="flex cursor-pointer flex-col rounded-2xl bg-[#eaeff8] shadow-[0_2px_16px_0_rgba(29,28,19,0.06)] transition-shadow hover:shadow-[0_4px_24px_0_rgba(0,36,83,0.14)]"
     >
       <div className="flex items-start justify-between p-5 pb-3">
@@ -60,16 +54,18 @@ function LearnCard() {
 
       {expanded && (
         <div className="mt-3 flex flex-col gap-1 px-5 pb-4">
-          {MOCK_DECKS.map((deck) => (
-            <Link
-              key={deck.name}
-              to={`/learn?deck=${encodeURIComponent(deck.name)}`}
-              onClick={(e) => e.stopPropagation()}
+          {learn.decks.map((deck) => (
+            <button
+              key={deck.id}
+              onClick={(e) => {
+                e.stopPropagation()
+                navigate('/study', { state: { batchIds: deck.batchIds, mode: 'learn', deckId: deck.id } })
+              }}
               className="flex items-center justify-between rounded-lg px-3 py-2 transition-colors hover:bg-surface-container-low"
             >
               <span className="text-xs text-foreground">{deck.name}</span>
               <span className="text-xs text-muted-foreground">{deck.due} thẻ</span>
-            </Link>
+            </button>
           ))}
         </div>
       )}
@@ -79,17 +75,17 @@ function LearnCard() {
   )
 }
 
-function ReviewCard() {
+function ReviewCard({ review }: { review: DashboardSummary['review'] }) {
   const navigate = useNavigate()
   const [expanded, setExpanded] = useState(false)
-  const dueCount = 42
+  const dueCount = review.totalDue
 
   return (
     <div
-      onClick={() => navigate('/review')}
+      onClick={() => navigate('/study', { state: { batchIds: review.batchIds, mode: 'review' } })}
       role="button"
       tabIndex={0}
-      onKeyDown={(e) => e.key === 'Enter' && navigate('/review')}
+      onKeyDown={(e) => e.key === 'Enter' && navigate('/study', { state: { batchIds: review.batchIds, mode: 'review' } })}
       className="flex cursor-pointer flex-col rounded-2xl bg-[#e5eff0] shadow-[0_2px_16px_0_rgba(29,28,19,0.06)] transition-shadow hover:shadow-[0_4px_24px_0_rgba(74,98,103,0.18)]"
     >
       <div className="flex items-start justify-between p-5 pb-3">
@@ -117,22 +113,26 @@ function ReviewCard() {
 
       {expanded ? (
         <div className="flex gap-4 px-5 pb-4">
-          <Link
-            to="/review?type=vocab"
-            onClick={(e) => e.stopPropagation()}
+          <button
+            onClick={(e) => {
+              e.stopPropagation()
+              navigate('/study', { state: { batchIds: review.batchIds, mode: 'review', type: 'vocab' } })
+            }}
             className="flex flex-1 flex-col gap-0.5 rounded-xl bg-background/60 p-3 transition-colors hover:bg-background/90"
           >
             <span className="text-xs text-muted-foreground">{DASHBOARD_REVIEW.vocabLabel}</span>
-            <span className="text-lg font-bold text-primary">{MOCK_REVIEW.vocab}</span>
-          </Link>
-          <Link
-            to="/review?type=grammar"
-            onClick={(e) => e.stopPropagation()}
+            <span className="text-lg font-bold text-primary">{review.vocab}</span>
+          </button>
+          <button
+            onClick={(e) => {
+              e.stopPropagation()
+              navigate('/study', { state: { batchIds: review.batchIds, mode: 'review', type: 'grammar' } })
+            }}
             className="flex flex-1 flex-col gap-0.5 rounded-xl bg-background/60 p-3 transition-colors hover:bg-background/90"
           >
             <span className="text-xs text-muted-foreground">{DASHBOARD_REVIEW.grammarLabel}</span>
-            <span className="text-lg font-bold text-primary">{MOCK_REVIEW.grammar}</span>
-          </Link>
+            <span className="text-lg font-bold text-primary">{review.grammar}</span>
+          </button>
         </div>
       ) : (
         <p className="px-5 pb-5 text-xs text-muted-foreground">{DASHBOARD_REVIEW.hint}</p>
@@ -141,11 +141,16 @@ function ReviewCard() {
   )
 }
 
-export function MainActionSection() {
+interface MainActionSectionProps {
+  learn: DashboardSummary['learn']
+  review: DashboardSummary['review']
+}
+
+export function MainActionSection({ learn, review }: MainActionSectionProps) {
   return (
     <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-      <LearnCard />
-      <ReviewCard />
+      <LearnCard learn={learn} />
+      <ReviewCard review={review} />
     </div>
   )
 }

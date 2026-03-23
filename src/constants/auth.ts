@@ -16,6 +16,7 @@ export const AUTH_LOGIN_COPY = {
   registerPrompt: 'Chưa có tài khoản?',
   registerLink: 'Đăng ký',
   forgotPassword: 'Quên mật khẩu?',
+  successToast: 'Đăng nhập thành công.',
 } as const
 
 export const AUTH_REGISTER_COPY = {
@@ -35,6 +36,7 @@ export const AUTH_REGISTER_COPY = {
   loadingButton: 'Đang tạo tài khoản...',
   loginPrompt: 'Đã có tài khoản?',
   loginLink: 'Đăng nhập',
+  successToast: 'Tài khoản đã được tạo thành công.',
 } as const
 
 export const AUTH_RESET_PASSWORD_COPY = {
@@ -52,6 +54,10 @@ export const AUTH_RESET_PASSWORD_COPY = {
   successMessage: 'Bạn có thể đăng nhập bằng mật khẩu mới ngay bây giờ.',
   loginLink: 'Đăng nhập ngay',
   tokenError: 'Đường link không hợp lệ hoặc đã hết hạn. Vui lòng yêu cầu link mới.',
+  tokenErrorHeading: 'Link không hợp lệ',
+  requestNewLink: 'Yêu cầu link mới',
+  successToast: 'Mật khẩu đã được đặt lại thành công!',
+  errorToast: 'Không thể đặt lại mật khẩu. Vui lòng thử lại.',
 } as const
 
 export const AUTH_FORGOT_PASSWORD_COPY = {
@@ -65,4 +71,7 @@ export const AUTH_FORGOT_PASSWORD_COPY = {
   successHeading: 'Đã gửi!',
   successMessage: 'Kiểm tra hộp thư của bạn và làm theo hướng dẫn trong email.',
   backToLogin: 'Quay lại đăng nhập',
+  sentToast: 'Email đặt lại mật khẩu đã được gửi!',
+  errorToast: 'Không thể gửi email. Vui lòng thử lại.',
+  openResetLink: 'Mở trang đặt lại mật khẩu',
 } as const

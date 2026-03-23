@@ -6,22 +6,26 @@ import { CheckCircleIcon } from '@phosphor-icons/react'
 import { gooeyToast } from '@/components/ui/goey-toaster'
 import { AUTH_FORGOT_PASSWORD_COPY } from '@/constants/auth'
 import { forgotPasswordSchema, type ForgotPasswordSchema } from '@/lib/validations/auth'
+import { authService } from '@/services/authService'
+import { getApiErrorMessage } from '@/utils/apiError'
 
 export function ForgotPasswordForm() {
   const [sent, setSent] = useState(false)
+  const [resetToken, setResetToken] = useState<string | null>(null)
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm<ForgotPasswordSchema>({ resolver: zodResolver(forgotPasswordSchema) })
 
-  const onSubmit = async (_data: ForgotPasswordSchema) => {
+  const onSubmit = async (data: ForgotPasswordSchema) => {
     try {
-      // TODO: wire up authService.forgotPassword(_data.email)
+      const response = await authService.forgotPassword(data.email)
+      setResetToken(response.token)
       setSent(true)
-      gooeyToast.success('Email đặt lại mật khẩu đã được gửi!')
-    } catch {
-      gooeyToast.error('Không thể gửi email. Vui lòng thử lại.')
+      gooeyToast.success(AUTH_FORGOT_PASSWORD_COPY.sentToast)
+    } catch (error) {
+      gooeyToast.error(getApiErrorMessage(error))
     }
   }
 
@@ -45,6 +49,14 @@ export function ForgotPasswordForm() {
         >
           {AUTH_FORGOT_PASSWORD_COPY.backToLogin}
         </Link>
+        {resetToken && (
+          <Link
+            to={`/reset-password?token=${encodeURIComponent(resetToken)}`}
+            className="text-sm font-semibold text-primary transition-colors hover:underline"
+          >
+            {AUTH_FORGOT_PASSWORD_COPY.openResetLink}
+          </Link>
+        )}
       </div>
     )
   }

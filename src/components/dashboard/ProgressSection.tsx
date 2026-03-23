@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { DASHBOARD_PROGRESS } from '@/constants/dashboard'
+import type { DashboardSummary } from '@/types/dashboard'
 
 const LEVEL_STYLES = [
   { bg: 'bg-primary', text: 'text-background', kanji: 'text-background/10' },
@@ -9,14 +10,13 @@ const LEVEL_STYLES = [
   { bg: 'bg-amber-50', text: 'text-amber-900', kanji: 'text-amber-200' },
 ]
 
-const MOCK_COUNTS: Record<string, number[]> = {
-  'Ngữ pháp': [64, 30, 18, 7, 3],
-  'Từ vựng': [128, 54, 32, 12, 5],
+interface ProgressSectionProps {
+  progress: DashboardSummary['progress']
 }
 
-export function ProgressSection() {
+export function ProgressSection({ progress }: ProgressSectionProps) {
   const [activeTab, setActiveTab] = useState<'Ngữ pháp' | 'Từ vựng'>('Từ vựng')
-  const counts = MOCK_COUNTS[activeTab]
+  const counts = activeTab === 'Từ vựng' ? progress.vocab : progress.grammar
 
   return (
     <section>

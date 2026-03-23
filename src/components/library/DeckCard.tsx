@@ -8,6 +8,7 @@ import {
 } from '@phosphor-icons/react'
 import { LIBRARY_COPY } from '@/constants/library'
 import type { DeckListItem } from '@/types/deck'
+import { toggleBookmark } from '@/services/deckService'
 
 const COVER_GRADIENTS = [
   'from-[#d4e0f5] to-[#c8dde2]',
@@ -42,7 +43,12 @@ export function DeckCard({ deck, showReview }: DeckCardProps) {
         className={`relative h-28 bg-gradient-to-br ${COVER_GRADIENTS[deck.coverIndex % 6]}`}
       >
         <button
-          onClick={(e) => { e.stopPropagation(); setBookmarked((v) => !v) }}
+          onClick={async (e) => {
+            e.stopPropagation()
+            const next = !bookmarked
+            await toggleBookmark(deck.id, next)
+            setBookmarked(next)
+          }}
           aria-label={LIBRARY_COPY.bookmarkAriaLabel}
           className="absolute top-3 right-3 flex h-7 w-7 items-center justify-center rounded-full bg-background/70 transition-colors hover:bg-background"
         >

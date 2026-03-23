@@ -1,19 +1,32 @@
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Link } from 'react-router'
+import { Link, useNavigate } from 'react-router'
+import { gooeyToast } from '@/components/ui/goey-toaster'
 import { AUTH_LOGIN_COPY } from '@/constants/auth'
 import { loginSchema, type LoginSchema } from '@/lib/validations/auth'
 import { PasswordInput } from '@/components/ui/password-input'
+import { authService } from '@/services/authService'
+import { useAuthStore } from '@/stores/authStore'
+import { getApiErrorMessage } from '@/utils/apiError'
 
 export function LoginForm() {
+  const navigate = useNavigate()
+  const login = useAuthStore((state) => state.login)
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm<LoginSchema>({ resolver: zodResolver(loginSchema) })
 
-  const onSubmit = async (_data: LoginSchema) => {
-    // TODO: wire up authService.login
+  const onSubmit = async (data: LoginSchema) => {
+    try {
+      const response = await authService.login(data)
+      login(response.data.data.accessToken, response.data.data.user)
+      gooeyToast.success(AUTH_LOGIN_COPY.successToast)
+      navigate('/dashboard', { replace: true })
+    } catch (error) {
+      gooeyToast.error(getApiErrorMessage(error))
+    }
   }
 
   return (

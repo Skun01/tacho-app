@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { useSearchParams } from 'react-router'
+import { useNavigate, useSearchParams } from 'react-router'
 import { MagnifyingGlassIcon } from '@phosphor-icons/react'
 import { DashboardLayout } from '@/components/layout/DashboardLayout'
 import { SearchResultCard } from '@/components/search/SearchResultCard'
@@ -9,9 +9,11 @@ import { BulkActionBar } from '@/components/search/BulkActionBar'
 import { SEARCH_COPY } from '@/constants/search'
 import type { FlashCardWithProgress, CardProgress, JlptLevel } from '@/types/card'
 import type { TypeFilter } from '@/components/search/SearchFiltersBar'
-import { searchCards } from '@/services/cardService'
+import { addCardsToDeck } from '@/services/deckService'
+import { searchCards, updateCardProgress } from '@/services/cardService'
 
 export function SearchPage() {
+  const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
   const query = searchParams.get('q') ?? ''
 
@@ -33,6 +35,19 @@ export function SearchPage() {
 
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
+  async function loadResults(currentQuery: string) {
+    const results = await searchCards(currentQuery)
+    setVocabCards(results.filter((c) => c.type === 'vocab'))
+    setGrammarCards(results.filter((c) => c.type === 'grammar'))
+  }
+
+  function replaceCard(nextCard: FlashCardWithProgress) {
+    const apply = (list: FlashCardWithProgress[]) =>
+      list.map((card) => (card.id === nextCard.id ? nextCard : card))
+    setVocabCards(apply)
+    setGrammarCards(apply)
+  }
+
   // Sync input → URL (debounced 300ms)
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current)
@@ -52,32 +67,13 @@ export function SearchPage() {
       setGrammarCards([])
       return
     }
-    searchCards(query).then((results) => {
-      setVocabCards(results.filter((c) => c.type === 'vocab'))
-      setGrammarCards(results.filter((c) => c.type === 'grammar'))
-    })
+    void loadResults(query)
     setSelected(new Set())
   }, [query])
 
-  function patchCard(id: string, patch: Partial<CardProgress>) {
-    const apply = (list: FlashCardWithProgress[]): FlashCardWithProgress[] =>
-      list.map((c) =>
-        c.id !== id
-          ? c
-          : {
-              ...c,
-              progress: {
-                cardId: id,
-                masteryLevel: 0,
-                isInReview: false,
-                isSaved: false,
-                ...c.progress,
-                ...patch,
-              },
-            },
-      )
-    setVocabCards(apply)
-    setGrammarCards(apply)
+  async function patchCard(id: string, patch: Partial<CardProgress>) {
+    const nextCard = await updateCardProgress(id, patch)
+    replaceCard(nextCard)
   }
 
   function toggleSelect(id: string) {
@@ -88,8 +84,15 @@ export function SearchPage() {
     })
   }
 
-  function handleDeckConfirm(_deckId: string, _deckName: string) {
-    // TODO: call addCardsToDeck(deckId, ids) when API ready
+  async function handleDeckConfirm(deckId: string, _deckName: string) {
+    const ids = deckModalTarget === null
+      ? Array.from(selected)
+      : deckModalTarget
+        ? [deckModalTarget]
+        : []
+    if (ids.length > 0) {
+      await addCardsToDeck(deckId, ids)
+    }
     setDeckModalTarget(undefined)
     setSelected(new Set())
   }
@@ -129,12 +132,12 @@ export function SearchPage() {
       selectable: selectMode,
       isSelected: selected.has(card.id),
       onSelect: () => toggleSelect(card.id),
-      onMarkPro: () => patchCard(card.id, { masteryLevel: 5, isInReview: true }),
+      onMarkPro: () => void patchCard(card.id, { masteryLevel: 5, isInReview: true }),
       onToggleSave: () =>
-        patchCard(card.id, { isSaved: !(card.progress?.isSaved ?? false) }),
+        void patchCard(card.id, { isSaved: !(card.progress?.isSaved ?? false) }),
       onAddToDeck: () => setDeckModalTarget(card.id),
-      onResetProgress: () => patchCard(card.id, { masteryLevel: 0 }),
-      onAddToReview: () => patchCard(card.id, { isInReview: true }),
+      onResetProgress: () => void patchCard(card.id, { masteryLevel: 0, isInReview: false }),
+      onAddToReview: () => void patchCard(card.id, { isInReview: true }),
     }
   }
 
@@ -220,7 +223,11 @@ export function SearchPage() {
         <BulkActionBar
           count={selectedCount}
           onAddToDeck={() => setDeckModalTarget(null)}
-          onStartStudy={() => setSelected(new Set())}
+          onStartStudy={() => {
+            const batchIds = Array.from(selected)
+            setSelected(new Set())
+            navigate('/study', { state: { batchIds, mode: 'learn' } })
+          }}
           onDeselect={() => setSelected(new Set())}
         />
       )}

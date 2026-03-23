@@ -12,7 +12,8 @@ import {
 import { DashboardLayout } from '@/components/layout/DashboardLayout'
 import { DECK_COPY } from '@/constants/deck'
 import type { DeckDetailWithState } from '@/types/deck'
-import { getDeckDetail } from '@/services/deckService'
+import { gooeyToast } from '@/components/ui/goey-toaster'
+import { cloneDeck, getDeckDetail, toggleInReview, toggleSaved } from '@/services/deckService'
 import { CardRow } from '@/components/library/CardRow'
 
 const C = DECK_COPY.viewPage
@@ -48,8 +49,11 @@ export function DeckViewPage() {
   const vocabCount = deck.cards.filter((c) => c.type === 'vocab').length
   const grammarCount = deck.cards.filter((c) => c.type === 'grammar').length
 
-  function handleClone() {
-    navigate(`/deck/${deck!.id}/edit`)
+  async function handleClone() {
+    if (!deck) return
+    const cloned = await cloneDeck(deck.id)
+    gooeyToast.success(C.clonedToast)
+    navigate(`/deck/${cloned.id}/edit`)
   }
 
   return (
@@ -86,7 +90,12 @@ export function DeckViewPage() {
 
           <div className="flex flex-wrap gap-2">
             <button
-              onClick={() => setInReview((v) => !v)}
+              onClick={async () => {
+                const next = !inReview
+                await toggleInReview(deck.id, next)
+                setInReview(next)
+                setDeck((prev) => prev ? { ...prev, isInReview: next } : prev)
+              }}
               className={`flex items-center gap-1.5 rounded-xl px-4 py-2 text-sm font-semibold transition-colors ${
                 inReview
                   ? 'bg-primary/10 text-primary hover:bg-primary/20'
@@ -98,7 +107,13 @@ export function DeckViewPage() {
             </button>
 
             <button
-              onClick={() => setSaved((v) => !v)}
+              onClick={async () => {
+                const next = !saved
+                await toggleSaved(deck.id, next)
+                setSaved(next)
+                setDeck((prev) => prev ? { ...prev, isSaved: next } : prev)
+                if (next) gooeyToast.success(C.savedToast)
+              }}
               className={`flex items-center gap-1.5 rounded-xl px-4 py-2 text-sm font-semibold transition-colors ${
                 saved
                   ? 'bg-amber-100 text-amber-700 hover:bg-amber-200'

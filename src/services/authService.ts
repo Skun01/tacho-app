@@ -1,17 +1,25 @@
 import type { ApiResponse } from '@/types/api'
 import type { AuthDTO, LoginRequest, RegisterRequest } from '@/types/auth'
-import api from './api'
+import { mockDataStore } from './mockDataStore'
 
 export const authService = {
   login: (payload: LoginRequest) =>
-    api.post<ApiResponse<AuthDTO>>('/auth/login', payload),
+    mockDataStore.login(payload) as Promise<{ data: ApiResponse<AuthDTO> }>,
 
   register: (payload: RegisterRequest) =>
-    api.post<ApiResponse<AuthDTO>>('/auth/register', payload),
+    mockDataStore.register(payload) as Promise<{ data: ApiResponse<AuthDTO> }>,
 
   refresh: () =>
-    api.post<ApiResponse<{ accessToken: string }>>('/auth/refresh'),
+    mockDataStore.refresh() as Promise<{ data: ApiResponse<{ accessToken: string }> }>,
 
   logout: () =>
-    api.post<ApiResponse<null>>('/auth/logout'),
+    mockDataStore.logout() as Promise<{ data: ApiResponse<null> }>,
+
+  forgotPassword: (email: string) =>
+    mockDataStore.forgotPassword(email),
+
+  resetPassword: (token: string, password: string) =>
+    mockDataStore.resetPassword(token, password),
+
+  getCurrentUser: () => mockDataStore.getCurrentUser(),
 }

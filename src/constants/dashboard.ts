@@ -4,6 +4,10 @@ export const DASHBOARD_NAV = {
     { label: 'Thư viện', href: '/library' },
   ],
   searchLabel: 'Tìm kiếm',
+  notificationsLabel: 'Thông báo',
+  logoutLabel: 'Đăng xuất',
+  welcomePrefix: 'Xin chào,',
+  guestName: 'Người học',
 } as const
 
 export const DASHBOARD_QUOTE = {

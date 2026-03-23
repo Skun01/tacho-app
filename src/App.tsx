@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { BrowserRouter, Route, Routes } from 'react-router'
 import { HomePage } from './pages/HomePage'
 import { LoginPage } from './pages/LoginPage'
@@ -13,9 +14,18 @@ import { CardDetailPage } from './pages/CardDetailPage'
 import { StudyPage } from './pages/StudyPage'
 import { QuizPage } from './pages/QuizPage'
 import { QuizResultPage } from './pages/QuizResultPage'
+import { GuestRoute } from './components/auth/GuestRoute'
+import { ProtectedRoute } from './components/auth/ProtectedRoute'
 import { GooeyToaster } from './components/ui/goey-toaster'
+import { useAuthStore } from './stores/authStore'
 
 function App() {
+  const init = useAuthStore((state) => state.init)
+
+  useEffect(() => {
+    void init()
+  }, [init])
+
   return <>
     <GooeyToaster position='top-right'/>
     <BrowserRouter>
@@ -26,60 +36,64 @@ function App() {
           element={<HomePage/>}
         />
 
-        <Route
-          path='/login'
-          element={<LoginPage/>}
-        />
-        <Route
-          path='/register'
-          element={<RegisterPage/>}
-        />
-        <Route
-          path='/forgot-password'
-          element={<ForgotPasswordPage/>}
-        />
-        <Route
-          path='/reset-password'
-          element={<ResetPasswordPage/>}
-        />
+        <Route element={<GuestRoute/>}>
+          <Route
+            path='/login'
+            element={<LoginPage/>}
+          />
+          <Route
+            path='/register'
+            element={<RegisterPage/>}
+          />
+          <Route
+            path='/forgot-password'
+            element={<ForgotPasswordPage/>}
+          />
+          <Route
+            path='/reset-password'
+            element={<ResetPasswordPage/>}
+          />
+        </Route>
 
         {/* protected routes */}
-        <Route
-          path='/dashboard'
-          element={<DashboardPage/>}
-        />
-        <Route
-          path='/library'
-          element={<LibraryPage/>}
-        />
-        <Route
-          path='/search'
-          element={<SearchPage/>}
-        />
-        <Route
-          path='/card/:id'
-          element={<CardDetailPage/>}
-        />
-        <Route
-          path='/study'
-          element={<StudyPage/>}
-        />
-        <Route
-          path='/quiz'
-          element={<QuizPage/>}
-        />
-        <Route
-          path='/quiz/result'
-          element={<QuizResultPage/>}
-        />
-        <Route
-          path='/deck/:id'
-          element={<DeckViewPage/>}
-        />
-        <Route
-          path='/deck/:id/edit'
-          element={<DeckEditPage/>}
-        />
+        <Route element={<ProtectedRoute/>}>
+          <Route
+            path='/dashboard'
+            element={<DashboardPage/>}
+          />
+          <Route
+            path='/library'
+            element={<LibraryPage/>}
+          />
+          <Route
+            path='/search'
+            element={<SearchPage/>}
+          />
+          <Route
+            path='/card/:id'
+            element={<CardDetailPage/>}
+          />
+          <Route
+            path='/study'
+            element={<StudyPage/>}
+          />
+          <Route
+            path='/quiz'
+            element={<QuizPage/>}
+          />
+          <Route
+            path='/quiz/result'
+            element={<QuizResultPage/>}
+          />
+          <Route
+            path='/deck/:id'
+            element={<DeckViewPage/>}
+          />
+          <Route
+            path='/deck/:id/edit'
+            element={<DeckEditPage/>}
+          />
+        </Route>
       </Routes>
     </BrowserRouter>
   </>

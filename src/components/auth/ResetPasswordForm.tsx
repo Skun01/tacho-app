@@ -7,6 +7,7 @@ import { gooeyToast } from '@/components/ui/goey-toaster'
 import { AUTH_RESET_PASSWORD_COPY } from '@/constants/auth'
 import { resetPasswordSchema, type ResetPasswordSchema } from '@/lib/validations/auth'
 import { PasswordInput } from '@/components/ui/password-input'
+import { authService } from '@/services/authService'
 
 interface ResetPasswordFormProps {
   token: string | null
@@ -20,13 +21,14 @@ export function ResetPasswordForm({ token }: ResetPasswordFormProps) {
     formState: { errors, isSubmitting },
   } = useForm<ResetPasswordSchema>({ resolver: zodResolver(resetPasswordSchema) })
 
-  const onSubmit = async (_data: ResetPasswordSchema) => {
+  const onSubmit = async (data: ResetPasswordSchema) => {
     try {
-      // TODO: wire up authService.resetPassword({ token, password: _data.password })
+      if (!token) return
+      await authService.resetPassword(token, data.password)
       setDone(true)
-      gooeyToast.success('Mật khẩu đã được đặt lại thành công!')
+      gooeyToast.success(AUTH_RESET_PASSWORD_COPY.successToast)
     } catch {
-      gooeyToast.error('Không thể đặt lại mật khẩu. Vui lòng thử lại.')
+      gooeyToast.error(AUTH_RESET_PASSWORD_COPY.errorToast)
     }
   }
 
@@ -38,7 +40,7 @@ export function ResetPasswordForm({ token }: ResetPasswordFormProps) {
         </div>
         <div className="flex flex-col gap-2">
           <h3 className="font-kiwi text-xl font-medium text-primary">
-            Link không hợp lệ
+            {AUTH_RESET_PASSWORD_COPY.tokenErrorHeading}
           </h3>
           <p className="max-w-xs text-sm leading-relaxed text-muted-foreground">
             {AUTH_RESET_PASSWORD_COPY.tokenError}
@@ -48,7 +50,7 @@ export function ResetPasswordForm({ token }: ResetPasswordFormProps) {
           to="/forgot-password"
           className="text-sm font-semibold text-primary transition-colors hover:underline"
         >
-          Yêu cầu link mới
+          {AUTH_RESET_PASSWORD_COPY.requestNewLink}
         </Link>
       </div>
     )

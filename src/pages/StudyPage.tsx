@@ -1,33 +1,45 @@
 import { useState, useEffect, useCallback } from 'react'
-import { useNavigate } from 'react-router'
+import { useLocation, useNavigate } from 'react-router'
 import { ArrowLeftIcon, ArrowRightIcon, XIcon, LightningIcon } from '@phosphor-icons/react'
 import { VocabDetailView } from '@/components/card-detail/VocabDetailView'
 import { GrammarDetailView } from '@/components/card-detail/GrammarDetailView'
 import { getCardDetail } from '@/services/cardDetailService'
-import { STUDY_BATCH_IDS } from '@/mocks/studyBatch'
+import { getStudyBatchIds } from '@/services/dashboardService'
 import type { CardDetail } from '@/types/card'
+
+type StudyLocationState = {
+  batchIds?: string[]
+  mode?: 'learn' | 'review'
+}
 
 export function StudyPage() {
   const navigate = useNavigate()
+  const location = useLocation()
+  const routeState = location.state as StudyLocationState | null
   const [index, setIndex] = useState(0)
+  const [batchIds, setBatchIds] = useState<string[]>([])
   const [cards, setCards] = useState<(CardDetail | null)[]>([])
   const [loading, setLoading] = useState(true)
   const [visible, setVisible] = useState(true)
 
-  const total = STUDY_BATCH_IDS.length
+  const total = batchIds.length
   const isFirst = index === 0
   const isLast = index === total - 1
   const current = cards[index]
-  const progress = ((index + 1) / total) * 100
+  const progress = total > 0 ? ((index + 1) / total) * 100 : 0
 
   useEffect(() => {
     async function load() {
-      const results = await Promise.all(STUDY_BATCH_IDS.map((id) => getCardDetail(id)))
+      const nextBatchIds = routeState?.batchIds?.length
+        ? routeState.batchIds
+        : await getStudyBatchIds(routeState?.mode ?? 'learn')
+      setBatchIds(nextBatchIds)
+      const results = await Promise.all(nextBatchIds.map((id) => getCardDetail(id)))
       setCards(results)
       setLoading(false)
     }
-    load()
-  }, [])
+    void load()
+  }, [routeState])
 
   function transition(to: number) {
     setVisible(false)
@@ -129,7 +141,7 @@ export function StudyPage() {
           {/* Next or Start exercise */}
           {isLast ? (
             <button
-              onClick={() => navigate('/quiz', { state: { batchIds: STUDY_BATCH_IDS } })}
+              onClick={() => navigate('/quiz', { state: { batchIds, mode: routeState?.mode ?? 'learn' } })}
               className="flex items-center gap-1.5 rounded-2xl bg-primary px-4 py-2.5 text-sm font-semibold text-background transition-colors hover:bg-primary-container"
             >
               <LightningIcon size={15} weight="fill" />
