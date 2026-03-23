@@ -1,3 +1,4 @@
+import { toHiragana } from 'wanakana'
 import type { CardDetail, VocabCardDetail, GrammarCardDetail } from '@/types/card'
 import type { QuizQuestion, QuizChoice } from '@/types/quiz'
 import { DISTRACTOR_POOL } from '@/constants/quiz'
@@ -145,6 +146,6 @@ export function generateQuestion(
 }
 
 export function checkAnswer(question: QuizQuestion, input: string): boolean {
-  const normalized = input.trim()
-  return question.acceptedAnswers.some((a) => a.trim() === normalized)
+  const norm = (s: string) => toHiragana(s.trim())
+  return question.acceptedAnswers.some((a) => norm(a) === norm(input))
 }

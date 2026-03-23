@@ -104,7 +104,9 @@ export function useQuizSession(
   // ── Handlers ──────────────────────────────────────────────────────────────────
   const handleCheck = useCallback(() => {
     if (!current || answerState !== 'idle') return
-    const correct = checkAnswer(current, inputValue)
+    const liveValue = inputRef.current?.value ?? inputValue
+    const correct = checkAnswer(current, liveValue)
+    setInputValue(correct ? current.correctAnswer : liveValue)
     setAnswerState(correct ? 'correct' : 'wrong')
   }, [current, answerState, inputValue])
 

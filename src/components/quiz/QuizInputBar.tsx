@@ -1,5 +1,6 @@
 import type { RefObject, MutableRefObject } from 'react'
 import { ArrowRightIcon, SpeakerHighIcon } from '@phosphor-icons/react'
+import { useWanakana } from '@/hooks/useWanakana'
 import { QUIZ_COPY } from '@/constants/quiz'
 import type { AnswerState } from '@/types/quiz'
 
@@ -30,6 +31,8 @@ export function QuizInputBar({
   onNext,
   onPlayAudio,
 }: Props) {
+  useWanakana(inputRef, { active: answerState === 'idle' })
+
   const barBorderClass =
     answerState === 'correct'
       ? 'border-emerald-400 bg-emerald-50/80'
