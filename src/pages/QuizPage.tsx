@@ -1,5 +1,5 @@
 import { useNavigate, useLocation } from 'react-router'
-import { XIcon, ArrowUpIcon } from '@phosphor-icons/react'
+import { XIcon } from '@phosphor-icons/react'
 import { TypeAQuestion } from '@/components/quiz/TypeAQuestion'
 import { TypeBQuestion } from '@/components/quiz/TypeBQuestion'
 import { TypeCQuestion } from '@/components/quiz/TypeCQuestion'
@@ -10,6 +10,7 @@ import { QuizHotkeyGuide } from '@/components/quiz/QuizHotkeyGuide'
 import { ProgressBar } from '@/components/ui/progress-bar'
 import { useQuizSession, type QuizLocationState } from '@/hooks/useQuizSession'
 import { useQuizKeyboard } from '@/hooks/useQuizKeyboard'
+import { ScrollToTop } from '@/components/home/ScrollToTop'
 
 export function QuizPage() {
   const navigate = useNavigate()
@@ -20,7 +21,7 @@ export function QuizPage() {
   const {
     phase, current, answerState, inputValue, setInputValue,
     selectedChoiceId, audioPlayed, setAudioPlayed, visible,
-    showCardInfo, cardInfoData, cardInfoLoading, scrollY,
+    showCardInfo, cardInfoData, cardInfoLoading,
     initialCount, correctFirst, progressPct,
     pendingMastery, masteryDelta,
     inputRef, cardInfoRef,
@@ -58,10 +59,10 @@ export function QuizPage() {
   const canSubmit = answerState === 'idle' && inputValue.trim().length > 0
 
   return (
-    <div className="flex min-h-screen flex-col bg-background">
+    <div className="min-h-screen bg-background">
 
       {/* ── Top bar ── */}
-      <header className="fixed inset-x-0 top-0 z-40 flex h-12 items-center justify-between px-4">
+      <header className="fixed inset-x-0 top-0 z-40 flex h-12 items-center justify-between bg-background px-4">
         <button
           onClick={() => navigate('/dashboard')}
           className="flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground/50 transition-colors hover:text-foreground"
@@ -92,7 +93,7 @@ export function QuizPage() {
 
       {/* ── Question area ── */}
       <main
-        className="flex flex-1 flex-col items-center justify-center px-8"
+        className="flex min-h-screen flex-col items-center justify-center px-8"
         style={{ paddingTop: '3rem', paddingBottom: isTypeC ? '5rem' : '9rem' }}
       >
         {current.isRetry && (
@@ -137,15 +138,7 @@ export function QuizPage() {
       />
 
       {/* ── Floating scroll-to-top ── */}
-      {scrollY > 200 && (
-        <button
-          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-          aria-label="Lên đầu trang"
-          className="fixed bottom-28 right-4 z-50 flex h-10 w-10 items-center justify-center rounded-full bg-primary text-background shadow-lg transition-colors hover:bg-primary-container"
-        >
-          <ArrowUpIcon size={16} weight="bold" />
-        </button>
-      )}
+      <ScrollToTop threshold={200} className="bottom-28 right-4" />
 
       {/* ── Action buttons ── */}
       <QuizActionBar
