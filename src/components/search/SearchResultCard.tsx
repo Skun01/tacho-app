@@ -3,6 +3,7 @@ import { Link } from 'react-router'
 import { DotsThreeVerticalIcon } from '@phosphor-icons/react'
 import { TypeBadge } from '@/components/ui/type-badge'
 import { JlptBadge } from '@/components/ui/jlpt-badge'
+import { FuriganaText } from '@/components/ui/furigana-text'
 import { SEARCH_COPY } from '@/constants/search'
 import type { FlashCardWithProgress } from '@/types/card'
 
@@ -99,10 +100,7 @@ export function SearchResultCard({
         </div>
 
         <div className="flex items-baseline gap-2">
-          <span className="font-kiwi text-base font-medium text-foreground">{card.content}</span>
-          {card.type === 'vocab' && (
-            <span className="text-xs text-muted-foreground">{card.reading}</span>
-          )}
+          <FuriganaText text={card.content} className="font-kiwi text-base font-medium text-foreground" />
         </div>
         <p className="mt-0.5 text-sm text-muted-foreground">{card.meaning}</p>
 

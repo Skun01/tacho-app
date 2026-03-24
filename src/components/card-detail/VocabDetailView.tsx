@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { SpeakerHighIcon, PlusCircleIcon, BookmarkSimpleIcon, StackIcon, EyeIcon, EyeClosedIcon } from '@phosphor-icons/react'
 import { JlptBadge } from '@/components/ui/jlpt-badge'
+import { FuriganaText } from '@/components/ui/furigana-text'
 import { ExampleCard } from './ExampleCard'
 import { NoteEditor } from './NoteEditor'
 import { ProgressCard } from './ProgressCard'
@@ -70,8 +71,7 @@ export function VocabDetailView({ card: initial }: Props) {
               Từ vựng
             </span>
           </div>
-          <p className="font-kiwi text-5xl font-medium tracking-wide text-foreground">{card.content}</p>
-          <p className="mt-2 font-kiwi text-xl text-secondary">{card.reading}</p>
+          <FuriganaText text={card.content} className="font-kiwi text-5xl font-medium tracking-wide text-foreground" />
           <p className="mt-3 text-base font-semibold text-foreground">{card.meaning}</p>
         </div>
 

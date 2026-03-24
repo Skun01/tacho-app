@@ -1,3 +1,4 @@
+import { FuriganaText } from '@/components/ui/furigana-text'
 import type { QuizQuestion, AnswerState } from '@/types/quiz'
 
 interface Props {
@@ -21,7 +22,7 @@ export function TypeAQuestion({ question, answerState, submittedValue, hint }: P
         <p className="font-kiwi text-4xl leading-[2.4] tracking-wide text-foreground">
           {question.promptSentence.split('___').map((part, i, arr) => (
             <span key={i}>
-              {part}
+              <FuriganaText text={part} />
               {i < arr.length - 1 &&
                 (answerState === 'idle' ? (
                   <span className="mx-2 inline-block min-w-[5rem] border-b-2 border-foreground/30 align-bottom" />

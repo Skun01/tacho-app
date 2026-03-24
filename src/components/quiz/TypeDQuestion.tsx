@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { CheckIcon, XIcon } from '@phosphor-icons/react'
+import { FuriganaText } from '@/components/ui/furigana-text'
 import { JlptBadge } from '@/components/ui/jlpt-badge'
 import type { QuizQuestion, AnswerState } from '@/types/quiz'
 import { QUIZ_COPY } from '@/constants/quiz'
@@ -48,12 +49,10 @@ export function TypeDQuestion({ question, answerState, isFlipped, onFlip, onAnsw
             onClick={onFlip}
           >
             <JlptBadge level={question.jlptLevel as any} />
-            <p className="font-kiwi text-4xl font-medium tracking-wide text-foreground">
-              {question.cardContent}
-            </p>
-            {question.cardReading && (
-              <p className="text-base text-muted-foreground">{question.cardReading}</p>
-            )}
+            <FuriganaText
+              text={question.cardContent}
+              className="font-kiwi text-4xl font-medium tracking-wide text-foreground"
+            />
           </div>
 
           {/* ── Back face ── */}
@@ -71,9 +70,10 @@ export function TypeDQuestion({ question, answerState, isFlipped, onFlip, onAnsw
             }}
             onClick={onFlip}
           >
-            <p className="font-kiwi text-3xl font-medium tracking-wide text-foreground">
-              {question.cardContent}
-            </p>
+            <FuriganaText
+              text={question.cardContent}
+              className="font-kiwi text-3xl font-medium tracking-wide text-foreground"
+            />
             <div className="h-px w-16 bg-[#1d1c13]/10" />
             <p className="text-center text-base font-semibold text-foreground">
               {question.cardMeaning}

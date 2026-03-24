@@ -3,7 +3,7 @@ import type { VocabCardDetail, GrammarCardDetail } from '@/types/card'
 export const MOCK_VOCAB_DETAILS: Record<string, VocabCardDetail> = {
   fc1: {
     id: 'fc1', type: 'vocab', jlptLevel: 'N5',
-    content: '私', reading: 'わたし', meaning: 'Tôi, ta',
+    content: '{私|わたし}', reading: 'わたし', meaning: 'Tôi, ta',
     audioUrl: '/audio/watashi.mp3',
     pitchAccent: 'わ↘たし',
     pitchPattern: [1, 0, 0],
@@ -21,9 +21,9 @@ export const MOCK_VOCAB_DETAILS: Record<string, VocabCardDetail> = {
       },
     ],
     examples: [
-      { id: 'ex-fc1-1', japaneseSentence: '私は学生です。', vietnameseMeaning: 'Tôi là học sinh.', jlptLevel: 'N5', audioUrl: '/audio/ex-fc1-1.mp3' },
-      { id: 'ex-fc1-2', japaneseSentence: '私の名前は田中です。', vietnameseMeaning: 'Tên tôi là Tanaka.', jlptLevel: 'N5', audioUrl: '/audio/ex-fc1-2.mp3' },
-      { id: 'ex-fc1-3', japaneseSentence: '私はコーヒーが好きです。', vietnameseMeaning: 'Tôi thích cà phê.', jlptLevel: 'N5' },
+      { id: 'ex-fc1-1', japaneseSentence: '{私|わたし}は{学生|がくせい}です。', vietnameseMeaning: 'Tôi là học sinh.', jlptLevel: 'N5', audioUrl: '/audio/ex-fc1-1.mp3' },
+      { id: 'ex-fc1-2', japaneseSentence: '{私|わたし}の{名前|なまえ}は{田中|たなか}です。', vietnameseMeaning: 'Tên tôi là Tanaka.', jlptLevel: 'N5', audioUrl: '/audio/ex-fc1-2.mp3' },
+      { id: 'ex-fc1-3', japaneseSentence: '{私|わたし}はコーヒーが{好|す}きです。', vietnameseMeaning: 'Tôi thích cà phê.', jlptLevel: 'N5' },
     ],
     userProgress: {
       masteryStage: 4,
@@ -35,7 +35,7 @@ export const MOCK_VOCAB_DETAILS: Record<string, VocabCardDetail> = {
   },
   fc2: {
     id: 'fc2', type: 'vocab', jlptLevel: 'N5',
-    content: '食べる', reading: 'たべる', meaning: 'Ăn',
+    content: '{食|た}べる', reading: 'たべる', meaning: 'Ăn',
     audioUrl: '/audio/taberu.mp3',
     pitchAccent: 'た↗べ↘る',
     pitchPattern: [0, 1, 0],
@@ -49,9 +49,9 @@ export const MOCK_VOCAB_DETAILS: Record<string, VocabCardDetail> = {
       },
     ],
     examples: [
-      { id: 'ex-fc2-1', japaneseSentence: '野菜を食べることが大切です。', vietnameseMeaning: 'Ăn rau củ rất quan trọng.', jlptLevel: 'N5', audioUrl: '/audio/ex-fc2-1.mp3' },
-      { id: 'ex-fc2-2', japaneseSentence: '朝ごはんを食べます。', vietnameseMeaning: 'Tôi ăn bữa sáng.', jlptLevel: 'N5', audioUrl: '/audio/ex-fc2-2.mp3' },
-      { id: 'ex-fc2-3', japaneseSentence: '何を食べたいですか？', vietnameseMeaning: 'Bạn muốn ăn gì?', jlptLevel: 'N5' },
+      { id: 'ex-fc2-1', japaneseSentence: '{野菜|やさい}を{食|た}べることが{大切|たいせつ}です。', vietnameseMeaning: 'Ăn rau củ rất quan trọng.', jlptLevel: 'N5', audioUrl: '/audio/ex-fc2-1.mp3' },
+      { id: 'ex-fc2-2', japaneseSentence: '{朝|あさ}ごはんを{食|た}べます。', vietnameseMeaning: 'Tôi ăn bữa sáng.', jlptLevel: 'N5', audioUrl: '/audio/ex-fc2-2.mp3' },
+      { id: 'ex-fc2-3', japaneseSentence: '{何|なに}を{食|た}べたいですか？', vietnameseMeaning: 'Bạn muốn ăn gì?', jlptLevel: 'N5' },
     ],
     userProgress: {
       masteryStage: 3,
@@ -63,7 +63,7 @@ export const MOCK_VOCAB_DETAILS: Record<string, VocabCardDetail> = {
   },
   fc4: {
     id: 'fc4', type: 'vocab', jlptLevel: 'N5',
-    content: '学校', reading: 'がっこう', meaning: 'Trường học',
+    content: '{学校|がっこう}', reading: 'がっこう', meaning: 'Trường học',
     pitchAccent: 'が↗っこう',
     pitchPattern: [0, 1, 1, 1],
     dictionaryEntries: [
@@ -76,8 +76,8 @@ export const MOCK_VOCAB_DETAILS: Record<string, VocabCardDetail> = {
       },
     ],
     examples: [
-      { id: 'ex-fc4-1', japaneseSentence: '学校へ行きます。', vietnameseMeaning: 'Tôi đến trường.', jlptLevel: 'N5' },
-      { id: 'ex-fc4-2', japaneseSentence: '学校は楽しいですか？', vietnameseMeaning: 'Trường học có vui không?', jlptLevel: 'N5' },
+      { id: 'ex-fc4-1', japaneseSentence: '{学校|がっこう}へ{行|い}きます。', vietnameseMeaning: 'Tôi đến trường.', jlptLevel: 'N5' },
+      { id: 'ex-fc4-2', japaneseSentence: '{学校|がっこう}は{楽|たの}しいですか？', vietnameseMeaning: 'Trường học có vui không?', jlptLevel: 'N5' },
     ],
     userProgress: {
       masteryStage: 14,
@@ -111,12 +111,12 @@ export const MOCK_GRAMMAR_DETAILS: Record<string, GrammarCardDetail> = {
       { id: 'ref1', title: 'Genki I — Chapter 3: Verbs', url: 'https://genki.japantimes.co.jp' },
     ],
     aboutExamples: [
-      { id: 'about-fc8-1', japaneseSentence: '先生です。', vietnameseMeaning: '(Tôi) là giáo viên. — Danh từ + です', jlptLevel: 'N5' },
-      { id: 'about-fc8-2', japaneseSentence: '食べます。', vietnameseMeaning: '(Tôi) ăn. — Động từ thể ます', jlptLevel: 'N5' },
+      { id: 'about-fc8-1', japaneseSentence: '{先生|せんせい}です。', vietnameseMeaning: '(Tôi) là giáo viên. — Danh từ + です', jlptLevel: 'N5' },
+      { id: 'about-fc8-2', japaneseSentence: '{食|た}べます。', vietnameseMeaning: '(Tôi) ăn. — Động từ thể ます', jlptLevel: 'N5' },
     ],
     examples: [
-      { id: 'ex-fc8-1', japaneseSentence: '田中さんは先生です。', vietnameseMeaning: 'Anh Tanaka là giáo viên.', jlptLevel: 'N5' },
-      { id: 'ex-fc8-2', japaneseSentence: '毎日勉強します。', vietnameseMeaning: 'Tôi học mỗi ngày.', jlptLevel: 'N5' },
+      { id: 'ex-fc8-1', japaneseSentence: '{田中|たなか}さんは{先生|せんせい}です。', vietnameseMeaning: 'Anh Tanaka là giáo viên.', jlptLevel: 'N5' },
+      { id: 'ex-fc8-2', japaneseSentence: '{毎日|まいにち}{勉強|べんきょう}します。', vietnameseMeaning: 'Tôi học mỗi ngày.', jlptLevel: 'N5' },
       { id: 'ex-fc8-3', japaneseSentence: 'このケーキはおいしいです。', vietnameseMeaning: 'Chiếc bánh này ngon.', jlptLevel: 'N5' },
     ],
     userProgress: {
@@ -145,8 +145,8 @@ export const MOCK_GRAMMAR_DETAILS: Record<string, GrammarCardDetail> = {
       { id: 'ref2', title: 'Minna no Nihongo II — Bài 25', url: '#' },
     ],
     examples: [
-      { id: 'ex-fc15-1', japaneseSentence: '家に帰ったら、電話してください。', vietnameseMeaning: 'Khi về nhà, hãy gọi điện cho tôi.', jlptLevel: 'N4' },
-      { id: 'ex-fc15-2', japaneseSentence: '雨だったら、行きません。', vietnameseMeaning: 'Nếu trời mưa, tôi sẽ không đi.', jlptLevel: 'N4' },
+      { id: 'ex-fc15-1', japaneseSentence: '{家|いえ}に{帰|かえ}ったら、{電話|でんわ}してください。', vietnameseMeaning: 'Khi về nhà, hãy gọi điện cho tôi.', jlptLevel: 'N4' },
+      { id: 'ex-fc15-2', japaneseSentence: '{雨|あめ}だったら、{行|い}きません。', vietnameseMeaning: 'Nếu trời mưa, tôi sẽ không đi.', jlptLevel: 'N4' },
     ],
   },
 }

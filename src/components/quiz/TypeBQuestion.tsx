@@ -1,4 +1,5 @@
 import { SpeakerHighIcon } from '@phosphor-icons/react'
+import { FuriganaText } from '@/components/ui/furigana-text'
 import { QUIZ_COPY } from '@/constants/quiz'
 import type { QuizQuestion, AnswerState } from '@/types/quiz'
 
@@ -44,9 +45,10 @@ export function TypeBQuestion({ question, answerState, submittedValue, hasPlayed
           {answerState === 'wrong' && (
             <p className="text-sm text-muted-foreground">
               {QUIZ_COPY.correctAnswerPrefix}{' '}
-              <span className="font-kiwi font-semibold text-foreground">
-                {question.exampleSentence ?? question.acceptedAnswers[0]}
-              </span>
+              <FuriganaText
+                text={question.exampleSentence ?? question.acceptedAnswers[0]}
+                className="font-kiwi font-semibold text-foreground"
+              />
             </p>
           )}
 

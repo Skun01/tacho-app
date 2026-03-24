@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { InfoIcon, PlusCircleIcon, BookmarkSimpleIcon, StackIcon, LinkIcon, ArrowRightIcon, EyeIcon, EyeClosedIcon } from '@phosphor-icons/react'
 import { useNavigate } from 'react-router'
 import { JlptBadge } from '@/components/ui/jlpt-badge'
+import { FuriganaText } from '@/components/ui/furigana-text'
 import { ExampleCard } from './ExampleCard'
 import { NoteEditor } from './NoteEditor'
 import { ProgressCard } from './ProgressCard'
@@ -83,7 +84,7 @@ export function GrammarDetailView({ card: initial }: Props) {
               Ngữ pháp
             </span>
           </div>
-          <p className="font-kiwi text-4xl font-medium tracking-wide text-foreground">{card.content}</p>
+          <FuriganaText text={card.content} className="font-kiwi text-4xl font-medium tracking-wide text-foreground" />
           <p className="mt-2 text-base font-semibold text-foreground">{card.meaning}</p>
 
           {/* Structure + polite toggle */}
@@ -114,7 +115,7 @@ export function GrammarDetailView({ card: initial }: Props) {
               )}
             </div>
             <div className="rounded-xl bg-surface-container-low px-4 py-3 font-kiwi text-sm text-foreground">
-              {displayStructure}
+              <FuriganaText text={displayStructure} />
             </div>
           </div>
 
@@ -343,7 +344,7 @@ function LinkedCardItem({ item, onClick }: { item: { content: string; meaning: s
     >
       <ArrowRightIcon size={13} className="shrink-0 text-muted-foreground" />
       <div className="min-w-0 flex-1">
-        <p className="font-kiwi text-sm font-medium text-foreground">{item.content}</p>
+        <FuriganaText text={item.content} className="font-kiwi text-sm font-medium text-foreground" />
         <p className="truncate text-xs text-muted-foreground">{item.meaning}</p>
       </div>
     </button>

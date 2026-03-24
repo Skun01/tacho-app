@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { SpeakerHighIcon } from '@phosphor-icons/react'
 import { JlptBadge } from '@/components/ui/jlpt-badge'
+import { FuriganaText } from '@/components/ui/furigana-text'
 import { CARD_DETAIL_COPY } from '@/constants/cardDetail'
 import type { CardExample } from '@/types/card'
 
@@ -20,9 +21,10 @@ export function ExampleCard({ example, showMeaning }: Props) {
       onMouseLeave={() => setHovered(false)}
     >
       <div className="flex items-start justify-between gap-2">
-        <p className="flex-1 font-kiwi text-base leading-relaxed text-foreground">
-          {example.japaneseSentence}
-        </p>
+        <FuriganaText
+          text={example.japaneseSentence}
+          className="flex-1 font-kiwi text-base leading-relaxed text-foreground"
+        />
         <div className="flex shrink-0 items-center gap-1.5">
           <JlptBadge level={example.jlptLevel} />
           <button

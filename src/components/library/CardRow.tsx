@@ -4,6 +4,7 @@ import { DECK_COPY } from '@/constants/deck'
 import type { FlashCard } from '@/types/card'
 import { TypeBadge } from '@/components/ui/type-badge'
 import { JlptBadge } from '@/components/ui/jlpt-badge'
+import { FuriganaText } from '@/components/ui/furigana-text'
 
 interface CardRowProps {
   card: FlashCard
@@ -53,10 +54,7 @@ export function CardRow({
       >
         <TypeBadge type={card.type} />
         <JlptBadge level={card.jlptLevel} />
-        <span className="font-kiwi text-base font-medium text-foreground">{card.content}</span>
-        {card.type === 'vocab' && card.reading && (
-          <span className="text-xs text-muted-foreground">({card.reading})</span>
-        )}
+        <FuriganaText text={card.content} className="font-kiwi text-base font-medium text-foreground" />
         <span className="ml-auto truncate text-xs text-muted-foreground">{card.meaning}</span>
       </Link>
 

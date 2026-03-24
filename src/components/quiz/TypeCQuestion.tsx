@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { SpeakerHighIcon, CheckCircleIcon, XCircleIcon } from '@phosphor-icons/react'
+import { FuriganaText } from '@/components/ui/furigana-text'
 import { JlptBadge } from '@/components/ui/jlpt-badge'
 import { QUIZ_COPY } from '@/constants/quiz'
 import type { QuizQuestion, AnswerState } from '@/types/quiz'
@@ -47,10 +48,7 @@ export function TypeCQuestion({ question, answerState, selectedId, onSelect }: P
       {/* Card display + audio */}
       <div className="flex items-center gap-4 rounded-2xl bg-surface-container-low px-5 py-4">
         <div className="flex-1">
-          <p className="font-kiwi text-3xl font-medium text-foreground">{question.cardContent}</p>
-          {question.cardReading && (
-            <p className="mt-0.5 text-sm text-muted-foreground">{question.cardReading}</p>
-          )}
+          <FuriganaText text={question.cardContent} className="font-kiwi text-3xl font-medium text-foreground" />
         </div>
         {question.audioUrl && (
           <button
