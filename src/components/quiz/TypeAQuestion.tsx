@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { FuriganaText } from '@/components/ui/furigana-text'
 import type { QuizQuestion, AnswerState } from '@/types/quiz'
 
@@ -5,16 +6,36 @@ interface Props {
   question: QuizQuestion
   answerState: AnswerState
   submittedValue: string
-  hint?: string
+  showHint?: boolean
 }
 
-export function TypeAQuestion({ question, answerState, submittedValue, hint }: Props) {
+function splitAroundKeyword(
+  text: string,
+  keyword: string,
+): [string, string, string] | null {
+  const idx = text.toLowerCase().indexOf(keyword.toLowerCase())
+  if (idx === -1) return null
+  return [
+    text.slice(0, idx),
+    text.slice(idx, idx + keyword.length),
+    text.slice(idx + keyword.length),
+  ]
+}
+
+export function TypeAQuestion({ question, answerState, submittedValue, showHint }: Props) {
+  const [hintHovered, setHintHovered] = useState(false)
+
   const answerColorClass =
     answerState === 'correct'
       ? 'text-emerald-600 border-emerald-500'
       : answerState === 'wrong'
         ? 'text-rose-600 border-rose-500'
         : ''
+
+  const highlightKey = question.promptKeyword ?? question.cardMeaning
+  const parts = question.promptMeaning
+    ? splitAroundKeyword(question.promptMeaning, highlightKey)
+    : null
 
   return (
     <div className="flex flex-col items-center gap-6 text-center">
@@ -40,15 +61,58 @@ export function TypeAQuestion({ question, answerState, submittedValue, hint }: P
         </p>
       )}
 
-      <p className="max-w-sm text-sm leading-relaxed text-muted-foreground">
-        {question.cardMeaning}
-      </p>
-
-      {answerState === 'wrong' && hint && (
-        <p className="text-sm text-amber-600">
-          Gợi ý: <span className="font-medium">{hint}</span>
+      {/* Extra hint panel: cardMeaning revealed via toggle button */}
+      {showHint && question.promptKeyword && (
+        <p className="max-w-sm rounded-xl bg-amber-50 px-4 py-2 text-sm font-medium text-amber-700 ring-1 ring-amber-200">
+          {question.cardMeaning}
         </p>
       )}
+
+      {/* Hint: sentence meaning — highlightKey unblurred, rest blur until hover */}
+      <p
+        className="max-w-sm cursor-default text-sm leading-relaxed text-secondary"
+        onMouseEnter={() => setHintHovered(true)}
+        onMouseLeave={() => setHintHovered(false)}
+      >
+        {question.promptMeaning ? (
+          parts ? (
+            <>
+              {parts[0] && (
+                <span
+                  className={`transition-all duration-200 ${
+                    hintHovered ? '' : 'blur-sm select-none'
+                  }`}
+                >
+                  {parts[0]}
+                </span>
+              )}
+              <span className="font-semibold text-foreground">{parts[1]}</span>
+              {parts[2] && (
+                <span
+                  className={`transition-all duration-200 ${
+                    hintHovered ? '' : 'blur-sm select-none'
+                  }`}
+                >
+                  {parts[2]}
+                </span>
+              )}
+            </>
+          ) : (
+            <>
+              <span className="font-semibold text-foreground">{question.cardMeaning}</span>
+              <span
+                className={`ml-1 transition-all duration-200 ${
+                  hintHovered ? '' : 'blur-sm select-none'
+                }`}
+              >
+                — {question.promptMeaning}
+              </span>
+            </>
+          )
+        ) : (
+          question.cardMeaning
+        )}
+      </p>
     </div>
   )
 }

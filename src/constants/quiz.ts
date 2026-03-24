@@ -64,6 +64,9 @@ export const QUIZ_COPY = {
   actionCardInfoHide: 'Thông tin thẻ ↓',
   actionSeeAnswer: '✓ Xem đáp án',
   actionNoAlt: '= Không có alt.',
+  // Hint toggle
+  hintShow: 'Xem gợi ý',
+  hintHide: 'Ẩn gợi ý',
   // Retry badge
   retryBadge: 'Ôn lại',
 }

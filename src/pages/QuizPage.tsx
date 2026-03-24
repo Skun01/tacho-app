@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router'
-import { XIcon } from '@phosphor-icons/react'
+import { XIcon, LightbulbIcon } from '@phosphor-icons/react'
 import { TypeAQuestion } from '@/components/quiz/TypeAQuestion'
 import { TypeBQuestion } from '@/components/quiz/TypeBQuestion'
 import { TypeCQuestion } from '@/components/quiz/TypeCQuestion'
@@ -37,6 +37,10 @@ export function QuizPage() {
   const [isCardFlipped, setIsCardFlipped] = useState(false)
   useEffect(() => { setIsCardFlipped(false) }, [current?.id])
   function handleFlipCard() { setIsCardFlipped((prev) => !prev) }
+
+  const [showHint, setShowHint] = useState(false)
+  useEffect(() => { setShowHint(false) }, [current?.id])
+  const hintEnabled = current?.type === 'A' && !!current?.promptKeyword
 
   const audioUrl = current
     ? (current.type === 'B' ? current.exampleAudioUrl : current.audioUrl)
@@ -121,7 +125,12 @@ export function QuizPage() {
           className={`w-full max-w-2xl transition-opacity duration-150 ${visible ? 'opacity-100' : 'opacity-0'}`}
         >
           {current.type === 'A' && (
-            <TypeAQuestion question={current} answerState={answerState} submittedValue={inputValue} />
+            <TypeAQuestion
+              question={current}
+              answerState={answerState}
+              submittedValue={inputValue}
+              showHint={showHint}
+            />
           )}
           {current.type === 'B' && (
             <TypeBQuestion
@@ -192,6 +201,25 @@ export function QuizPage() {
 
       {/* ── Hotkey guide ── */}
       <QuizHotkeyGuide />
+
+      {/* ── Hint toggle button (Type A only) ── */}
+      {current.type === 'A' && (
+        <button
+          onClick={() => setShowHint((v) => !v)}
+          disabled={!hintEnabled}
+          aria-label={showHint ? C.hintHide : C.hintShow}
+          title={showHint ? C.hintHide : C.hintShow}
+          className={`fixed bottom-4 left-14 z-50 flex h-8 w-8 items-center justify-center rounded-full border transition-colors ${
+            !hintEnabled
+              ? 'cursor-default border-[#1d1c13]/08 bg-background/60 text-muted-foreground/35'
+              : showHint
+                ? 'border-amber-300 bg-amber-50 text-amber-600'
+                : 'border-[#1d1c13]/12 bg-background text-muted-foreground hover:bg-surface-container hover:text-foreground'
+          }`}
+        >
+          <LightbulbIcon size={14} weight={showHint ? 'fill' : 'regular'} />
+        </button>
+      )}
     </div>
   )
 }

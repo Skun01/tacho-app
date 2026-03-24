@@ -14,8 +14,8 @@ export function QuizCardInfoPanel({ show, loading, data, innerRef }: Props) {
   if (!show) return null
 
   return (
-    <div ref={innerRef} className="border-t border-[#1d1c13]/08 px-4 pb-36 pt-8">
-      <div className="mx-auto max-w-2xl">
+    <div ref={innerRef} className="border-t border-[#1d1c13]/08 bg-surface-container-low px-6 pb-36 pt-8">
+      <div className="mx-auto max-w-5xl">
         <p className="mb-6 text-xs font-semibold uppercase tracking-widest text-muted-foreground/50">
           Thông tin thẻ
         </p>

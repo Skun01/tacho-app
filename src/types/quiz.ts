@@ -17,6 +17,8 @@ export interface QuizQuestion {
   cardMeaning: string
   cardReading?: string
   promptSentence?: string    // Type A: example sentence with ___
+  promptMeaning?: string     // Type A: Vietnamese meaning of the full prompt sentence
+  promptKeyword?: string     // Type A: short word to highlight in promptMeaning (grammar cards)
   promptLabel?: string       // Type A fallback: "Từ có nghĩa là …?"
   audioUrl?: string          // Type B (word audio) + C
   exampleSentence?: string   // Type B: full sentence user must type
