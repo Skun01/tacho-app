@@ -54,10 +54,10 @@ export function useQuizKeyboard({
         return
       }
 
-      // ── Space: flip card (Type D) or play audio ──────────────────────────
+      // ── Space: toggle flip (Type D) or play audio ────────────────────────
       if (e.key === ' ') {
         e.preventDefault()
-        if (current?.type === 'D' && !isCardFlipped && answerState === 'idle') {
+        if (current?.type === 'D') {
           onFlipCard()
         } else if (document.activeElement !== inputRef.current) {
           onPlayAudio()
@@ -66,7 +66,7 @@ export function useQuizKeyboard({
       }
 
       // ── ArrowRight / ArrowLeft: Type D answer ───────────────────────────
-      if (current?.type === 'D' && isCardFlipped && answerState === 'idle') {
+      if (current?.type === 'D' && answerState === 'idle') {
         if (e.key === 'ArrowRight') { e.preventDefault(); onFlashcardAnswer(true); return }
         if (e.key === 'ArrowLeft')  { e.preventDefault(); onFlashcardAnswer(false); return }
       }

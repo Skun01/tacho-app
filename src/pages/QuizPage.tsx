@@ -36,7 +36,7 @@ export function QuizPage() {
 
   const [isCardFlipped, setIsCardFlipped] = useState(false)
   useEffect(() => { setIsCardFlipped(false) }, [current?.id])
-  function handleFlipCard() { setIsCardFlipped(true) }
+  function handleFlipCard() { setIsCardFlipped((prev) => !prev) }
 
   const audioUrl = current
     ? (current.type === 'B' ? current.exampleAudioUrl : current.audioUrl)
@@ -141,6 +141,7 @@ export function QuizPage() {
             />)}
           {current.type === 'D' && (
             <TypeDQuestion
+              key={current.id}
               question={current}
               answerState={answerState}
               isFlipped={isCardFlipped}

@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react'
 import { CheckIcon, XIcon } from '@phosphor-icons/react'
 import { JlptBadge } from '@/components/ui/jlpt-badge'
 import type { QuizQuestion, AnswerState } from '@/types/quiz'
@@ -12,6 +13,12 @@ interface Props {
 }
 
 export function TypeDQuestion({ question, answerState, isFlipped, onFlip, onAnswer }: Props) {
+  const [transitionEnabled, setTransitionEnabled] = useState(false)
+  useEffect(() => {
+    const id = requestAnimationFrame(() => setTransitionEnabled(true))
+    return () => cancelAnimationFrame(id)
+  }, [])
+
   return (
     <div className="flex flex-col items-center gap-6">
 
@@ -22,39 +29,36 @@ export function TypeDQuestion({ question, answerState, isFlipped, onFlip, onAnsw
 
       {/* ── Flip card ── */}
       <div
-        className="w-full max-w-sm"
+        className="w-full max-w-lg"
         style={{ perspective: '1200px' }}
       >
         <div
           className="relative"
           style={{
-            height: '240px',
+            height: '360px',
             transformStyle: 'preserve-3d',
-            transition: 'transform 0.45s cubic-bezier(0.4, 0, 0.2, 1)',
-            transform: isFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)',
+            transition: transitionEnabled ? 'transform 0.45s cubic-bezier(0.4, 0, 0.2, 1)' : 'none',
+            transform: isFlipped ? 'rotateX(-180deg)' : 'rotateX(0deg)',
           }}
         >
           {/* ── Front face ── */}
           <div
             className="absolute inset-0 flex cursor-pointer flex-col items-center justify-center gap-3 rounded-3xl bg-background px-8 shadow-[0_2px_20px_0_rgba(29,28,19,0.1)] select-none"
             style={{ backfaceVisibility: 'hidden' }}
-            onClick={answerState === 'idle' ? onFlip : undefined}
+            onClick={onFlip}
           >
             <JlptBadge level={question.jlptLevel as any} />
-            <p className="font-kiwi text-5xl font-medium tracking-wide text-foreground">
+            <p className="font-kiwi text-4xl font-medium tracking-wide text-foreground">
               {question.cardContent}
             </p>
             {question.cardReading && (
               <p className="text-base text-muted-foreground">{question.cardReading}</p>
             )}
-            {answerState === 'idle' && (
-              <p className="mt-2 text-xs text-muted-foreground/50">{QUIZ_COPY.flipHint}</p>
-            )}
           </div>
 
           {/* ── Back face ── */}
           <div
-            className={`absolute inset-0 flex flex-col items-center justify-center gap-2 rounded-3xl px-8 shadow-[0_2px_20px_0_rgba(29,28,19,0.1)] select-none ${
+            className={`absolute inset-0 flex cursor-pointer flex-col items-center justify-center gap-3 rounded-3xl px-8 shadow-[0_2px_20px_0_rgba(29,28,19,0.1)] select-none ${
               answerState === 'correct'
                 ? 'bg-emerald-50'
                 : answerState === 'wrong'
@@ -63,23 +67,25 @@ export function TypeDQuestion({ question, answerState, isFlipped, onFlip, onAnsw
             }`}
             style={{
               backfaceVisibility: 'hidden',
-              transform: 'rotateY(180deg)',
+              transform: 'rotateX(180deg)',
             }}
+            onClick={onFlip}
           >
-            <p className="font-kiwi text-4xl font-medium tracking-wide text-foreground">
+            <p className="font-kiwi text-3xl font-medium tracking-wide text-foreground">
               {question.cardContent}
             </p>
-            <div className="mt-1 h-px w-12 bg-[#1d1c13]/10" />
-            <p className="text-center text-lg font-semibold text-foreground">
+            <div className="h-px w-16 bg-[#1d1c13]/10" />
+            <p className="text-center text-base font-semibold text-foreground">
               {question.cardMeaning}
             </p>
+            <p className="text-xs text-muted-foreground/50">{QUIZ_COPY.flipHint}</p>
           </div>
         </div>
       </div>
 
-      {/* ── Answer buttons (shown after flip, before answer) ── */}
-      {isFlipped && answerState === 'idle' && (
-        <div className="flex w-full max-w-sm flex-col gap-2">
+      {/* ── Answer buttons ── always visible when idle ── */}
+      {answerState === 'idle' && (
+        <div className="flex w-full max-w-lg flex-col gap-2">
           <p className="text-center text-[11px] text-muted-foreground/50">
             {QUIZ_COPY.flipArrowHint}
           </p>
