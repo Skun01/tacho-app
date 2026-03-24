@@ -1,8 +1,10 @@
+import { useState, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router'
 import { XIcon } from '@phosphor-icons/react'
 import { TypeAQuestion } from '@/components/quiz/TypeAQuestion'
 import { TypeBQuestion } from '@/components/quiz/TypeBQuestion'
 import { TypeCQuestion } from '@/components/quiz/TypeCQuestion'
+import { TypeDQuestion } from '@/components/quiz/TypeDQuestion'
 import { QuizActionBar } from '@/components/quiz/QuizActionBar'
 import { QuizCardInfoPanel } from '@/components/quiz/QuizCardInfoPanel'
 import { QuizInputBar } from '@/components/quiz/QuizInputBar'
@@ -26,8 +28,12 @@ export function QuizPage() {
     pendingMastery, masteryDelta,
     inputRef, cardInfoRef,
     handleCheck, handleSelectChoice, handleUndo, handleSeeAnswer,
-    handleNext, handleShowCardInfo,
+    handleFlashcardAnswer, handleNext, handleShowCardInfo,
   } = session
+
+  const [isCardFlipped, setIsCardFlipped] = useState(false)
+  useEffect(() => { setIsCardFlipped(false) }, [current?.id])
+  function handleFlipCard() { setIsCardFlipped(true) }
 
   const audioUrl = current
     ? (current.type === 'B' ? current.exampleAudioUrl : current.audioUrl)
@@ -37,12 +43,15 @@ export function QuizPage() {
     answerState,
     current,
     inputRef,
+    isCardFlipped,
     onPlayAudio: () => setAudioPlayed(true),
     onNext: handleNext,
     onUndo: handleUndo,
     onSeeAnswer: handleSeeAnswer,
     onSelectChoice: handleSelectChoice,
     onShowCardInfo: handleShowCardInfo,
+    onFlipCard: handleFlipCard,
+    onFlashcardAnswer: handleFlashcardAnswer,
     navigate,
   })
 
@@ -56,6 +65,7 @@ export function QuizPage() {
   }
 
   const isTypeC = current.type === 'C'
+  const isTypeD = current.type === 'D'
   const canSubmit = answerState === 'idle' && inputValue.trim().length > 0
 
   return (
@@ -124,6 +134,14 @@ export function QuizPage() {
               answerState={answerState}
               selectedId={selectedChoiceId}
               onSelect={handleSelectChoice}
+            />)}
+          {current.type === 'D' && (
+            <TypeDQuestion
+              question={current}
+              answerState={answerState}
+              isFlipped={isCardFlipped}
+              onFlip={handleFlipCard}
+              onAnswer={handleFlashcardAnswer}
             />
           )}
         </div>
@@ -145,6 +163,7 @@ export function QuizPage() {
         answerState={answerState}
         showCardInfo={showCardInfo}
         isTypeC={isTypeC}
+        isTypeD={isTypeD}
         onUndo={handleUndo}
         onSeeAnswer={handleSeeAnswer}
         onShowCardInfo={handleShowCardInfo}
@@ -153,6 +172,7 @@ export function QuizPage() {
       {/* ── Input bar / Type C next ── */}
       <QuizInputBar
         isTypeC={isTypeC}
+        isTypeD={isTypeD}
         answerState={answerState}
         inputValue={inputValue}
         inputRef={inputRef}

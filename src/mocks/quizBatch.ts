@@ -1,7 +1,7 @@
 import type { QuizQuestion } from '@/types/quiz'
 
 export interface MockQuizCard {
-  questions: { A?: QuizQuestion; B?: QuizQuestion; C?: QuizQuestion }
+  questions: { A?: QuizQuestion; B?: QuizQuestion; C?: QuizQuestion; D?: QuizQuestion }
   initialMastery: number
 }
 
@@ -9,6 +9,18 @@ export const MOCK_QUIZ_BANK: Record<string, MockQuizCard> = {
   fc1: {
     initialMastery: 4,
     questions: {
+      D: {
+        id: 'q-fc1-D',
+        cardId: 'fc1',
+        type: 'D',
+        isRetry: false,
+        jlptLevel: 'N5',
+        cardContent: '私',
+        cardMeaning: 'Tôi, ta',
+        cardReading: 'わたし',
+        correctAnswer: 'わたし',
+        acceptedAnswers: ['私', 'わたし'],
+      },
       A: {
         id: 'q-fc1-A',
         cardId: 'fc1',
@@ -46,6 +58,18 @@ export const MOCK_QUIZ_BANK: Record<string, MockQuizCard> = {
   fc2: {
     initialMastery: 3,
     questions: {
+      D: {
+        id: 'q-fc2-D',
+        cardId: 'fc2',
+        type: 'D',
+        isRetry: false,
+        jlptLevel: 'N5',
+        cardContent: '食べる',
+        cardMeaning: 'Ăn',
+        cardReading: 'たべる',
+        correctAnswer: 'たべる',
+        acceptedAnswers: ['食べる', 'たべる'],
+      },
       A: {
         id: 'q-fc2-A',
         cardId: 'fc2',
@@ -99,6 +123,18 @@ export const MOCK_QUIZ_BANK: Record<string, MockQuizCard> = {
   fc4: {
     initialMastery: 14,
     questions: {
+      D: {
+        id: 'q-fc4-D',
+        cardId: 'fc4',
+        type: 'D',
+        isRetry: false,
+        jlptLevel: 'N5',
+        cardContent: '学校',
+        cardMeaning: 'Trường học',
+        cardReading: 'がっこう',
+        correctAnswer: 'がっこう',
+        acceptedAnswers: ['学校', 'がっこう'],
+      },
       A: {
         id: 'q-fc4-A',
         cardId: 'fc4',
@@ -136,6 +172,17 @@ export const MOCK_QUIZ_BANK: Record<string, MockQuizCard> = {
   fc8: {
     initialMastery: 7,
     questions: {
+      D: {
+        id: 'q-fc8-D',
+        cardId: 'fc8',
+        type: 'D',
+        isRetry: false,
+        jlptLevel: 'N5',
+        cardContent: '〜です／〜ます',
+        cardMeaning: 'Hình thức lịch sự của động từ và tính từ',
+        correctAnswer: '〜です／〜ます',
+        acceptedAnswers: ['〜です／〜ます', 'です／〜ます'],
+      },
       A: {
         id: 'q-fc8-A',
         cardId: 'fc8',
@@ -171,6 +218,17 @@ export const MOCK_QUIZ_BANK: Record<string, MockQuizCard> = {
   fc15: {
     initialMastery: 0,
     questions: {
+      D: {
+        id: 'q-fc15-D',
+        cardId: 'fc15',
+        type: 'D',
+        isRetry: false,
+        jlptLevel: 'N4',
+        cardContent: '〜たら',
+        cardMeaning: 'Điều kiện: nếu... thì...',
+        correctAnswer: '〜たら',
+        acceptedAnswers: ['〜たら', 'たら'],
+      },
       A: {
         id: 'q-fc15-A',
         cardId: 'fc15',

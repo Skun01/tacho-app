@@ -5,6 +5,7 @@ interface Props {
   answerState: AnswerState
   showCardInfo: boolean
   isTypeC: boolean
+  isTypeD: boolean
   onUndo: () => void
   onSeeAnswer: () => void
   onShowCardInfo: () => void
@@ -45,6 +46,7 @@ export function QuizActionBar({
   answerState,
   showCardInfo,
   isTypeC,
+  isTypeD,
   onUndo,
   onSeeAnswer,
   onShowCardInfo,
@@ -54,7 +56,7 @@ export function QuizActionBar({
   return (
     <div
       className="fixed inset-x-0 z-30 flex justify-center gap-2 px-4"
-      style={{ bottom: isTypeC ? '5rem' : '5.5rem' }}
+      style={{ bottom: isTypeC || isTypeD ? '5rem' : '5.5rem' }}
     >
       <ActionBtn icon={<ArrowCounterClockwiseIcon size={12} />} onClick={onUndo}>
         Hoàn tác
@@ -62,12 +64,14 @@ export function QuizActionBar({
       <ActionBtn icon={<InfoIcon size={12} />} onClick={onShowCardInfo}>
         {showCardInfo ? 'Thông tin thẻ ↓' : 'Xem thông tin thẻ'}
       </ActionBtn>
-      {answerState === 'wrong' ? (
-        <ActionBtn onClick={onSeeAnswer} highlight>
-          ✓ Xem đáp án
-        </ActionBtn>
-      ) : (
-        <ActionBtn disabled>= Không có alt.</ActionBtn>
+      {!isTypeD && (
+        answerState === 'wrong' ? (
+          <ActionBtn onClick={onSeeAnswer} highlight>
+            ✓ Xem đáp án
+          </ActionBtn>
+        ) : (
+          <ActionBtn disabled>= Không có alt.</ActionBtn>
+        )
       )}
     </div>
   )

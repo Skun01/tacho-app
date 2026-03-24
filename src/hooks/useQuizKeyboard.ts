@@ -7,12 +7,15 @@ interface Params {
   answerState: AnswerState
   current: QuizQuestion | null
   inputRef: RefObject<HTMLInputElement | null>
+  isCardFlipped: boolean
   onPlayAudio: () => void
   onNext: () => void
   onUndo: () => void
   onSeeAnswer: () => void
   onSelectChoice: (choiceId: string, isCorrect: boolean) => void
   onShowCardInfo: () => void
+  onFlipCard: () => void
+  onFlashcardAnswer: (correct: boolean) => void
   navigate: NavigateFunction
 }
 
@@ -20,12 +23,15 @@ export function useQuizKeyboard({
   answerState,
   current,
   inputRef,
+  isCardFlipped,
   onPlayAudio,
   onNext,
   onUndo,
   onSeeAnswer,
   onSelectChoice,
   onShowCardInfo,
+  onFlipCard,
+  onFlashcardAnswer,
   navigate,
 }: Params) {
   const skipNextEnterRef = useRef(false)
@@ -48,11 +54,21 @@ export function useQuizKeyboard({
         return
       }
 
-      // ── Space: play audio (guard: not typing in input) ────────────────────────
-      if (e.key === ' ' && document.activeElement !== inputRef.current) {
+      // ── Space: flip card (Type D) or play audio ──────────────────────────
+      if (e.key === ' ') {
         e.preventDefault()
-        onPlayAudio()
+        if (current?.type === 'D' && !isCardFlipped && answerState === 'idle') {
+          onFlipCard()
+        } else if (document.activeElement !== inputRef.current) {
+          onPlayAudio()
+        }
         return
+      }
+
+      // ── ArrowRight / ArrowLeft: Type D answer ───────────────────────────
+      if (current?.type === 'D' && isCardFlipped && answerState === 'idle') {
+        if (e.key === 'ArrowRight') { e.preventDefault(); onFlashcardAnswer(true); return }
+        if (e.key === 'ArrowLeft')  { e.preventDefault(); onFlashcardAnswer(false); return }
       }
 
       // ── 1–4: Type C choice selection ──────────────────────────────────────────
@@ -88,7 +104,7 @@ export function useQuizKeyboard({
 
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [answerState, current, inputRef, onPlayAudio, onNext, onUndo, onSeeAnswer, onSelectChoice, onShowCardInfo, navigate])
+  }, [answerState, current, inputRef, isCardFlipped, onPlayAudio, onNext, onUndo, onSeeAnswer, onSelectChoice, onShowCardInfo, onFlipCard, onFlashcardAnswer, navigate])
 
   return { skipNextEnterRef }
 }

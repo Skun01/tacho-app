@@ -6,6 +6,7 @@ import type { AnswerState } from '@/types/quiz'
 
 interface Props {
   isTypeC: boolean
+  isTypeD: boolean
   answerState: AnswerState
   inputValue: string
   inputRef: RefObject<HTMLInputElement | null>
@@ -20,6 +21,7 @@ interface Props {
 
 export function QuizInputBar({
   isTypeC,
+  isTypeD,
   answerState,
   inputValue,
   inputRef,
@@ -51,6 +53,25 @@ export function QuizInputBar({
     answerState !== 'idle' || canSubmit
       ? 'bg-foreground/90 text-background hover:bg-foreground'
       : 'text-muted-foreground/30 cursor-not-allowed'
+
+  if (isTypeD) {
+    if (answerState === 'idle') return null
+    return (
+      <div className="fixed inset-x-0 bottom-0 z-40 px-4 pb-6">
+        <button
+          onClick={onNext}
+          className={`mx-auto flex w-full max-w-xl items-center justify-center gap-2 rounded-2xl py-3.5 text-sm font-semibold transition-colors ${
+            answerState === 'correct'
+              ? 'bg-emerald-500 text-white hover:bg-emerald-600'
+              : 'bg-rose-500 text-white hover:bg-rose-600'
+          }`}
+        >
+          {QUIZ_COPY.nextBtn}
+          <ArrowRightIcon size={14} />
+        </button>
+      </div>
+    )
+  }
 
   if (isTypeC) {
     if (answerState === 'idle') return null

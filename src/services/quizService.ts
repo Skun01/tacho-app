@@ -26,9 +26,9 @@ export async function getQuizBatch(
     let question: QuizQuestion | undefined
 
     if (!forceType || forceType === 'mixed') {
-      question = bank.A ?? bank.C ?? bank.B
+      question = bank.A ?? bank.C ?? bank.B ?? bank.D
     } else {
-      question = bank[forceType] ?? bank.A ?? bank.C ?? bank.B
+      question = bank[forceType] ?? bank.A ?? bank.C ?? bank.B ?? bank.D
     }
 
     if (question) {

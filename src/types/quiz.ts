@@ -1,4 +1,4 @@
-export type QuestionType = 'A' | 'B' | 'C'
+export type QuestionType = 'A' | 'B' | 'C' | 'D'
 export type AnswerState = 'idle' | 'correct' | 'wrong'
 
 export interface QuizChoice {

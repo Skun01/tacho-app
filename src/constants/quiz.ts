@@ -4,11 +4,17 @@ export const QUIZ_COPY = {
   typeLabelA: 'Điền vào chỗ trống',
   typeLabelB: 'Nghe và điền',
   typeLabelC: 'Nghe và chọn',
+  typeLabelD: 'Thẻ ghi nhớ',
   // Prompts
   promptA: (meaning: string) => `Từ/cấu trúc có nghĩa "${meaning}" là gì?`,
   promptASentence: 'Điền từ còn thiếu vào chỗ trống:',
   promptB: 'Nghe câu ví dụ và gõ lại toàn bộ câu tiếng Nhật:',
   promptC: 'Chọn nghĩa đúng của từ vừa nghe:',
+  // Type D flashcard
+  flipHint: 'Ấn Space hoặc click để lật thẻ',
+  flipRemembered: 'Đã nhớ',
+  flipForgot: 'Chưa nhớ',
+  flipArrowHint: '← Chưa nhớ · Đã nhớ →',
   // Buttons
   checkBtn: 'Kiểm tra',
   nextBtn: 'Tiếp theo',
@@ -34,7 +40,7 @@ export const QUIZ_COPY = {
   backStudy: 'Học lại batch này',
 }
 
-export type QuizForceType = 'mixed' | 'A' | 'B' | 'C'
+export type QuizForceType = 'mixed' | 'A' | 'B' | 'C' | 'D'
 
 export const QUIZ_TYPE_OPTIONS: {
   value: QuizForceType
@@ -65,6 +71,12 @@ export const QUIZ_TYPE_OPTIONS: {
     label: 'Nghe hiểu',
     desc: 'Nghe câu ví dụ và gõ lại toàn bộ câu',
     icon: 'SpeakerHigh',
+  },
+  {
+    value: 'D',
+    label: 'Thẻ ghi nhớ',
+    desc: 'Lật thẻ, tự đánh giá mức độ ghi nhớ',
+    icon: 'Cards',
   },
 ]
 

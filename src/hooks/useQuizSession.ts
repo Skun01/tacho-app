@@ -82,7 +82,7 @@ export function useQuizSession(
 
   // ── Auto-focus input ──────────────────────────────────────────────────────────
   useEffect(() => {
-    if (current?.type !== 'C') setTimeout(() => inputRef.current?.focus(), 100)
+    if (current?.type !== 'C' && current?.type !== 'D') setTimeout(() => inputRef.current?.focus(), 100)
   }, [current?.id])
 
   // ── Derived values ────────────────────────────────────────────────────────────
@@ -121,6 +121,11 @@ export function useQuizSession(
     if (!current) return
     setInputValue(current.correctAnswer)
     setAnswerState('correct')
+  }
+
+  function handleFlashcardAnswer(correct: boolean) {
+    if (answerState !== 'idle') return
+    setAnswerState(correct ? 'correct' : 'wrong')
   }
 
   async function handleNext() {
@@ -231,6 +236,7 @@ export function useQuizSession(
     handleSelectChoice,
     handleUndo,
     handleSeeAnswer,
+    handleFlashcardAnswer,
     handleNext,
     handleShowCardInfo,
   }
