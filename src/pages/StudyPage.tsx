@@ -1,67 +1,14 @@
-import { useState, useEffect, useCallback } from 'react'
-import { useLocation, useNavigate } from 'react-router'
+import { useNavigate } from 'react-router'
 import { ArrowLeftIcon, ArrowRightIcon, XIcon, LightningIcon } from '@phosphor-icons/react'
 import { VocabDetailView } from '@/components/card-detail/VocabDetailView'
 import { GrammarDetailView } from '@/components/card-detail/GrammarDetailView'
-import { getCardDetail } from '@/services/cardDetailService'
-import { getStudyBatchIds } from '@/services/dashboardService'
-import type { CardDetail } from '@/types/card'
 import { StudyLoadingSkeleton } from '@/components/study/StudyLoadingSkeleton'
-
-type StudyLocationState = {
-  batchIds?: string[]
-  mode?: 'learn' | 'review'
-}
+import { useStudySession } from '@/hooks/useStudySession'
+import { CARD_TYPE } from '@/types/card'
 
 export function StudyPage() {
   const navigate = useNavigate()
-  const location = useLocation()
-  const routeState = location.state as StudyLocationState | null
-  const [index, setIndex] = useState(0)
-  const [batchIds, setBatchIds] = useState<string[]>([])
-  const [cards, setCards] = useState<(CardDetail | null)[]>([])
-  const [loading, setLoading] = useState(true)
-  const [visible, setVisible] = useState(true)
-
-  const total = batchIds.length
-  const isFirst = index === 0
-  const isLast = index === total - 1
-  const current = cards[index]
-  const progress = total > 0 ? ((index + 1) / total) * 100 : 0
-
-  useEffect(() => {
-    async function load() {
-      const nextBatchIds = routeState?.batchIds?.length
-        ? routeState.batchIds
-        : await getStudyBatchIds(routeState?.mode ?? 'learn')
-      setBatchIds(nextBatchIds)
-      const results = await Promise.all(nextBatchIds.map((id) => getCardDetail(id)))
-      setCards(results)
-      setLoading(false)
-    }
-    void load()
-  }, [routeState])
-
-  function transition(to: number) {
-    setVisible(false)
-    setTimeout(() => {
-      setIndex(to)
-      setVisible(true)
-      window.scrollTo({ top: 0, behavior: 'instant' })
-    }, 150)
-  }
-
-  const prev = useCallback(() => { if (!isFirst) transition(index - 1) }, [isFirst, index])
-  const next = useCallback(() => { if (!isLast) transition(index + 1) }, [isLast, index])
-
-  useEffect(() => {
-    function onKey(e: KeyboardEvent) {
-      if (e.key === 'ArrowLeft') prev()
-      if (e.key === 'ArrowRight' && !isLast) next()
-    }
-    window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
-  }, [prev, next, isLast])
+  const { index, batchIds, loading, visible, total, isFirst, isLast, current, progress, routeMode, prev, next } = useStudySession()
 
   return (
     <div className="min-h-screen bg-surface-container-low">
@@ -83,7 +30,6 @@ export function StudyPage() {
           </p>
         </div>
 
-        {/* placeholder right side to center title */}
         <div className="h-9 w-9" />
       </header>
 
@@ -96,7 +42,7 @@ export function StudyPage() {
             key={index}
             className={`transition-opacity duration-150 ${visible ? 'opacity-100' : 'opacity-0'}`}
           >
-            {current.type === 'vocab' ? (
+            {current.type === CARD_TYPE.VOCAB ? (
               <VocabDetailView card={current} />
             ) : (
               <GrammarDetailView card={current} />
@@ -113,6 +59,7 @@ export function StudyPage() {
       <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-[#1d1c13]/08 bg-background/90 backdrop-blur-md">
         {/* progress bar */}
         <div className="h-1 bg-surface-container-highest">
+          {/* Dynamic width — cannot express as Tailwind class */}
           <div
             className="h-full bg-primary transition-[width] duration-300 ease-out"
             style={{ width: `${progress}%` }}
@@ -120,7 +67,6 @@ export function StudyPage() {
         </div>
 
         <div className="mx-auto flex max-w-4xl items-center justify-between gap-3 px-4 py-3">
-          {/* Previous */}
           <button
             onClick={prev}
             disabled={isFirst}
@@ -134,15 +80,13 @@ export function StudyPage() {
             Trước
           </button>
 
-          {/* Card counter */}
           <span className="text-sm font-semibold text-foreground">
             Thẻ {loading ? '…' : `${index + 1} / ${total}`}
           </span>
 
-          {/* Next or Start exercise */}
           {isLast ? (
             <button
-              onClick={() => navigate('/quiz', { state: { batchIds, mode: routeState?.mode ?? 'learn' } })}
+              onClick={() => navigate('/quiz', { state: { batchIds, mode: routeMode } })}
               className="flex items-center gap-1.5 rounded-2xl bg-primary px-4 py-2.5 text-sm font-semibold text-background transition-colors hover:bg-primary-container"
             >
               <LightningIcon size={15} weight="fill" />

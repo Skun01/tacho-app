@@ -1,5 +1,3 @@
-import { useEffect, useRef, useState } from 'react'
-import { useNavigate, useSearchParams } from 'react-router'
 import { MagnifyingGlassIcon } from '@phosphor-icons/react'
 import { DashboardLayout } from '@/components/layout/DashboardLayout'
 import { SearchResultCard } from '@/components/search/SearchResultCard'
@@ -7,139 +5,17 @@ import { SearchFiltersBar } from '@/components/search/SearchFiltersBar'
 import { AddToDeckModal } from '@/components/search/AddToDeckModal'
 import { BulkActionBar } from '@/components/search/BulkActionBar'
 import { SEARCH_COPY } from '@/constants/search'
-import type { FlashCardWithProgress, CardProgress, JlptLevel } from '@/types/card'
-import type { TypeFilter } from '@/components/search/SearchFiltersBar'
-import { addCardsToDeck } from '@/services/deckService'
-import { searchCards, updateCardProgress } from '@/services/cardService'
+import { useSearchPage } from '@/hooks/useSearchPage'
 
 export function SearchPage() {
-  const navigate = useNavigate()
-  const [searchParams, setSearchParams] = useSearchParams()
-  const query = searchParams.get('q') ?? ''
-
-  const [input, setInput] = useState(query)
-  const [vocabCards, setVocabCards] = useState<FlashCardWithProgress[]>([])
-  const [grammarCards, setGrammarCards] = useState<FlashCardWithProgress[]>([])
-  const [selected, setSelected] = useState<Set<string>>(new Set())
-
-  // Filters
-  const [typeFilter, setTypeFilter] = useState<TypeFilter>('all')
-  const [jlptFilter, setJlptFilter] = useState<Set<JlptLevel>>(new Set())
-
-  // Select mode — checkboxes only visible when true
-  const [selectMode, setSelectMode] = useState(false)
-
-  // null = bulk, string = single card id
-  const [deckModalTarget, setDeckModalTarget] = useState<string | null | undefined>(undefined)
-  const showDeckModal = deckModalTarget !== undefined
-
-  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-
-  async function loadResults(currentQuery: string) {
-    const results = await searchCards(currentQuery)
-    setVocabCards(results.filter((c) => c.type === 'vocab'))
-    setGrammarCards(results.filter((c) => c.type === 'grammar'))
-  }
-
-  function replaceCard(nextCard: FlashCardWithProgress) {
-    const apply = (list: FlashCardWithProgress[]) =>
-      list.map((card) => (card.id === nextCard.id ? nextCard : card))
-    setVocabCards(apply)
-    setGrammarCards(apply)
-  }
-
-  // Sync input → URL (debounced 300ms)
-  useEffect(() => {
-    if (debounceRef.current) clearTimeout(debounceRef.current)
-    debounceRef.current = setTimeout(() => {
-      const trimmed = input.trim()
-      setSearchParams(trimmed ? { q: trimmed } : {}, { replace: true })
-    }, 300)
-    return () => {
-      if (debounceRef.current) clearTimeout(debounceRef.current)
-    }
-  }, [input, setSearchParams])
-
-  // Fetch results when URL query changes
-  useEffect(() => {
-    if (!query) {
-      setVocabCards([])
-      setGrammarCards([])
-      return
-    }
-    void loadResults(query)
-    setSelected(new Set())
-  }, [query])
-
-  async function patchCard(id: string, patch: Partial<CardProgress>) {
-    const nextCard = await updateCardProgress(id, patch)
-    replaceCard(nextCard)
-  }
-
-  function toggleSelect(id: string) {
-    setSelected((prev) => {
-      const next = new Set(prev)
-      next.has(id) ? next.delete(id) : next.add(id)
-      return next
-    })
-  }
-
-  async function handleDeckConfirm(deckId: string, _deckName: string) {
-    const ids = deckModalTarget === null
-      ? Array.from(selected)
-      : deckModalTarget
-        ? [deckModalTarget]
-        : []
-    if (ids.length > 0) {
-      await addCardsToDeck(deckId, ids)
-    }
-    setDeckModalTarget(undefined)
-    setSelected(new Set())
-  }
-
-  function toggleJlpt(level: JlptLevel) {
-    setJlptFilter((prev) => {
-      const next = new Set(prev)
-      next.has(level) ? next.delete(level) : next.add(level)
-      return next
-    })
-  }
-
-  function handleToggleSelectMode() {
-    setSelectMode((v) => {
-      if (v) setSelected(new Set()) // clear on exit
-      return !v
-    })
-  }
-
-  // Apply client-side filters to fetched results
-  function applyFilters(cards: FlashCardWithProgress[]) {
-    return cards.filter(
-      (c) => jlptFilter.size === 0 || jlptFilter.has(c.jlptLevel),
-    )
-  }
-
-  const showVocabSection = typeFilter !== 'grammar'
-  const showGrammarSection = typeFilter !== 'vocab'
-  const filteredVocab = showVocabSection ? applyFilters(vocabCards) : []
-  const filteredGrammar = showGrammarSection ? applyFilters(grammarCards) : []
-
-  const selectedCount = selected.size
-
-  function makeCardProps(card: FlashCardWithProgress) {
-    return {
-      card,
-      selectable: selectMode,
-      isSelected: selected.has(card.id),
-      onSelect: () => toggleSelect(card.id),
-      onMarkPro: () => void patchCard(card.id, { masteryLevel: 5, isInReview: true }),
-      onToggleSave: () =>
-        void patchCard(card.id, { isSaved: !(card.progress?.isSaved ?? false) }),
-      onAddToDeck: () => setDeckModalTarget(card.id),
-      onResetProgress: () => void patchCard(card.id, { masteryLevel: 0, isInReview: false }),
-      onAddToReview: () => void patchCard(card.id, { isInReview: true }),
-    }
-  }
+  const {
+    query, input, setInput,
+    filteredVocab, filteredGrammar, showVocabSection, showGrammarSection,
+    selected, selectedCount, typeFilter, setTypeFilter,
+    jlptFilter, selectMode, deckModalTarget, showDeckModal,
+    toggleJlpt, handleToggleSelectMode, handleDeckConfirm,
+    makeCardProps, setDeckModalTarget, navigate,
+  } = useSearchPage()
 
   return (
     <DashboardLayout>
@@ -162,7 +38,6 @@ export function SearchPage() {
         </p>
       ) : (
         <>
-          {/* Filters + select mode toggle */}
           <SearchFiltersBar
             typeFilter={typeFilter}
             onTypeChange={setTypeFilter}
@@ -173,7 +48,6 @@ export function SearchPage() {
           />
 
           <div className={`flex flex-col gap-8 ${selectMode && selectedCount > 0 ? 'pb-24' : ''}`}>
-            {/* Vocabulary section */}
             {showVocabSection && (
               <section>
                 <h2 className="mb-3 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
@@ -193,7 +67,6 @@ export function SearchPage() {
               </section>
             )}
 
-            {/* Grammar section */}
             {showGrammarSection && (
               <section>
                 <h2 className="mb-3 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
@@ -218,21 +91,18 @@ export function SearchPage() {
         </>
       )}
 
-      {/* Bulk action bar — only when select mode is active */}
       {selectMode && selectedCount > 0 && (
         <BulkActionBar
           count={selectedCount}
           onAddToDeck={() => setDeckModalTarget(null)}
           onStartStudy={() => {
             const batchIds = Array.from(selected)
-            setSelected(new Set())
             navigate('/study', { state: { batchIds, mode: 'learn' } })
           }}
-          onDeselect={() => setSelected(new Set())}
+          onDeselect={() => navigate(0)}
         />
       )}
 
-      {/* Add to deck modal */}
       {showDeckModal && (
         <AddToDeckModal
           cardCount={deckModalTarget === null ? selectedCount : 1}

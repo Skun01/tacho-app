@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useState } from 'react'
 import { useNavigate, useParams } from 'react-router'
 import {
   PencilSimpleIcon,
@@ -6,80 +6,48 @@ import {
   DownloadSimpleIcon,
   TrashIcon,
   MagnifyingGlassIcon,
-  WarningCircleIcon,
 } from '@phosphor-icons/react'
 import { DashboardLayout } from '@/components/layout/DashboardLayout'
 import { DeckFormModal } from '@/components/library/DeckFormModal'
 import { AddCardModal } from '@/components/library/AddCardModal'
+import { ConfirmDeleteModal } from '@/components/library/ConfirmDeleteModal'
+import { CardRow } from '@/components/library/CardRow'
 import { DECK_COPY } from '@/constants/deck'
 import { CARD_TYPE } from '@/types/card'
-import type { FlashCard } from '@/types/card'
-import type { DeckDetailWithState } from '@/types/deck'
-import { filterCards, countByType } from '@/utils/cardUtils'
 import { gooeyToast } from '@/components/ui/goey-toaster'
-import {
-  addCardsToDeck,
-  deleteDeck,
-  getDeckDetail,
-  removeCardFromDeck,
-  reorderCards,
-  updateDeck,
-} from '@/services/deckService'
-import { CardRow } from '@/components/library/CardRow'
+import { deleteDeck, updateDeck, addCardsToDeck, removeCardFromDeck } from '@/services/deckService'
+import { useDeckEdit } from '@/hooks/useDeckEdit'
+import { useDeckDragDrop } from '@/hooks/useDeckDragDrop'
+import { filterCards, countByType } from '@/utils/cardUtils'
 
 const C = DECK_COPY.editPage
 
 export function DeckEditPage() {
   const navigate = useNavigate()
   const { id } = useParams<{ id: string }>()
-  const [deck, setDeck] = useState<DeckDetailWithState | null>(null)
-  const [cards, setCards] = useState<FlashCard[]>([])
 
-  async function refreshDeck(deckId: string) {
-    const nextDeck = await getDeckDetail(deckId)
-    setDeck(nextDeck)
-    setCards(nextDeck.cards)
-  }
-
-  useEffect(() => {
-    if (id) {
-      void refreshDeck(id)
-    }
-  }, [id])
+  const { deck, cards, setCards, refreshDeck } = useDeckEdit(id)
   const [search, setSearch] = useState('')
   const [showEditInfo, setShowEditInfo] = useState(false)
   const [showAddCard, setShowAddCard] = useState(false)
   const [showConfirmDelete, setShowConfirmDelete] = useState(false)
-  const dragIndex = useRef<number | null>(null)
-  const [dragOver, setDragOver] = useState<number | null>(null)
+
+  const { dragOver, handleDragStart, handleDragOver, handleDrop, handleDragEnd } = useDeckDragDrop({
+    deckId: id,
+    cards,
+    setCards,
+    onReorderComplete: refreshDeck,
+  })
 
   const visibleCards = filterCards(cards, search)
   const vocabCount   = countByType(cards, CARD_TYPE.VOCAB)
   const grammarCount = countByType(cards, CARD_TYPE.GRAMMAR)
-  const existingIds = new Set(cards.map((c) => c.id))
+  const existingIds  = new Set(cards.map((c) => c.id))
 
-  function handleDragStart(index: number) {
-    dragIndex.current = index
-  }
-  function handleDragOver(e: React.DragEvent, index: number) {
-    e.preventDefault()
-    setDragOver(index)
-  }
-  async function handleDrop(index: number) {
-    if (dragIndex.current === null || dragIndex.current === index) {
-      setDragOver(null)
-      return
-    }
-    const updated = [...cards]
-    const [moved] = updated.splice(dragIndex.current, 1)
-    updated.splice(index, 0, moved)
-    setCards(updated)
-    if (id) {
-      await reorderCards(id, { orderedCardIds: updated.map((card) => card.id) })
-      await refreshDeck(id)
-    }
-    dragIndex.current = null
-    setDragOver(null)
+  async function handleConfirmDelete() {
+    if (!id) return
+    await deleteDeck(id)
+    navigate('/library')
   }
 
   if (!deck) return (
@@ -187,7 +155,7 @@ export function DeckEditPage() {
                   onDragStart={() => handleDragStart(originalIdx)}
                   onDragOver={(e) => handleDragOver(e, originalIdx)}
                   onDrop={() => handleDrop(originalIdx)}
-                  onDragEnd={() => setDragOver(null)}
+                  onDragEnd={handleDragEnd}
                   onRemove={() => setCards((prev) => prev.filter((c) => c.id !== card.id))}
                 />
               )
@@ -197,34 +165,10 @@ export function DeckEditPage() {
       </div>
 
       {showConfirmDelete && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-foreground/20 backdrop-blur-sm" onClick={() => setShowConfirmDelete(false)} />
-          <div className="relative z-10 w-full max-w-sm rounded-3xl bg-background p-6 shadow-2xl">
-            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-rose-50">
-              <WarningCircleIcon size={24} className="text-rose-500" weight="fill" />
-            </div>
-            <h3 className="mb-2 text-base font-bold text-foreground">{C.confirmDeleteTitle}</h3>
-            <p className="mb-6 text-sm text-muted-foreground">{C.confirmDeleteMsg}</p>
-            <div className="flex gap-3">
-              <button
-                onClick={() => setShowConfirmDelete(false)}
-                className="flex-1 rounded-xl bg-surface-container py-2.5 text-sm font-semibold text-muted-foreground transition-colors hover:bg-surface-container-highest"
-              >
-                {C.cancelBtn}
-              </button>
-              <button
-                onClick={async () => {
-                  if (!id) return
-                  await deleteDeck(id)
-                  navigate('/library')
-                }}
-                className="flex-1 rounded-xl bg-rose-500 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-rose-600"
-              >
-                {C.confirmBtn}
-              </button>
-            </div>
-          </div>
-        </div>
+        <ConfirmDeleteModal
+          onConfirm={handleConfirmDelete}
+          onClose={() => setShowConfirmDelete(false)}
+        />
       )}
 
       {showEditInfo && (
@@ -234,13 +178,8 @@ export function DeckEditPage() {
           onClose={() => setShowEditInfo(false)}
           onSubmit={async ({ name, description, category, coverPreview }) => {
             if (!id) return
-            await updateDeck(id, {
-              name,
-              description,
-              category,
-              coverUrl: coverPreview,
-            })
-            await refreshDeck(id)
+            await updateDeck(id, { name, description, category, coverUrl: coverPreview })
+            await refreshDeck()
             setShowEditInfo(false)
             gooeyToast.success(C.savedToast)
           }}
@@ -253,12 +192,12 @@ export function DeckEditPage() {
           onAdd={async (card) => {
             if (!id || cards.length >= 1000) return
             await addCardsToDeck(id, [card.id])
-            await refreshDeck(id)
+            await refreshDeck()
           }}
           onRemove={async (cardId) => {
             if (!id) return
             await removeCardFromDeck(id, cardId)
-            await refreshDeck(id)
+            await refreshDeck()
           }}
           onClose={() => setShowAddCard(false)}
         />

@@ -34,6 +34,13 @@ export function DeckCard({ deck, showReview }: DeckCardProps) {
   const [bookmarked, setBookmarked] = useState(deck.isBookmarked)
   const pct = deck.totalCards > 0 ? (deck.learnedCards / deck.totalCards) * 100 : 0
 
+  async function handleBookmarkToggle(e: React.MouseEvent) {
+    e.stopPropagation()
+    const next = !bookmarked
+    await toggleBookmark(deck.id, next)
+    setBookmarked(next)
+  }
+
   return (
     <div
       onClick={() => navigate(`/deck/${deck.id}`)}
@@ -43,12 +50,7 @@ export function DeckCard({ deck, showReview }: DeckCardProps) {
         className={`relative h-28 bg-gradient-to-br ${COVER_GRADIENTS[deck.coverIndex % 6]}`}
       >
         <button
-          onClick={async (e) => {
-            e.stopPropagation()
-            const next = !bookmarked
-            await toggleBookmark(deck.id, next)
-            setBookmarked(next)
-          }}
+          onClick={handleBookmarkToggle}
           aria-label={LIBRARY_COPY.bookmarkAriaLabel}
           className="absolute top-3 right-3 flex h-7 w-7 items-center justify-center rounded-full bg-background/70 transition-colors hover:bg-background"
         >

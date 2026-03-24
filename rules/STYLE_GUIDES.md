@@ -191,3 +191,34 @@
   ## 6. CODE QUALITY & EXECUTION
   - Semantic HTML is mandatory (use `<header>`, `<main>`, `<section>`, `<article>`, `<nav>`).
   - Avoid deeply nested `<div>` soup.
+
+  ## Component & Code Organization
+
+  Before writing any component, list out everything it needs to do.
+  If it does more than 2 things → split first, then code.
+
+  A component does "one thing" means it has only one reason to change.
+  For example, if drag-and-drop logic changes, you should not need to
+  touch the layout file.
+
+  **Split into a separate file when:**
+  - Any modal / dialog / overlay
+  - Async logic or data fetching (useEffect + fetch/mutation)
+  - A group of 2+ related states + handlers tied to one feature
+  - A JSX block that has its own distinct purpose and can be named
+    meaningfully (e.g. DeckHeader, CardList, EmptyState)
+  - Any UI that appears in more than one place
+
+  **OK to keep inline:**
+  - UI-only state: isOpen, searchText, activeTab
+  - JSX that doesn't have a clear standalone purpose
+  - Simple toggle with no side effects
+
+  **Self-review before finishing:**
+  - [ ] Can I list exactly one reason this component would change?
+  - [ ] Is there any modal/dialog not extracted yet?
+  - [ ] Is there any useEffect or async logic sitting directly in a page component?
+  - [ ] Is there any JSX block I can give a meaningful name to that hasn't
+        been extracted yet?
+
+  If any box is unchecked → refactor before responding.
