@@ -13,6 +13,9 @@ import { ProgressBar } from '@/components/ui/progress-bar'
 import { useQuizSession, type QuizLocationState } from '@/hooks/useQuizSession'
 import { useQuizKeyboard } from '@/hooks/useQuizKeyboard'
 import { ScrollToTop } from '@/components/home/ScrollToTop'
+import { QUIZ_COPY } from '@/constants/quiz'
+
+const C = QUIZ_COPY
 
 export function QuizPage() {
   const navigate = useNavigate()
@@ -103,12 +106,13 @@ export function QuizPage() {
 
       {/* ── Question area ── */}
       <main
-        className="flex min-h-screen flex-col items-center justify-center px-8"
-        style={{ paddingTop: '3rem', paddingBottom: isTypeC ? '5rem' : '9rem' }}
+        className={`flex min-h-screen flex-col items-center justify-center px-8 pt-12 ${
+          isTypeC ? 'pb-20' : 'pb-36'
+        }`}
       >
         {current.isRetry && (
           <span className="mb-6 rounded-full bg-orange-100 px-3 py-1 text-xs font-semibold text-orange-600">
-            Ôn lại
+            {C.retryBadge}
           </span>
         )}
 

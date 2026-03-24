@@ -1,5 +1,10 @@
 export type JlptLevel = 'N5' | 'N4' | 'N3' | 'N2' | 'N1'
-export type CardType = 'vocab' | 'grammar'
+
+export const CARD_TYPE = {
+  VOCAB: 'vocab',
+  GRAMMAR: 'grammar',
+} as const
+export type CardType = typeof CARD_TYPE[keyof typeof CARD_TYPE]
 
 export interface VocabCard {
   id: string

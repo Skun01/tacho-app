@@ -1,3 +1,14 @@
+export const ACCURACY_THRESHOLDS = {
+  EXCELLENT: 80,
+  GOOD: 60,
+} as const
+
+export const QUIZ_GRADES = [
+  { min: ACCURACY_THRESHOLDS.EXCELLENT, title: 'Xuất sắc!', sub: 'Bạn đã làm rất tốt hôm nay!' },
+  { min: ACCURACY_THRESHOLDS.GOOD,      title: 'Tốt lắm!',  sub: 'Tiếp tục phấn đấu nhé!' },
+  { min: 0,                             title: 'Cố lên!',   sub: 'Ôn tập thêm để tiến bộ hơn nhé!' },
+] as const
+
 export const QUIZ_COPY = {
   title: 'Làm bài tập',
   // Question type labels
@@ -38,6 +49,23 @@ export const QUIZ_COPY = {
   continueBtn: 'Tiếp tục học thẻ mới',
   backDashboard: 'Về trang chủ',
   backStudy: 'Học lại batch này',
+  // Result page
+  resultPageTitle: 'Kết quả bài kiểm tra',
+  resultContinueBtn: 'Tiếp tục học',
+  resultHomeBtn: 'Về trang chủ',
+  resultMasteryChangeLabel: 'Thay đổi bậc học',
+  resultStatTotal: 'Tổng',
+  resultStatCorrect: 'Đúng',
+  resultStatWrong: 'Sai',
+  resultStatPromoted: 'Tăng bậc',
+  // Action bar
+  actionUndo: 'Hoàn tác',
+  actionCardInfo: 'Xem thông tin thẻ',
+  actionCardInfoHide: 'Thông tin thẻ ↓',
+  actionSeeAnswer: '✓ Xem đáp án',
+  actionNoAlt: '= Không có alt.',
+  // Retry badge
+  retryBadge: 'Ôn lại',
 }
 
 export type QuizForceType = 'mixed' | 'A' | 'B' | 'C' | 'D'

@@ -6,6 +6,7 @@ import { GrammarDetailView } from '@/components/card-detail/GrammarDetailView'
 import { getCardDetail } from '@/services/cardDetailService'
 import { getStudyBatchIds } from '@/services/dashboardService'
 import type { CardDetail } from '@/types/card'
+import { StudyLoadingSkeleton } from '@/components/study/StudyLoadingSkeleton'
 
 type StudyLocationState = {
   batchIds?: string[]
@@ -89,7 +90,7 @@ export function StudyPage() {
       {/* ── Scrollable card content ── */}
       <main className="mx-auto max-w-4xl px-4 pb-32 pt-20">
         {loading ? (
-          <LoadingSkeleton />
+          <StudyLoadingSkeleton />
         ) : current ? (
           <div
             key={index}
@@ -158,22 +159,6 @@ export function StudyPage() {
           )}
         </div>
       </nav>
-    </div>
-  )
-}
-
-function LoadingSkeleton() {
-  return (
-    <div className="grid animate-pulse grid-cols-1 gap-4 lg:grid-cols-3">
-      <div className="flex flex-col gap-4 lg:col-span-2">
-        <div className="h-48 rounded-3xl bg-surface-container" />
-        <div className="h-32 rounded-2xl bg-surface-container" />
-      </div>
-      <div className="flex flex-col gap-3 lg:col-span-1">
-        <div className="h-36 rounded-2xl bg-surface-container" />
-        <div className="h-10 rounded-2xl bg-surface-container" />
-        <div className="h-10 rounded-2xl bg-surface-container" />
-      </div>
     </div>
   )
 }

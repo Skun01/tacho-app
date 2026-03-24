@@ -97,21 +97,61 @@
   - Hooks: camelCase with `use` prefix — `useAuth.ts`, `useScrollSpy.ts`
   - Files: follow React convention — PascalCase for components, camelCase for everything else
 
-  ### Data layer
-  - All static text and data for each page lives in `src/constants/` — one file per page or domain.
-  - Components only render — never hardcode strings, labels, or copy inside JSX.
-  - Export constants as `as const` objects or typed arrays. Example:
+  ### Data layer — two strict rules
+
+  #### Rule 1 — Enum-like string literals → `src/types/`
+  Any string used in logic (comparisons, switch, filter, type narrowing) is an **enum**, not copy.
+  It belongs in `src/types/` as a `const` object **and** a derived union type:
   ```ts
-    export const HOME_HERO = {
-      headline: "...",
-      ctaPrimary: "...",
-    } as const
+  // src/types/card.ts
+  export const CARD_TYPE = {
+    VOCAB:   'vocab',
+    GRAMMAR: 'grammar',
+  } as const
+  export type CardType = typeof CARD_TYPE[keyof typeof CARD_TYPE]
+  // Usage: c.type === CARD_TYPE.VOCAB  ← never write the raw string 'vocab'
   ```
+  Other examples that follow this rule: quiz question types (`'A' | 'B' | 'C' | 'D'`),
+  study modes (`'learn' | 'review'`), deck categories, answer states.
+
+  #### Rule 2 — Static UI text / copy → `src/constants/`
+  Any string **displayed to the user** (labels, placeholders, headings, toast messages,
+  button text, error messages) lives in `src/constants/` — one file per page or domain.
+  Components only render — never hardcode display strings inside JSX or component logic.
+  ```ts
+  // src/constants/quiz.ts
+  export const QUIZ_COPY = {
+    resultPage: {
+      title: 'Kết quả bài kiểm tra',
+      continueBtn: 'Tiếp tục học',
+      homeBtn: 'Về trang chủ',
+    },
+    grades: [
+      { min: 80, title: 'Xuất sắc!',  sub: 'Bạn đã làm rất tốt hôm nay!' },
+      { min: 60, title: 'Tốt lắm!',   sub: 'Tiếp tục phấn đấu nhé!' },
+      { min: 0,  title: 'Cố lên!',    sub: 'Ôn tập thêm để tiến bộ hơn nhé!' },
+    ],
+  } as const
+  ```
+  Numeric thresholds tied to business logic (e.g., accuracy cutoffs, card limits) also
+  belong here as named constants — never use magic numbers inline.
+
+  #### Quick decision guide
+  | "Nó dùng để làm gì?" | Đặt ở đâu |
+  |---|---|
+  | So sánh trong `if`/`filter`/`switch` | `src/types/` — enum |
+  | Hiển thị cho user đọc | `src/constants/` — copy |
+  | Ngưỡng số (80%, 1000 cards...) | `src/constants/` — named constant |
 
   ### UI language
   - Default language: **Vietnamese** — all user-facing text must be in Vietnamese.
   - This applies to: labels, placeholders, error messages, form validation text, toast notifications.
   - No i18n setup needed at this stage — hardcode Vietnamese strings in `src/constants/`.
+
+  ### Inline styles
+  - **Never** use `style={{}}` attribute for anything expressible as a Tailwind class.
+  - **Only** exception: truly dynamic numeric values computed at runtime that cannot be a Tailwind class (e.g., `style={{ width: \`${progress}%\` }}`).
+  - Conditional classes must be written as Tailwind class strings, not inline style objects.
 
   ### Auth & security
   - Access token: stored **in-memory via Zustand only** — NEVER write to `localStorage` or `sessionStorage`.

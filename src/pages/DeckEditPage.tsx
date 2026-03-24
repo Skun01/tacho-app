@@ -12,8 +12,10 @@ import { DashboardLayout } from '@/components/layout/DashboardLayout'
 import { DeckFormModal } from '@/components/library/DeckFormModal'
 import { AddCardModal } from '@/components/library/AddCardModal'
 import { DECK_COPY } from '@/constants/deck'
+import { CARD_TYPE } from '@/types/card'
 import type { FlashCard } from '@/types/card'
 import type { DeckDetailWithState } from '@/types/deck'
+import { filterCards, countByType } from '@/utils/cardUtils'
 import { gooeyToast } from '@/components/ui/goey-toaster'
 import {
   addCardsToDeck,
@@ -51,14 +53,9 @@ export function DeckEditPage() {
   const dragIndex = useRef<number | null>(null)
   const [dragOver, setDragOver] = useState<number | null>(null)
 
-  const visibleCards = cards.filter(
-    (c) =>
-      c.content.includes(search) ||
-      (c.type === 'vocab' ? c.reading : '').includes(search) ||
-      c.meaning.toLowerCase().includes(search.toLowerCase()),
-  )
-  const vocabCount = cards.filter((c) => c.type === 'vocab').length
-  const grammarCount = cards.filter((c) => c.type === 'grammar').length
+  const visibleCards = filterCards(cards, search)
+  const vocabCount   = countByType(cards, CARD_TYPE.VOCAB)
+  const grammarCount = countByType(cards, CARD_TYPE.GRAMMAR)
   const existingIds = new Set(cards.map((c) => c.id))
 
   function handleDragStart(index: number) {

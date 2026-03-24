@@ -1,5 +1,8 @@
 import { ArrowCounterClockwiseIcon, InfoIcon } from '@phosphor-icons/react'
 import type { AnswerState } from '@/types/quiz'
+import { QUIZ_COPY } from '@/constants/quiz'
+
+const C = QUIZ_COPY
 
 interface Props {
   answerState: AnswerState
@@ -55,22 +58,23 @@ export function QuizActionBar({
 
   return (
     <div
-      className="fixed inset-x-0 z-30 flex justify-center gap-2 px-4"
-      style={{ bottom: isTypeC || isTypeD ? '5rem' : '5.5rem' }}
+      className={`fixed inset-x-0 z-30 flex justify-center gap-2 px-4 ${
+        isTypeC || isTypeD ? 'bottom-20' : 'bottom-22'
+      }`}
     >
       <ActionBtn icon={<ArrowCounterClockwiseIcon size={12} />} onClick={onUndo}>
-        Hoàn tác
+        {C.actionUndo}
       </ActionBtn>
       <ActionBtn icon={<InfoIcon size={12} />} onClick={onShowCardInfo}>
-        {showCardInfo ? 'Thông tin thẻ ↓' : 'Xem thông tin thẻ'}
+        {showCardInfo ? C.actionCardInfoHide : C.actionCardInfo}
       </ActionBtn>
       {!isTypeD && (
         answerState === 'wrong' ? (
           <ActionBtn onClick={onSeeAnswer} highlight>
-            ✓ Xem đáp án
+            {C.actionSeeAnswer}
           </ActionBtn>
         ) : (
-          <ActionBtn disabled>= Không có alt.</ActionBtn>
+          <ActionBtn disabled>{C.actionNoAlt}</ActionBtn>
         )
       )}
     </div>

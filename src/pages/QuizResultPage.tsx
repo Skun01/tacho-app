@@ -1,30 +1,20 @@
 import { useNavigate, useLocation } from 'react-router'
 import { XIcon, TrophyIcon, ArrowRightIcon, HouseIcon } from '@phosphor-icons/react'
-import { JlptBadge } from '@/components/ui/jlpt-badge'
+import { QuizStatCard } from '@/components/quiz/QuizStatCard'
+import { QuizMasteryRow } from '@/components/quiz/QuizMasteryRow'
+import type { MasteryRowCard } from '@/components/quiz/QuizMasteryRow'
 import type { QuizAttempt } from '@/types/quiz'
-
-type CardInfo = {
-  cardId: string
-  content: string
-  reading?: string
-  jlptLevel: string
-  before: number
-  after: number
-}
+import { QUIZ_COPY, QUIZ_GRADES, ACCURACY_THRESHOLDS } from '@/constants/quiz'
 
 type ResultState = {
   attempts: QuizAttempt[]
   totalCards: number
-  cardInfos: CardInfo[]
+  cardInfos: MasteryRowCard[]
   batchIds?: string[]
   mode?: 'learn' | 'review'
 }
 
-const GRADES = [
-  { min: 80, title: 'Xuất sắc!',  sub: 'Bạn đã làm rất tốt hôm nay!' },
-  { min: 60, title: 'Tốt lắm!',   sub: 'Tiếp tục phấn đấu nhé!' },
-  { min: 0,  title: 'Cố lên!',    sub: 'Ôn tập thêm để tiến bộ hơn nhé!' },
-]
+const C = QUIZ_COPY
 
 export function QuizResultPage() {
   const navigate = useNavigate()
@@ -44,14 +34,27 @@ export function QuizResultPage() {
   const accuracy       = totalCards > 0 ? Math.round((correctOnFirst / totalCards) * 100) : 0
   const promoted       = cardInfos.filter((c) => c.after > c.before).length
 
-  const grade = GRADES.find((g) => accuracy >= g.min) ?? GRADES[GRADES.length - 1]
+  const grade = QUIZ_GRADES.find((g) => accuracy >= g.min) ?? QUIZ_GRADES[QUIZ_GRADES.length - 1]
 
   const accentColor =
-    accuracy >= 80 ? 'text-emerald-600' : accuracy >= 60 ? 'text-amber-500' : 'text-rose-500'
+    accuracy >= ACCURACY_THRESHOLDS.EXCELLENT ? 'text-emerald-600'
+    : accuracy >= ACCURACY_THRESHOLDS.GOOD    ? 'text-amber-500'
+    : 'text-rose-500'
   const accentBg =
-    accuracy >= 80 ? 'bg-emerald-50'    : accuracy >= 60 ? 'bg-amber-50'    : 'bg-rose-50'
+    accuracy >= ACCURACY_THRESHOLDS.EXCELLENT ? 'bg-emerald-50'
+    : accuracy >= ACCURACY_THRESHOLDS.GOOD    ? 'bg-amber-50'
+    : 'bg-rose-50'
   const trophyHex =
-    accuracy >= 80 ? '#059669'          : accuracy >= 60 ? '#d97706'        : '#f43f5e'
+    accuracy >= ACCURACY_THRESHOLDS.EXCELLENT ? '#059669'
+    : accuracy >= ACCURACY_THRESHOLDS.GOOD    ? '#d97706'
+    : '#f43f5e'
+
+  function handleContinue() {
+    navigate('/study', { state: { batchIds, mode } })
+  }
+  function handleGoHome() {
+    navigate('/dashboard')
+  }
 
   return (
     <div className="flex h-screen flex-col bg-background">
@@ -59,22 +62,22 @@ export function QuizResultPage() {
       {/* ── Header ── */}
       <header className="flex h-12 shrink-0 items-center justify-between bg-background/90 px-4 backdrop-blur-sm">
         <button
-          onClick={() => navigate('/dashboard')}
+          onClick={handleGoHome}
           className="flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground/50 transition-colors hover:text-foreground"
         >
           <XIcon size={15} />
         </button>
-        <p className="text-sm font-semibold text-foreground">Kết quả bài kiểm tra</p>
+        <p className="text-sm font-semibold text-foreground">{C.resultPageTitle}</p>
         <div className="h-8 w-8" />
       </header>
 
-      {/* ── Body: fills remaining height, no outer scroll ── */}
+      {/* ── Body ── */}
       <div className="flex min-h-0 flex-1 flex-col px-4 py-4">
         <div className="mx-auto flex w-full max-w-md min-h-0 flex-1 flex-col gap-3">
 
-          {/* ── Trophy + grade (horizontal to save vertical space) ── */}
+          {/* ── Trophy + grade ── */}
           <div className={`flex items-center gap-4 rounded-3xl px-5 py-4 ${accentBg}`}>
-            <div className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-white/60`}>
+            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-white/60">
               <TrophyIcon size={32} weight="fill" style={{ color: trophyHex }} />
             </div>
             <div className="min-w-0 flex-1">
@@ -86,21 +89,21 @@ export function QuizResultPage() {
 
           {/* ── Stats row ── */}
           <div className="grid grid-cols-4 gap-2">
-            <StatCard label="Tổng"     value={totalCards}     />
-            <StatCard label="Đúng"     value={correctOnFirst} color="text-emerald-600" />
-            <StatCard label="Sai"      value={wrongOnFirst}   color="text-rose-500" />
-            <StatCard label="Tăng bậc" value={promoted}       color="text-primary" />
+            <QuizStatCard label={C.resultStatTotal}    value={totalCards}     />
+            <QuizStatCard label={C.resultStatCorrect}  value={correctOnFirst} color="text-emerald-600" />
+            <QuizStatCard label={C.resultStatWrong}    value={wrongOnFirst}   color="text-rose-500" />
+            <QuizStatCard label={C.resultStatPromoted} value={promoted}       color="text-primary" />
           </div>
 
           {/* ── Per-card mastery changes — scrollable ── */}
           {cardInfos.length > 0 && (
             <section className="flex min-h-0 flex-1 flex-col">
               <p className="mb-2 shrink-0 text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
-                Thay đổi bậc học
+                {C.resultMasteryChangeLabel}
               </p>
               <div className="flex min-h-0 flex-1 flex-col gap-1.5 overflow-y-auto pr-0.5">
                 {cardInfos.map((c) => (
-                  <MasteryRow key={c.cardId} card={c} />
+                  <QuizMasteryRow key={c.cardId} card={c} />
                 ))}
               </div>
             </section>
@@ -109,64 +112,23 @@ export function QuizResultPage() {
           {/* ── Actions ── */}
           <div className="flex shrink-0 flex-col gap-2 pt-1">
             <button
-              onClick={() => navigate('/study', { state: { batchIds, mode } })}
+              onClick={handleContinue}
               className="flex items-center justify-center gap-2 rounded-2xl bg-primary px-4 py-3 text-sm font-semibold text-background transition-colors hover:bg-primary-container"
             >
-              Tiếp tục học
+              {C.resultContinueBtn}
               <ArrowRightIcon size={15} />
             </button>
             <button
-              onClick={() => navigate('/dashboard')}
+              onClick={handleGoHome}
               className="flex items-center justify-center gap-2 rounded-2xl border border-[#1d1c13]/10 px-4 py-2.5 text-sm font-medium text-secondary transition-colors hover:bg-surface-container"
             >
               <HouseIcon size={14} />
-              Về trang chủ
+              {C.resultHomeBtn}
             </button>
           </div>
 
         </div>
       </div>
-    </div>
-  )
-}
-
-function StatCard({
-  label,
-  value,
-  color = 'text-foreground',
-}: {
-  label: string
-  value: number
-  color?: string
-}) {
-  return (
-    <div className="rounded-2xl bg-surface-container-low px-2 py-3 text-center">
-      <p className={`text-2xl font-bold ${color}`}>{value}</p>
-      <p className="mt-0.5 text-[10px] text-muted-foreground">{label}</p>
-    </div>
-  )
-}
-
-function MasteryRow({ card }: { card: CardInfo }) {
-  const delta   = card.after - card.before
-  const rowBg   = delta > 0 ? 'bg-emerald-50/70' : delta < 0 ? 'bg-rose-50/60' : 'bg-surface-container-low'
-  const deltaTx = delta > 0 ? 'text-emerald-600'  : delta < 0 ? 'text-rose-500'  : 'text-muted-foreground/50'
-  const arrow   = delta > 0 ? '↑' : delta < 0 ? '↓' : '–'
-
-  return (
-    <div className={`flex items-center gap-3 rounded-2xl px-4 py-3 ${rowBg}`}>
-      <div className="min-w-0 flex-1">
-        <p className="truncate font-kiwi text-lg font-medium leading-tight text-foreground">
-          {card.content}
-        </p>
-        {card.reading && (
-          <p className="text-xs text-muted-foreground">{card.reading}</p>
-        )}
-      </div>
-      <JlptBadge level={card.jlptLevel as any} />
-      <p className={`shrink-0 text-xs font-semibold ${deltaTx}`}>
-        {arrow} Bậc {card.before} → {card.after}
-      </p>
     </div>
   )
 }
