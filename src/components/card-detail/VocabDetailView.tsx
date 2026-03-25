@@ -5,6 +5,7 @@ import { FuriganaText } from '@/components/ui/furigana-text'
 import { ExampleCard } from './ExampleCard'
 import { NoteEditor } from './NoteEditor'
 import { ProgressCard } from './ProgressCard'
+import { CommentsSection } from './CommentsSection'
 import { AddToDeckModal } from '@/components/search/AddToDeckModal'
 import { CARD_DETAIL_COPY } from '@/constants/cardDetail'
 import type { VocabCardDetail, CardProgressDetail } from '@/types/card'
@@ -212,6 +213,11 @@ export function VocabDetailView({ card: initial }: Props) {
           </div>
         </section>
       )}
+
+      {/* ── COMMENTS: Full width ── */}
+      <section className="order-4 lg:order-none lg:col-span-3">
+        <CommentsSection cardId={card.id} />
+      </section>
 
       {showDeckModal && (
         <AddToDeckModal

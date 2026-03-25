@@ -1,0 +1,17 @@
+export const COMMENTS_COPY = {
+  sectionTitle: 'Bình luận',
+  placeholder: 'Viết bình luận của bạn…',
+  submitBtn: 'Gửi',
+  likeBtn: 'Thích',
+  replyBtn: 'Trả lời',
+  repliesCount: (n: number) => `${n} trả lời`,
+  hideReplies: 'Ẩn trả lời',
+  loadMore: 'Xem thêm bình luận',
+  noComments: 'Chưa có bình luận nào. Hãy là người đầu tiên!',
+  replyPlaceholder: 'Viết trả lời…',
+  replySubmit: 'Gửi',
+  replyCancel: 'Hủy',
+  loading: 'Đang tải bình luận…',
+  submitting: 'Đang gửi…',
+  likeCount: (n: number) => `${n}`,
+} as const

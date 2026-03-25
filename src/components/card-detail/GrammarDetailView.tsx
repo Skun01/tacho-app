@@ -7,6 +7,7 @@ import { ExampleCard } from './ExampleCard'
 import { NoteEditor } from './NoteEditor'
 import { ProgressCard } from './ProgressCard'
 import { AddToDeckModal } from '@/components/search/AddToDeckModal'
+import { CommentsSection } from './CommentsSection'
 import { CARD_DETAIL_COPY } from '@/constants/cardDetail'
 import type { GrammarCardDetail, CardProgressDetail, GrammarRegister } from '@/types/card'
 
@@ -291,6 +292,11 @@ export function GrammarDetailView({ card: initial }: Props) {
           </div>
         </section>
       )}
+
+      {/* ── COMMENTS: Full width ── */}
+      <section className="order-5 lg:order-none lg:col-span-3">
+        <CommentsSection cardId={card.id} />
+      </section>
 
       {/* Register info modal */}
       {registerModalOpen && (
