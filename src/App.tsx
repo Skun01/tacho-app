@@ -17,6 +17,7 @@ import { QuizConfigPage } from './pages/QuizConfigPage'
 import { QuizResultPage } from './pages/QuizResultPage'
 import { ProfilePage } from './pages/ProfilePage'
 import { SettingsPage } from './pages/SettingsPage'
+import { QuickStudyPage } from './pages/QuickStudyPage'
 import { GuestRoute } from './components/auth/GuestRoute'
 import { ProtectedRoute } from './components/auth/ProtectedRoute'
 import { GooeyToaster } from './components/ui/goey-toaster'
@@ -94,6 +95,10 @@ function AppRoutes() {
           <Route
             path='/settings'
             element={<SettingsPage/>}
+          />
+          <Route
+            path='/quick-study'
+            element={<QuickStudyPage/>}
           />
           <Route
             path='/deck/:id'

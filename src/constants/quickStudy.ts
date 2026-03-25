@@ -1,0 +1,16 @@
+export const QUICK_STUDY_COPY = {
+  heading: 'Học nhanh',
+  subheading: 'Chọn bộ thẻ và dạng bài tập để bắt đầu ngay',
+  deckSectionTitle: 'Chọn bộ thẻ',
+  deckSearchPlaceholder: 'Tìm bộ thẻ…',
+  typeSectionTitle: 'Dạng bài tập',
+  startBtn: 'Bắt đầu học nhanh',
+  startingBtn: 'Đang tải…',
+  viewDetailLink: 'Xem chi tiết',
+  emptyDecks: 'Bạn chưa lưu bộ thẻ nào. Hãy vào Thư viện để thêm!',
+  cardCount: (n: number) => `${n} thẻ`,
+  vocabCount: (n: number) => `${n} từ`,
+  grammarCount: (n: number) => `${n} ngữ pháp`,
+  sourceBadge: 'Tacho',
+  noCardHint: 'Bộ thẻ này chưa có thẻ nào.',
+} as const

@@ -2,6 +2,7 @@ export const DASHBOARD_NAV = {
   links: [
     { label: 'Dashboard', href: '/dashboard' },
     { label: 'Thư viện', href: '/library' },
+    { label: 'Học nhanh', href: '/quick-study' },
   ],
   searchLabel: 'Tìm kiếm',
   notificationsLabel: 'Thông báo',
