@@ -6,7 +6,7 @@ import { getDeckDetail } from '@/services/deckService'
 export function useQuickStudy() {
   const navigate = useNavigate()
   const [selectedDeckId, setSelectedDeckId] = useState<string | null>(null)
-  const [quizType, setQuizType] = useState<QuizForceType>('mixed')
+  const [quizType, setQuizType] = useState<QuizForceType>('C')
   const [starting, setStarting] = useState(false)
 
   function handleSelectDeck(id: string) {
@@ -26,7 +26,7 @@ export function useQuickStudy() {
       navigate('/quiz', {
         state: {
           batchIds: cardIds,
-          forceType: quizType === 'mixed' ? undefined : quizType,
+          forceType: quizType,
           mode: 'learn',
         },
       })

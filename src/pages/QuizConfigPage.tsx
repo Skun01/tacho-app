@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { useNavigate, useLocation } from 'react-router'
 import {
   ArrowLeftIcon,
-  ShuffleIcon,
   ListChecksIcon,
   TextTIcon,
   SpeakerHighIcon,
@@ -16,7 +15,6 @@ type QuizConfigLocationState = {
 }
 
 const ICON_MAP: Record<string, React.ReactNode> = {
-  Shuffle:     <ShuffleIcon size={24} />,
   ListChecks:  <ListChecksIcon size={24} />,
   TextT:       <TextTIcon size={24} />,
   SpeakerHigh: <SpeakerHighIcon size={24} />,
@@ -27,7 +25,7 @@ export function QuizConfigPage() {
   const location = useLocation()
   const routeState = location.state as QuizConfigLocationState | null
 
-  const [selected, setSelected] = useState<QuizForceType>('mixed')
+  const [selected, setSelected] = useState<QuizForceType>('C')
 
   function handleStart() {
     navigate('/quiz', {
@@ -35,7 +33,7 @@ export function QuizConfigPage() {
         batchIds: routeState?.batchIds,
         mode: routeState?.mode ?? 'review',
         type: routeState?.type,
-        forceType: selected === 'mixed' ? undefined : selected,
+        forceType: selected,
       },
     })
   }

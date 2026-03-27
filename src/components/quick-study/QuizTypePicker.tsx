@@ -1,5 +1,4 @@
 import {
-  ShuffleIcon,
   ListChecksIcon,
   TextTIcon,
   SpeakerHighIcon,
@@ -9,7 +8,6 @@ import { QUIZ_TYPE_OPTIONS, type QuizForceType } from '@/constants/quiz'
 import { QUICK_STUDY_COPY } from '@/constants/quickStudy'
 
 const ICON_MAP: Record<string, React.ReactNode> = {
-  Shuffle:     <ShuffleIcon size={20} />,
   ListChecks:  <ListChecksIcon size={20} />,
   TextT:       <TextTIcon size={20} />,
   SpeakerHigh: <SpeakerHighIcon size={20} />,

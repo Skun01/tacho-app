@@ -71,7 +71,7 @@ export const QUIZ_COPY = {
   retryBadge: 'Ôn lại',
 }
 
-export type QuizForceType = 'mixed' | 'A' | 'B' | 'C' | 'D'
+export type QuizForceType = 'A' | 'B' | 'C' | 'D'
 
 export const QUIZ_TYPE_OPTIONS: {
   value: QuizForceType
@@ -79,12 +79,6 @@ export const QUIZ_TYPE_OPTIONS: {
   desc: string
   icon: string
 }[] = [
-  {
-    value: 'mixed',
-    label: 'Hỗn hợp',
-    desc: 'Ngẫu nhiên các dạng bài trong mỗi phiên',
-    icon: 'Shuffle',
-  },
   {
     value: 'C',
     label: 'Trắc nghiệm',
