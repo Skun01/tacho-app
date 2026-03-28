@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router'
-import { XIcon, LightbulbIcon } from '@phosphor-icons/react'
+import { XIcon, LightbulbIcon, ArrowCounterClockwiseIcon, InfoIcon } from '@phosphor-icons/react'
 import { TypeAQuestion } from '@/components/quiz/TypeAQuestion'
 import { TypeBQuestion } from '@/components/quiz/TypeBQuestion'
 import { TypeCQuestion } from '@/components/quiz/TypeCQuestion'
-import { TypeDQuestion } from '@/components/quiz/TypeDQuestion'
+import { FlashcardStack } from '@/components/quiz/FlashcardStack'
 import { QuizActionBar } from '@/components/quiz/QuizActionBar'
 import { QuizCardInfoPanel } from '@/components/quiz/QuizCardInfoPanel'
 import { QuizInputBar } from '@/components/quiz/QuizInputBar'
@@ -27,11 +27,12 @@ export function QuizPage() {
     phase, current, answerState, inputValue, setInputValue,
     selectedChoiceId, audioPlayed, setAudioPlayed, visible,
     showCardInfo, cardInfoData, cardInfoLoading,
-    initialCount, correctFirst, progressPct,
+    initialCount, correctFirst, answeredFirst, progressPct,
     pendingMastery, masteryDelta,
     inputRef, cardInfoRef,
     handleCheck, handleSelectChoice, handleUndo, handleSeeAnswer,
-    handleFlashcardAnswer, handleNext, handleShowCardInfo,
+    handleFlashcardAnswer, handleFlashcardSwipe, handleFlashcardUndo, flashcardHistory,
+    handleNext, handleShowCardInfo,
   } = session
 
   const [isCardFlipped, setIsCardFlipped] = useState(false)
@@ -59,6 +60,8 @@ export function QuizPage() {
     onShowCardInfo: handleShowCardInfo,
     onFlipCard: handleFlipCard,
     onFlashcardAnswer: handleFlashcardAnswer,
+    onFlashcardSwipe: handleFlashcardSwipe,
+    onFlashcardUndo: handleFlashcardUndo,
     navigate,
   })
 
@@ -109,57 +112,61 @@ export function QuizPage() {
       )}
 
       {/* ── Question area ── */}
-      <main
-        className={`flex min-h-screen flex-col items-center justify-center px-8 pt-12 ${
-          isTypeC ? 'pb-20' : 'pb-36'
-        }`}
-      >
-        {current.isRetry && (
-          <span className="mb-6 rounded-full bg-orange-100 px-3 py-1 text-xs font-semibold text-orange-600">
-            {C.retryBadge}
-          </span>
-        )}
-
-        <div
-          key={current.id}
-          className={`w-full max-w-2xl transition-opacity duration-150 ${visible ? 'opacity-100' : 'opacity-0'}`}
+      {isTypeD ? (
+        <main className="flex min-h-screen flex-col items-center justify-center px-6 pb-28 pt-16">
+          <FlashcardStack
+            cards={session.queue}
+            isFlipped={isCardFlipped}
+            onFlip={handleFlipCard}
+            onSwipe={handleFlashcardSwipe}
+            totalCards={initialCount}
+            answeredCount={answeredFirst}
+          />
+        </main>
+      ) : (
+        <main
+          className={`flex min-h-screen flex-col items-center justify-center px-8 pt-12 ${
+            isTypeC ? 'pb-20' : 'pb-36'
+          }`}
         >
-          {current.type === 'A' && (
-            <TypeAQuestion
-              question={current}
-              answerState={answerState}
-              submittedValue={inputValue}
-              showHint={showHint}
-            />
+          {current.isRetry && (
+            <span className="mb-6 rounded-full bg-orange-100 px-3 py-1 text-xs font-semibold text-orange-600">
+              {C.retryBadge}
+            </span>
           )}
-          {current.type === 'B' && (
-            <TypeBQuestion
-              question={current}
-              answerState={answerState}
-              submittedValue={inputValue}
-              hasPlayed={audioPlayed}
-              onPlay={() => setAudioPlayed(true)}
-            />
-          )}
-          {current.type === 'C' && (
-            <TypeCQuestion
-              question={current}
-              answerState={answerState}
-              selectedId={selectedChoiceId}
-              onSelect={handleSelectChoice}
-            />)}
-          {current.type === 'D' && (
-            <TypeDQuestion
-              key={current.id}
-              question={current}
-              answerState={answerState}
-              isFlipped={isCardFlipped}
-              onFlip={handleFlipCard}
-              onAnswer={handleFlashcardAnswer}
-            />
-          )}
-        </div>
-      </main>
+
+          <div
+            key={current.id}
+            className={`w-full max-w-2xl transition-opacity duration-150 ${visible ? 'opacity-100' : 'opacity-0'}`}
+          >
+            {current.type === 'A' && (
+              <TypeAQuestion
+                question={current}
+                answerState={answerState}
+                submittedValue={inputValue}
+                showHint={showHint}
+              />
+            )}
+            {current.type === 'B' && (
+              <TypeBQuestion
+                question={current}
+                answerState={answerState}
+                submittedValue={inputValue}
+                hasPlayed={audioPlayed}
+                onPlay={() => setAudioPlayed(true)}
+              />
+            )}
+            {current.type === 'C' && (
+              <TypeCQuestion
+                question={current}
+                answerState={answerState}
+                selectedId={selectedChoiceId}
+                onSelect={handleSelectChoice}
+              />
+            )}
+          </div>
+        </main>
+      )}
 
       {/* ── Inline card detail ── */}
       <QuizCardInfoPanel
@@ -172,32 +179,65 @@ export function QuizPage() {
       {/* ── Floating scroll-to-top ── */}
       <ScrollToTop threshold={200} className="bottom-28 right-4" />
 
-      {/* ── Action buttons ── */}
-      <QuizActionBar
-        answerState={answerState}
-        showCardInfo={showCardInfo}
-        isTypeC={isTypeC}
-        isTypeD={isTypeD}
-        onUndo={handleUndo}
-        onSeeAnswer={handleSeeAnswer}
-        onShowCardInfo={handleShowCardInfo}
-      />
+      {/* ── Flashcard always-visible controls ── */}
+      {isTypeD && (
+        <div className="fixed bottom-6 inset-x-0 z-40 flex justify-center gap-3 px-4">
+          <button
+            onClick={handleFlashcardUndo}
+            disabled={flashcardHistory.length === 0}
+            className={`flex items-center gap-1.5 rounded-2xl border px-4 py-2.5 text-sm font-medium transition-colors ${
+              flashcardHistory.length === 0
+                ? 'cursor-default border-[#1d1c13]/08 bg-background/70 text-muted-foreground/35'
+                : 'border-[#1d1c13]/12 bg-background text-secondary shadow-sm hover:bg-surface-container'
+            }`}
+          >
+            <ArrowCounterClockwiseIcon size={15} />
+            {C.actionUndo}
+          </button>
+          <button
+            onClick={handleShowCardInfo}
+            className={`flex items-center gap-1.5 rounded-2xl border px-4 py-2.5 text-sm font-medium transition-colors ${
+              showCardInfo
+                ? 'border-primary/20 bg-primary/8 text-primary'
+                : 'border-[#1d1c13]/12 bg-background text-secondary shadow-sm hover:bg-surface-container'
+            }`}
+          >
+            <InfoIcon size={15} />
+            {showCardInfo ? C.actionCardInfoHide : C.actionCardInfo}
+          </button>
+        </div>
+      )}
 
-      {/* ── Input bar / Type C next ── */}
-      <QuizInputBar
-        isTypeC={isTypeC}
-        isTypeD={isTypeD}
-        answerState={answerState}
-        inputValue={inputValue}
-        inputRef={inputRef}
-        audioUrl={audioUrl}
-        canSubmit={canSubmit}
-        skipNextEnterRef={skipNextEnterRef}
-        onChange={setInputValue}
-        onCheck={handleCheck}
-        onNext={handleNext}
-        onPlayAudio={() => setAudioPlayed(true)}
-      />
+      {/* ── Action buttons (non-TypeD) ── */}
+      {!isTypeD && (
+        <QuizActionBar
+          answerState={answerState}
+          showCardInfo={showCardInfo}
+          isTypeC={isTypeC}
+          isTypeD={false}
+          onUndo={handleUndo}
+          onSeeAnswer={handleSeeAnswer}
+          onShowCardInfo={handleShowCardInfo}
+        />
+      )}
+
+      {/* ── Input bar (non-TypeD) ── */}
+      {!isTypeD && (
+        <QuizInputBar
+          isTypeC={isTypeC}
+          isTypeD={false}
+          answerState={answerState}
+          inputValue={inputValue}
+          inputRef={inputRef}
+          audioUrl={audioUrl}
+          canSubmit={canSubmit}
+          skipNextEnterRef={skipNextEnterRef}
+          onChange={setInputValue}
+          onCheck={handleCheck}
+          onNext={handleNext}
+          onPlayAudio={() => setAudioPlayed(true)}
+        />
+      )}
 
       {/* ── Hotkey guide ── */}
       <QuizHotkeyGuide />

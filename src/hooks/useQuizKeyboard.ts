@@ -16,6 +16,8 @@ interface Params {
   onShowCardInfo: () => void
   onFlipCard: () => void
   onFlashcardAnswer: (correct: boolean) => void
+  onFlashcardSwipe: (correct: boolean) => void
+  onFlashcardUndo: () => void
   navigate: NavigateFunction
 }
 
@@ -32,6 +34,8 @@ export function useQuizKeyboard({
   onShowCardInfo,
   onFlipCard,
   onFlashcardAnswer,
+  onFlashcardSwipe,
+  onFlashcardUndo,
   navigate,
 }: Params) {
   const skipNextEnterRef = useRef(false)
@@ -65,10 +69,10 @@ export function useQuizKeyboard({
         return
       }
 
-      // ── ArrowRight / ArrowLeft: Type D answer ───────────────────────────
-      if (current?.type === 'D' && answerState === 'idle') {
-        if (e.key === 'ArrowRight') { e.preventDefault(); onFlashcardAnswer(true); return }
-        if (e.key === 'ArrowLeft')  { e.preventDefault(); onFlashcardAnswer(false); return }
+      // ── ArrowRight / ArrowLeft: Type D swipe ──────────────────────────────────────
+      if (current?.type === 'D') {
+        if (e.key === 'ArrowRight') { e.preventDefault(); onFlashcardSwipe(true); return }
+        if (e.key === 'ArrowLeft')  { e.preventDefault(); onFlashcardSwipe(false); return }
       }
 
       // ── 1–4: Type C choice selection ──────────────────────────────────────────
@@ -78,15 +82,10 @@ export function useQuizKeyboard({
         return
       }
 
-      // ── Backspace / z: undo (only when input is readonly i.e. answered) ───────
-      if (
-        (e.key === 'Backspace' || e.key === 'z') &&
-        answerState !== 'idle' &&
-        !e.ctrlKey &&
-        !e.metaKey
-      ) {
-        onUndo()
-        return
+      // ── Backspace / z: undo ───────────────────────────────────────────────
+      if ((e.key === 'Backspace' || e.key === 'z') && !e.ctrlKey && !e.metaKey) {
+        if (current?.type === 'D') { onFlashcardUndo(); return }
+        if (answerState !== 'idle') { onUndo(); return }
       }
 
       // ── s: see answer (wrong only) ────────────────────────────────────────────
@@ -95,8 +94,8 @@ export function useQuizKeyboard({
         return
       }
 
-      // ── i: view card info ─────────────────────────────────────────────────────
-      if (e.key === 'i' && answerState !== 'idle') {
+      // ── i: view card info ─────────────────────────────────────────────────
+      if (e.key === 'i' && (current?.type === 'D' || answerState !== 'idle')) {
         onShowCardInfo()
         return
       }
@@ -104,7 +103,7 @@ export function useQuizKeyboard({
 
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [answerState, current, inputRef, isCardFlipped, onPlayAudio, onNext, onUndo, onSeeAnswer, onSelectChoice, onShowCardInfo, onFlipCard, onFlashcardAnswer, navigate])
+  }, [answerState, current, inputRef, isCardFlipped, onPlayAudio, onNext, onUndo, onSeeAnswer, onSelectChoice, onShowCardInfo, onFlipCard, onFlashcardAnswer, onFlashcardSwipe, onFlashcardUndo, navigate])
 
   return { skipNextEnterRef }
 }

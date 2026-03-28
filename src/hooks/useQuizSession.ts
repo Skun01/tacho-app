@@ -11,6 +11,11 @@ import type { QuizForceType } from '@/constants/quiz'
 
 type Phase = 'loading' | 'quiz'
 type CardDisplayInfo = { content: string; reading?: string; jlptLevel: string }
+type FlashcardHistoryEntry = {
+  card: QuizQuestion
+  masterySnap: Map<string, { before: number; after: number }>
+  attemptCount: number
+}
 
 export type QuizLocationState = {
   batchIds?: string[]
@@ -41,6 +46,7 @@ export function useQuizSession(
   const [cardInfoData, setCardInfoData] = useState<CardDetail | null>(null)
   const [cardInfoLoading, setCardInfoLoading] = useState(false)
   const [scrollY, setScrollY] = useState(0)
+  const [flashcardHistory, setFlashcardHistory] = useState<FlashcardHistoryEntry[]>([])
 
   // ── Load ──────────────────────────────────────────────────────────────────────
   useEffect(() => {
@@ -196,6 +202,76 @@ export function useQuizSession(
     }, 150)
   }
 
+  async function handleFlashcardSwipe(correct: boolean) {
+    if (!current) return
+
+    const newAttempt: QuizAttempt = {
+      cardId: current.cardId,
+      questionId: current.id,
+      correct,
+      wasRetry: current.isRetry,
+    }
+    const nextAttempts = [...attempts, newAttempt]
+    const nextMastery = new Map(masteryChanges)
+    const existing = nextMastery.get(current.cardId)!
+    const after = Math.max(0, Math.min(14, existing.after + (correct ? 1 : -2)))
+    nextMastery.set(current.cardId, { ...existing, after })
+
+    setFlashcardHistory((prev) => [
+      ...prev,
+      { card: current, masterySnap: new Map(masteryChanges), attemptCount: attempts.length },
+    ])
+    setAttempts(nextAttempts)
+    setMasteryChanges(nextMastery)
+
+    const remaining = queue.slice(1)
+    if (correct && remaining.length === 0) {
+      await commitQuizProgress(
+        Array.from(nextMastery.entries()).map(([cardId, mc]) => ({
+          cardId,
+          before: mc.before,
+          after: mc.after,
+        })),
+      )
+      navigate('/quiz/result', {
+        state: {
+          attempts: nextAttempts,
+          totalCards: initialCount,
+          batchIds,
+          mode: routeState?.mode ?? 'learn',
+          cardInfos: Array.from(nextMastery.entries()).map(([cardId, mc]) => ({
+            cardId,
+            content: cardInfosRef.current.get(cardId)?.content ?? cardId,
+            reading: cardInfosRef.current.get(cardId)?.reading,
+            jlptLevel: cardInfosRef.current.get(cardId)?.jlptLevel ?? '',
+            before: mc.before,
+            after: mc.after,
+          })),
+        },
+      })
+      return
+    }
+
+    if (correct) {
+      setQueue(remaining)
+    } else {
+      setQueue([...remaining, { ...current, id: `${current.id}-r`, isRetry: true }])
+    }
+    setShowCardInfo(false)
+    setCardInfoData(null)
+  }
+
+  function handleFlashcardUndo() {
+    if (flashcardHistory.length === 0) return
+    const last = flashcardHistory[flashcardHistory.length - 1]
+    setFlashcardHistory((prev) => prev.slice(0, -1))
+    setMasteryChanges(new Map(last.masterySnap))
+    setAttempts((prev) => prev.slice(0, last.attemptCount))
+    setQueue((prev) => [last.card, ...prev.filter((q) => q.id !== last.card.id && q.id !== `${last.card.id}-r`)])
+    setShowCardInfo(false)
+    setCardInfoData(null)
+  }
+
   async function handleShowCardInfo() {
     if (showCardInfo && cardInfoData) {
       cardInfoRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -212,6 +288,7 @@ export function useQuizSession(
 
   return {
     phase,
+    queue,
     current,
     answerState,
     inputValue,
@@ -237,6 +314,9 @@ export function useQuizSession(
     handleUndo,
     handleSeeAnswer,
     handleFlashcardAnswer,
+    handleFlashcardSwipe,
+    handleFlashcardUndo,
+    flashcardHistory,
     handleNext,
     handleShowCardInfo,
   }

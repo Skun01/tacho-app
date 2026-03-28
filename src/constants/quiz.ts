@@ -69,6 +69,14 @@ export const QUIZ_COPY = {
   hintHide: 'Ẩn gợi ý',
   // Retry badge
   retryBadge: 'Ôn lại',
+  // Flashcard swipe
+  flashcardSwipeRight: 'Đã nhớ',
+  flashcardSwipeLeft: 'Chưa nhớ',
+  flashcardDragHint: '← Chưa nhớ · Đã nhớ →',
+  flashcardFlipHint: 'Ấn Space hoặc click để lật',
+  flashcardReadingLabel: 'Cách đọc',
+  flashcardExampleLabel: 'Ví dụ',
+  flashcardEmpty: 'Đã học hết tất cả thẻ!',
 }
 
 export type QuizForceType = 'A' | 'B' | 'C' | 'D'
