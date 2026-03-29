@@ -1,24 +1,34 @@
 import { useState } from 'react'
-import { useParams } from 'react-router'
+import { useNavigate, useParams } from 'react-router'
+import { ArrowLeftIcon } from '@phosphor-icons/react'
 import { DashboardLayout } from '@/components/layout/DashboardLayout'
 import { DeckViewHeader } from '@/components/library/DeckViewHeader'
+import { DeckPageSkeleton } from '@/components/library/DeckPageSkeleton'
 import { PaginationBar } from '@/components/ui/PaginationBar'
 import { CardRow } from '@/components/library/CardRow'
 import { DECK_COPY } from '@/constants/deck'
 import { useDeckView } from '@/hooks/useDeckView'
 
-const PER_PAGE = DECK_COPY.viewPage.perPage
+const C = DECK_COPY
+const PER_PAGE = C.viewPage.perPage
 
 export function DeckViewPage() {
+  const navigate = useNavigate()
   const { id } = useParams<{ id: string }>()
   const { deck, inReview, saved, handleToggleReview, handleToggleSaved, handleClone } = useDeckView(id)
   const [page, setPage] = useState(1)
 
   if (!deck) return (
     <DashboardLayout>
-      <div className="py-16 text-center text-sm text-muted-foreground">
-        {DECK_COPY.editPage.loading}
-      </div>
+      {/* Back button visible even while loading */}
+      <button
+        onClick={() => navigate(-1)}
+        className="mb-6 flex w-fit items-center gap-2 rounded-full px-3 py-1.5 text-sm font-medium text-secondary transition-colors hover:bg-surface-container hover:text-foreground"
+      >
+        <ArrowLeftIcon size={14} />
+        {C.editPage.backBtn}
+      </button>
+      <DeckPageSkeleton />
     </DashboardLayout>
   )
 
@@ -28,6 +38,15 @@ export function DeckViewPage() {
   return (
     <DashboardLayout>
       <div className="flex flex-col gap-6">
+        {/* Back button */}
+        <button
+          onClick={() => navigate(-1)}
+          className="flex w-fit items-center gap-2 rounded-full px-3 py-1.5 text-sm font-medium text-secondary transition-colors hover:bg-surface-container hover:text-foreground"
+        >
+          <ArrowLeftIcon size={14} />
+          {C.editPage.backBtn}
+        </button>
+
         <DeckViewHeader
           deck={deck}
           inReview={inReview}

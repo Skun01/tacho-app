@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import { useNavigate, useParams } from 'react-router'
-import { MagnifyingGlassIcon } from '@phosphor-icons/react'
+import { MagnifyingGlassIcon, ArrowLeftIcon } from '@phosphor-icons/react'
 import { DashboardLayout } from '@/components/layout/DashboardLayout'
 import { DeckEditHeader } from '@/components/library/DeckEditHeader'
+import { DeckPageSkeleton } from '@/components/library/DeckPageSkeleton'
 import { DeckFormModal } from '@/components/library/DeckFormModal'
 import { AddCardModal } from '@/components/library/AddCardModal'
 import { ConfirmDeleteModal } from '@/components/library/ConfirmDeleteModal'
@@ -44,13 +45,22 @@ export function DeckEditPage() {
 
   if (!deck) return (
     <DashboardLayout>
-      <div className="py-16 text-center text-sm text-muted-foreground">{C.loading}</div>
+      <DeckPageSkeleton />
     </DashboardLayout>
   )
 
   return (
     <DashboardLayout>
       <div className="flex flex-col gap-6">
+        {/* Back button */}
+        <button
+          onClick={() => navigate('/library')}
+          className="flex w-fit items-center gap-2 rounded-full px-3 py-1.5 text-sm font-medium text-secondary transition-colors hover:bg-surface-container hover:text-foreground"
+        >
+          <ArrowLeftIcon size={14} />
+          {C.backBtn}
+        </button>
+
         <DeckEditHeader
           deck={deck}
           cards={cards}

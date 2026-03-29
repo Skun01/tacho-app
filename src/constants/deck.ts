@@ -38,6 +38,7 @@ export const DECK_COPY = {
     savedToast: 'Đã lưu thông tin bộ thẻ!',
     loading: 'Đang tải...',
     notFound: 'Không tìm thấy bộ thẻ.',
+    backBtn: 'Quay lại thư viện',
   },
   addCard: {
     title: 'Thêm thẻ vào bộ',
