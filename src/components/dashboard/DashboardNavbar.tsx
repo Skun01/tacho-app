@@ -3,7 +3,6 @@ import { Link, useLocation, useNavigate } from 'react-router'
 import { AnimatePresence, motion } from 'framer-motion'
 import {
   MagnifyingGlassIcon,
-  BellIcon,
   UserCircleIcon,
   GearIcon,
   SignOutIcon,
@@ -12,6 +11,7 @@ import { BrandLogo } from '@/components/ui/brand-logo'
 import { DASHBOARD_NAV } from '@/constants/dashboard'
 import { authService } from '@/services/authService'
 import { useAuthStore } from '@/stores/authStore'
+import { NotificationPanel } from '@/components/dashboard/NotificationPanel'
 
 export function DashboardNavbar() {
   const { pathname } = useLocation()
@@ -107,12 +107,7 @@ export function DashboardNavbar() {
           </Link>
 
           {/* Notifications */}
-          <button
-            aria-label={DASHBOARD_NAV.notificationsLabel}
-            className="flex h-9 w-9 items-center justify-center rounded-full transition-colors hover:bg-surface-container"
-          >
-            <BellIcon size={18} className="text-secondary" />
-          </button>
+          <NotificationPanel />
 
           {/* Profile dropdown */}
           <div ref={menuRef} className="relative">

@@ -18,6 +18,7 @@ import { QuizResultPage } from './pages/QuizResultPage'
 import { ProfilePage } from './pages/ProfilePage'
 import { SettingsPage } from './pages/SettingsPage'
 import { QuickStudyPage } from './pages/QuickStudyPage'
+import { NotificationsPage } from './pages/NotificationsPage'
 import { GuestRoute } from './components/auth/GuestRoute'
 import { ProtectedRoute } from './components/auth/ProtectedRoute'
 import { GooeyToaster } from './components/ui/goey-toaster'
@@ -107,6 +108,10 @@ function AppRoutes() {
           <Route
             path='/deck/:id/edit'
             element={<DeckEditPage/>}
+          />
+          <Route
+            path='/notifications'
+            element={<NotificationsPage/>}
           />
         </Route>
       </Routes>

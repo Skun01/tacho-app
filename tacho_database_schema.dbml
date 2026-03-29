@@ -1,0 +1,678 @@
+// =============================================================
+// TACHO — Database Schema (DBML for dbdiagram.io)
+// Ứng dụng học tiếng Nhật theo phương pháp SRS
+// =============================================================
+// Paste toàn bộ file này vào https://dbdiagram.io/
+// =============================================================
+
+
+// ─────────────────────────────────────────────────────────────
+// ENUMS
+// ─────────────────────────────────────────────────────────────
+
+Enum card_type {
+  vocab    [note: 'Từ vựng']
+  grammar  [note: 'Ngữ pháp']
+}
+
+Enum user_role {
+  user    [note: 'Người dùng thông thường — chỉ truy cập user app']
+  editor  [note: 'Biên tập viên — có thêm quyền quản lý nội dung thẻ/deck trong admin app']
+  admin   [note: 'Quản trị viên — full access kể cả quản lý user trong admin app']
+}
+
+Enum jlpt_level {
+  N5
+  N4
+  N3
+  N2
+  N1
+}
+
+Enum grammar_register {
+  casual    [note: 'Thông thường']
+  standard  [note: 'Chuẩn']
+  polite    [note: 'Lịch sự']
+  formal    [note: 'Trang trọng']
+}
+
+Enum deck_source {
+  user       [note: 'Deck do user tạo']
+  app        [note: 'Deck của app (admin quản lý)']
+  community  [note: 'Deck cộng đồng (public)']
+  textbook   [note: 'Deck theo sách giáo khoa']
+}
+
+Enum deck_category {
+  mac_dinh        [note: 'Mặc định']
+  tu_vung         [note: 'Từ vựng']
+  ngu_phap        [note: 'Ngữ pháp']
+  anime           [note: 'Anime']
+  manga           [note: 'Manga']
+  am_nhac         [note: 'Âm nhạc']
+  tv              [note: 'TV']
+  novel           [note: 'Novel']
+  game            [note: 'Game']
+  sach_giao_khoa  [note: 'Sách giáo khoa']
+  khac            [note: 'Khác']
+}
+
+Enum grammar_link_type {
+  antonym  [note: 'Từ/cấu trúc trái nghĩa']
+  related  [note: 'Cấu trúc liên quan']
+}
+
+Enum quiz_type {
+  A  [note: 'Điền từ vào chỗ trống']
+  B  [note: 'Nghe và điền toàn bộ câu']
+  C  [note: 'Trắc nghiệm 4 đáp án']
+  D  [note: 'Thẻ ghi nhớ (flashcard)']
+}
+
+Enum notification_type {
+  review_reminder  [note: 'Nhắc nhở có thẻ đến hạn ôn tập hôm nay']
+  streak_warning   [note: 'Cảnh báo sắp mất streak (chưa học hôm nay, gửi lúc 20:00)']
+  milestone        [note: 'Đạt mốc: 100/500/1000 thẻ, streak 7/30/100 ngày, hoàn thành N5...']
+  card_burned      [note: 'Thẻ đầu tiên đạt mastery 14 (Burned)']
+  comment_reply    [note: 'Có người reply bình luận của mình']
+  comment_like     [note: 'Có người like bình luận của mình']
+  deck_cloned      [note: 'Có người clone deck public của mình']
+  system           [note: 'Thông báo hệ thống từ admin/editor (bảo trì, cập nhật nội dung...)']
+}
+
+
+// =============================================================
+// GROUP 1: AUTHENTICATION
+// =============================================================
+
+Table users {
+  id           uuid        [pk, default: `gen_random_uuid()`]
+  email        varchar(255) [not null, unique, note: 'Email dùng để đăng nhập, lowercase']
+  password_hash text        [not null, note: 'bcrypt hash, KHÔNG lưu plain text']
+  display_name varchar(100) [not null, note: 'Tên hiển thị']
+  avatar_url   text        [null, note: 'URL ảnh đại diện (CDN)']
+  role         user_role   [not null, default: 'user', note: 'user | editor | admin. Gán thủ công qua Admin App hoặc SQL.']
+  is_banned    boolean     [not null, default: false, note: 'true = tài khoản bị khóa, không thể đăng nhập']
+  created_at   timestamptz [not null, default: `now()`]
+  updated_at   timestamptz [not null, default: `now()`]
+  deleted_at   timestamptz [null, note: 'Soft delete — null = active']
+
+  indexes {
+    email            [unique, name: 'uq_users_email']
+    deleted_at       [name: 'idx_users_deleted_at']
+    role             [name: 'idx_users_role', note: 'Lọc theo role trong Admin App']
+  }
+
+  Note: 'Tài khoản người dùng. role mặc định là user, admin app gán editor/admin. Soft delete để giữ lại lịch sử bình luận.'
+}
+
+
+Table refresh_tokens {
+  id          uuid        [pk, default: `gen_random_uuid()`]
+  user_id     uuid        [not null, ref: > users.id, note: 'ON DELETE CASCADE']
+  token_hash  text        [not null, unique, note: 'SHA-256 hash của refresh token thực. Không lưu token gốc.']
+  expires_at  timestamptz [not null, note: 'Thời hạn token, default 30 ngày']
+  revoked_at  timestamptz [null, note: 'null = còn hiệu lực; non-null = đã thu hồi (logout/refresh mới)']
+  created_at  timestamptz [not null, default: `now()`]
+
+  indexes {
+    token_hash  [unique, name: 'uq_refresh_tokens_hash']
+    user_id     [name: 'idx_refresh_tokens_user']
+    (user_id, revoked_at, expires_at) [name: 'idx_refresh_tokens_active', note: 'Tìm token còn hiệu lực của user']
+  }
+
+  Note: 'Lưu refresh token (HTTPOnly cookie). Một user có thể có nhiều token (đa thiết bị).'
+}
+
+Table password_reset_tokens {
+  id          uuid        [pk, default: `gen_random_uuid()`]
+  user_id     uuid        [not null, ref: > users.id, note: 'ON DELETE CASCADE']
+  token_hash  text        [not null, unique, note: 'SHA-256 hash của token gửi qua email']
+  expires_at  timestamptz [not null, note: 'Hết hạn sau 1 giờ']
+  used_at     timestamptz [null, note: 'null = chưa dùng; non-null = đã reset password']
+  created_at  timestamptz [not null, default: `now()`]
+
+  indexes {
+    token_hash  [unique, name: 'uq_pwd_reset_hash']
+    user_id     [name: 'idx_pwd_reset_user']
+  }
+
+  Note: 'Token dùng 1 lần cho luồng quên mật khẩu. Tự xóa sau khi dùng hoặc hết hạn.'
+}
+
+
+// =============================================================
+// GROUP 2: FLASHCARD CONTENT (App-managed)
+// =============================================================
+
+Table cards {
+  id           uuid        [pk, default: `gen_random_uuid()`]
+  type         card_type   [not null, note: 'vocab | grammar']
+  jlpt_level   jlpt_level  [not null]
+
+  // ── Chung cho cả vocab & grammar ──
+  content      varchar(300) [not null, note: 'Kanji/Kana (vocab) hoặc pattern (grammar), e.g. 学校 / 〜てから']
+  meaning      text         [not null, note: 'Nghĩa tiếng Việt']
+
+  // ── Chỉ Vocab ──
+  reading            varchar(300) [null, note: 'Furigana, e.g. がっこう — chỉ vocab']
+  audio_url          text         [null, note: 'URL file âm thanh phát âm (CDN/S3) — vocab']
+  pitch_accent       varchar(200) [null, note: 'Ký hiệu pitch accent, e.g. わ↘たし — vocab']
+  pitch_pattern      jsonb        [null, note: 'Mảng số [0,1,0,...] per mora (0=low, 1=high) — vocab']
+  accepted_readings  jsonb        [null, note: 'Mảng đáp án chấp nhận khi quiz: ["がっこう","がくこう","gakkou"] — vocab']
+  example_sentence   text         [null, note: 'Câu ví dụ ngắn tiếng Nhật — vocab (hiển thị trong card list)']
+  example_meaning    text         [null, note: 'Nghĩa tiếng Việt của example_sentence — vocab']
+
+  // ── Chỉ Grammar ──
+  structure       text              [null, note: 'Cấu trúc đầy đủ, e.g. V-て + から — grammar']
+  formal_variant  text              [null, note: 'Biến thể trang trọng nếu có — grammar']
+  register        grammar_register  [null, note: 'Văn phong — grammar']
+  about_text      text              [null, note: 'Giải thích chi tiết, hỗ trợ Markdown — grammar']
+  notes           text              [null, note: 'Ghi chú thêm, điểm chú ý — grammar']
+
+  // ── Meta ──
+  created_by   uuid        [null, ref: > users.id, note: 'null = nội dung của app/admin; non-null = user tạo']
+  created_at   timestamptz [not null, default: `now()`]
+  updated_at   timestamptz [not null, default: `now()`]
+  deleted_at   timestamptz [null, note: 'Soft delete - xóa khỏi deck_cards, card_progress sau khi deleted']
+
+  indexes {
+    type                        [name: 'idx_cards_type']
+    jlpt_level                  [name: 'idx_cards_jlpt']
+    (type, jlpt_level)          [name: 'idx_cards_type_jlpt']
+    content                     [name: 'idx_cards_content', note: 'Cho full-text search, kết hợp với pg_trgm']
+    deleted_at                  [name: 'idx_cards_deleted_at']
+    (type, jlpt_level, deleted_at) [name: 'idx_cards_filter', note: 'Query chính khi lọc thẻ']
+  }
+
+  Note: '''
+  Bảng trung tâm: lưu cả từ vựng lẫn ngữ pháp.
+  Phân biệt bằng cột "type".
+  Các cột vocab/grammar nullable lẫn nhau.
+  Full-text search: dùng pg_trgm index trên (content, reading, meaning).
+  '''
+}
+
+Table card_examples {
+  id                  uuid        [pk, default: `gen_random_uuid()`]
+  card_id             uuid        [not null, ref: > cards.id, note: 'ON DELETE CASCADE']
+  japanese_sentence   text        [not null, note: 'Câu ví dụ tiếng Nhật']
+  vietnamese_meaning  text        [not null, note: 'Nghĩa tiếng Việt của câu']
+  jlpt_level          jlpt_level  [not null, note: 'Cấp độ JLPT của câu ví dụ này']
+  audio_url           text        [null, note: 'URL audio câu ví dụ — dùng cho quiz TypeB']
+  is_about_example    boolean     [not null, default: false, note: 'true = ví dụ trong phần "Về cấu trúc" (grammar about_text)']
+  position            int         [not null, default: 0, note: 'Thứ tự hiển thị (0-indexed)']
+  created_at          timestamptz [not null, default: `now()`]
+
+  indexes {
+    card_id           [name: 'idx_card_examples_card']
+    (card_id, position) [name: 'idx_card_examples_order']
+  }
+
+  Note: 'Câu ví dụ chi tiết. Một card có nhiều examples. is_about_example phân biệt 2 nhóm ví dụ của grammar card.'
+}
+
+Table card_dict_entries {
+  id            uuid  [pk, default: `gen_random_uuid()`]
+  card_id       uuid  [not null, ref: > cards.id, note: 'ON DELETE CASCADE — chỉ dùng cho vocab cards']
+  part_of_speech varchar(100) [not null, note: 'Loại từ: Danh từ, Động từ nhóm 1, Tính từ い, v.v.']
+  position      int   [not null, default: 0, note: 'Thứ tự trong card detail']
+
+  indexes {
+    card_id           [name: 'idx_dict_entries_card']
+    (card_id, position) [name: 'idx_dict_entries_order']
+  }
+
+  Note: 'Từ điển của vocab card. Một entry = một nghĩa nhóm (theo part of speech).'
+}
+
+Table card_dict_definitions {
+  id          uuid  [pk, default: `gen_random_uuid()`]
+  entry_id    uuid  [not null, ref: > card_dict_entries.id, note: 'ON DELETE CASCADE']
+  definition  text  [not null, note: 'Định nghĩa / nghĩa tiếng Việt chi tiết']
+  position    int   [not null, default: 0]
+
+  indexes {
+    entry_id          [name: 'idx_dict_definitions_entry']
+    (entry_id, position) [name: 'idx_dict_definitions_order']
+  }
+
+  Note: 'Các nghĩa cụ thể trong 1 entry từ điển. Một entry có thể có nhiều definitions.'
+}
+
+Table card_grammar_links {
+  id             uuid               [pk, default: `gen_random_uuid()`]
+  card_id        uuid               [not null, ref: > cards.id, note: 'Grammar card nguồn — ON DELETE CASCADE']
+  linked_card_id uuid               [not null, ref: > cards.id, note: 'Card được liên kết (cũng là grammar)']
+  link_type      grammar_link_type  [not null, note: 'antonym | related']
+
+  indexes {
+    (card_id, linked_card_id, link_type) [unique, name: 'uq_grammar_links', note: 'Không duplicate liên kết']
+    card_id       [name: 'idx_grammar_links_card']
+    linked_card_id [name: 'idx_grammar_links_target']
+  }
+
+  Note: 'Quan hệ giữa các grammar cards: trái nghĩa (antonym) hoặc liên quan (related). Quan hệ một chiều.'
+}
+
+Table card_references {
+  id        uuid        [pk, default: `gen_random_uuid()`]
+  card_id   uuid        [not null, ref: > cards.id, note: 'ON DELETE CASCADE']
+  title     varchar(300) [not null, note: 'Tên nguồn tham khảo']
+  url       text         [not null, note: 'Link đến nguồn']
+  position  int          [not null, default: 0]
+
+  indexes {
+    card_id [name: 'idx_card_refs_card']
+  }
+
+  Note: 'Nguồn tham khảo cho grammar cards (sách, website, v.v.)'
+}
+
+
+// =============================================================
+// GROUP 3: USER LEARNING PROGRESS
+// =============================================================
+
+Table card_progress {
+  id                uuid        [pk, default: `gen_random_uuid()`]
+  user_id           uuid        [not null, ref: > users.id, note: 'ON DELETE CASCADE']
+  card_id           uuid        [not null, ref: > cards.id, note: 'ON DELETE CASCADE']
+  mastery_level     int         [not null, default: 0, note: 'Giai đoạn SRS: 0=mới, 14=thuộc. Đây là mastery_stage trong frontend.']
+  is_in_review      boolean     [not null, default: false, note: 'Thẻ đang trong hàng ôn tập SRS. Được set true khi deck.is_in_review = true']
+  is_saved          boolean     [not null, default: false, note: 'User đã bookmark thẻ này']
+  next_review_at    timestamptz [null, note: 'null = chưa học lần nào. Dùng SRS interval table để tính.']
+  last_reviewed_at  timestamptz [null, note: 'Lần cuối làm bài tập với thẻ này']
+  first_learned_at  timestamptz [null, note: 'Lần đầu tiên học thẻ này (mastery > 0)']
+  review_count      int         [not null, default: 0, note: 'Tổng số lần đã review']
+  created_at        timestamptz [not null, default: `now()`]
+  updated_at        timestamptz [not null, default: `now()`]
+
+  indexes {
+    (user_id, card_id)                              [unique, name: 'uq_card_progress_user_card', note: 'Mỗi user chỉ có 1 progress per card']
+    user_id                                         [name: 'idx_card_progress_user']
+    (user_id, is_in_review, next_review_at)         [name: 'idx_card_progress_review_queue', note: 'Query chính: thẻ cần ôn hôm nay']
+    (user_id, is_in_review, mastery_level)          [name: 'idx_card_progress_mastery', note: 'Thống kê JLPT progress']
+  }
+
+  Note: '''
+  Bảng quan trọng nhất cho SRS. Lưu tiến trình học của từng user với từng thẻ.
+  SRS Intervals:
+    0→1: 4h | 1→2: 8h | 2→3: 1d | 3→4: 2d | 4→5: 4d
+    5→6: 1w | 6→7: 2w | 7→8: 1mo | 8→9: 2mo | 9→10: 4mo
+    10→11: 6mo | 11→12: 8mo | 12→13: 10mo | 13→14: 12mo
+  Khi quiz sai: mastery = max(0, mastery - 2), cập nhật next_review_at.
+  '''
+}
+
+Table user_notes {
+  id          uuid        [pk, default: `gen_random_uuid()`]
+  user_id     uuid        [not null, ref: > users.id, note: 'ON DELETE CASCADE']
+  card_id     uuid        [not null, ref: > cards.id, note: 'ON DELETE CASCADE']
+  note        text        [not null, note: 'Ghi chú cá nhân của user cho thẻ này']
+  created_at  timestamptz [not null, default: `now()`]
+  updated_at  timestamptz [not null, default: `now()`]
+
+  indexes {
+    (user_id, card_id) [unique, name: 'uq_user_notes_user_card', note: 'Mỗi user 1 note per card']
+  }
+
+  Note: 'Ghi chú cá nhân riêng. Hiển thị ở card detail page.'
+}
+
+Table user_settings {
+  id                    uuid  [pk, default: `gen_random_uuid()`]
+  user_id               uuid  [not null, unique, ref: - users.id, note: 'ON DELETE CASCADE — 1-1 với users']
+  daily_new_cards       int   [not null, default: 20, note: 'Số thẻ mới học mỗi ngày (1-200)']
+  max_cards_per_session int   [not null, default: 40, note: 'Số thẻ tối đa mỗi session, luôn <= daily_new_cards']
+  created_at            timestamptz [not null, default: `now()`]
+  updated_at            timestamptz [not null, default: `now()`]
+
+  indexes {
+    user_id [unique, name: 'uq_user_settings_user']
+  }
+
+  Note: 'Cài đặt SRS của user. Tạo tự động với default khi user register. 1-1 với users.'
+}
+
+
+// =============================================================
+// GROUP 4: DECKS (Bộ thẻ)
+// =============================================================
+
+Table decks {
+  id           uuid          [pk, default: `gen_random_uuid()`]
+  name         varchar(200)  [not null]
+  description  text          [not null, default: '']
+  category     deck_category [not null, default: 'mac_dinh']
+  source       deck_source   [not null, default: 'user']
+  cover_index  int           [not null, default: 0, note: '0–5: chỉ số preset gradient bìa']
+  cover_url    text          [null, note: 'URL ảnh bìa custom (CDN). Ưu tiên hơn cover_index nếu có.']
+  owner_id     uuid          [null, ref: > users.id, note: 'null = deck của app (admin). ON DELETE SET NULL']
+  is_public    boolean       [not null, default: false, note: 'true = hiển thị trong tab Cộng đồng']
+  textbook     varchar(200)  [null, note: 'Tên sách giáo khoa. Chỉ dùng khi source = textbook. e.g. Minna no Nihongo']
+
+  // Cached counts — tính lại bằng trigger khi deck_cards thay đổi
+  total_cards   int [not null, default: 0, note: 'Cache: tổng số thẻ trong deck']
+  vocab_count   int [not null, default: 0, note: 'Cache: số thẻ vocab']
+  grammar_count int [not null, default: 0, note: 'Cache: số thẻ grammar']
+  user_count    int [not null, default: 0, note: 'Cache: số user is_saved deck này — tăng/giảm qua trigger']
+
+  created_at  timestamptz [not null, default: `now()`]
+  updated_at  timestamptz [not null, default: `now()`]
+  deleted_at  timestamptz [null, note: 'Soft delete']
+
+  indexes {
+    owner_id               [name: 'idx_decks_owner']
+    source                 [name: 'idx_decks_source']
+    (source, is_public)    [name: 'idx_decks_source_public', note: 'Tab Cộng đồng']
+    (source, textbook)     [name: 'idx_decks_textbook', note: 'Tab Sách giáo khoa']
+    deleted_at             [name: 'idx_decks_deleted_at']
+  }
+
+  Note: '''
+  Bộ thẻ flashcard. source xác định tab trong Library:
+    user = "Bộ thẻ của tôi" (owner_id non-null)
+    app = "Bộ thẻ của app" (owner_id null)
+    textbook = "Sách giáo khoa" (textbook non-null)
+    community = "Cộng đồng" (is_public=true, owner_id non-null)
+  Clone deck: tạo deck mới với source=user, copy toàn bộ deck_cards.
+  '''
+}
+
+Table deck_cards {
+  id        uuid        [pk, default: `gen_random_uuid()`]
+  deck_id   uuid        [not null, ref: > decks.id, note: 'ON DELETE CASCADE']
+  card_id   uuid        [not null, ref: > cards.id, note: 'ON DELETE CASCADE']
+  position  int         [not null, default: 0, note: 'Thứ tự thẻ trong deck (0-indexed). Hỗ trợ drag-and-drop reorder.']
+  added_at  timestamptz [not null, default: `now()`]
+
+  indexes {
+    (deck_id, card_id)   [unique, name: 'uq_deck_cards', note: 'Không duplicate thẻ trong cùng deck']
+    deck_id              [name: 'idx_deck_cards_deck']
+    (deck_id, position)  [name: 'idx_deck_cards_order', note: 'Lấy thẻ theo thứ tự']
+    card_id              [name: 'idx_deck_cards_card', note: 'Tìm thẻ thuộc deck nào']
+  }
+
+  Note: 'Junction table: Thẻ nằm trong Deck. Tối đa 1000 thẻ/deck (enforce bằng application logic).'
+}
+
+Table user_deck_state {
+  id             uuid        [pk, default: `gen_random_uuid()`]
+  user_id        uuid        [not null, ref: > users.id, note: 'ON DELETE CASCADE']
+  deck_id        uuid        [not null, ref: > decks.id, note: 'ON DELETE CASCADE']
+  is_bookmarked  boolean     [not null, default: false, note: 'User đã bookmark deck']
+  is_saved       boolean     [not null, default: false, note: 'User đã thêm deck vào thư viện cá nhân']
+  is_in_review   boolean     [not null, default: false, note: '''Deck đang active trong SRS queue.
+    Khi true: tất cả card của deck có card_progress.is_in_review = true.
+    Thay đổi is_in_review → trigger cập nhật hàng loạt card_progress.''']
+  created_at     timestamptz [not null, default: `now()`]
+  updated_at     timestamptz [not null, default: `now()`]
+
+  indexes {
+    (user_id, deck_id)        [unique, name: 'uq_user_deck_state', note: 'Mỗi user 1 state per deck']
+    user_id                   [name: 'idx_user_deck_state_user']
+    (user_id, is_in_review)   [name: 'idx_user_deck_in_review', note: 'Dashboard: lấy deck đang học']
+    (user_id, is_saved)       [name: 'idx_user_deck_saved', note: 'Library: tab Bộ thẻ của tôi']
+  }
+
+  Note: '''
+  Trạng thái của user với một deck cụ thể.
+  Tạo record khi user tương tác lần đầu (toggle bookmark/save/review).
+  user_count trên decks tăng khi is_saved = true.
+  '''
+}
+
+
+// =============================================================
+// GROUP 5: SOCIAL — COMMENTS & LIKES
+// =============================================================
+
+Table comments {
+  id          uuid        [pk, default: `gen_random_uuid()`]
+  card_id     uuid        [not null, ref: > cards.id, note: 'Bình luận thuộc về thẻ nào — ON DELETE CASCADE']
+  author_id   uuid        [not null, ref: > users.id, note: 'Người đăng — ON DELETE CASCADE hoặc SET NULL (giữ nội dung)']
+  text        text        [not null, note: 'Nội dung bình luận']
+  like_count  int         [not null, default: 0, note: 'Cache: đếm từ comment_likes. Cập nhật qua trigger.']
+  reply_count int         [not null, default: 0, note: 'Cache: đếm từ replies. Cập nhật qua trigger.']
+  created_at  timestamptz [not null, default: `now()`]
+  updated_at  timestamptz [not null, default: `now()`]
+  deleted_at  timestamptz [null, note: 'Soft delete — hiển thị "[Bình luận đã bị xóa]" thay vì ẩn hoàn toàn']
+
+  indexes {
+    card_id                  [name: 'idx_comments_card']
+    author_id                [name: 'idx_comments_author']
+    (card_id, created_at)    [name: 'idx_comments_card_time', note: 'Phân trang theo card, sắp xếp mới nhất']
+    (card_id, deleted_at)    [name: 'idx_comments_card_active']
+  }
+
+  Note: 'Bình luận trên card detail. Phân trang 5 bình luận/trang.'
+}
+
+Table replies {
+  id          uuid        [pk, default: `gen_random_uuid()`]
+  comment_id  uuid        [not null, ref: > comments.id, note: 'Reply thuộc comment nào — ON DELETE CASCADE']
+  author_id   uuid        [not null, ref: > users.id, note: 'ON DELETE CASCADE hoặc SET NULL']
+  text        text        [not null]
+  like_count  int         [not null, default: 0, note: 'Cache từ reply_likes']
+  created_at  timestamptz [not null, default: `now()`]
+  updated_at  timestamptz [not null, default: `now()`]
+  deleted_at  timestamptz [null, note: 'Soft delete']
+
+  indexes {
+    comment_id               [name: 'idx_replies_comment']
+    author_id                [name: 'idx_replies_author']
+    (comment_id, created_at) [name: 'idx_replies_comment_time']
+  }
+
+  Note: 'Reply của comment. Load cùng với comment (không phân trang riêng).'
+}
+
+Table comment_likes {
+  id          uuid        [pk, default: `gen_random_uuid()`]
+  comment_id  uuid        [not null, ref: > comments.id, note: 'ON DELETE CASCADE']
+  user_id     uuid        [not null, ref: > users.id, note: 'ON DELETE CASCADE']
+  created_at  timestamptz [not null, default: `now()`]
+
+  indexes {
+    (comment_id, user_id) [unique, name: 'uq_comment_likes', note: 'Mỗi user chỉ like 1 lần']
+    comment_id            [name: 'idx_comment_likes_comment']
+    user_id               [name: 'idx_comment_likes_user']
+  }
+
+  Note: '''
+  Like/unlike bình luận.
+  Insert = like, Delete = unlike (toggle logic).
+  Trigger cập nhật comments.like_count sau mỗi insert/delete.
+  Field "likedByMe" trong API response = JOIN với user_id hiện tại.
+  '''
+}
+
+Table reply_likes {
+  id          uuid        [pk, default: `gen_random_uuid()`]
+  reply_id    uuid        [not null, ref: > replies.id, note: 'ON DELETE CASCADE']
+  user_id     uuid        [not null, ref: > users.id, note: 'ON DELETE CASCADE']
+  created_at  timestamptz [not null, default: `now()`]
+
+  indexes {
+    (reply_id, user_id) [unique, name: 'uq_reply_likes']
+    reply_id            [name: 'idx_reply_likes_reply']
+    user_id             [name: 'idx_reply_likes_user']
+  }
+
+  Note: 'Like/unlike reply. Pattern giống comment_likes.'
+}
+
+
+// =============================================================
+// GROUP 6: ANALYTICS & STREAK
+// =============================================================
+
+Table activity_logs {
+  id            uuid  [pk, default: `gen_random_uuid()`]
+  user_id       uuid  [not null, ref: > users.id, note: 'ON DELETE CASCADE']
+  date          date  [not null, note: 'Ngày học (yyyy-mm-dd), theo múi giờ của user hoặc UTC+7 mặc định']
+  vocab_count   int   [not null, default: 0, note: 'Số thẻ vocab đã review trong ngày này']
+  grammar_count int   [not null, default: 0, note: 'Số thẻ grammar đã review trong ngày này']
+  created_at    timestamptz [not null, default: `now()`]
+  updated_at    timestamptz [not null, default: `now()`]
+
+  indexes {
+    (user_id, date)  [unique, name: 'uq_activity_user_date', note: 'Mỗi user 1 record/ngày']
+    (user_id, date)  [name: 'idx_activity_user_date', note: 'Lấy 30 ngày gần nhất, streak, calendar']
+  }
+
+  Note: '''
+  Theo dõi hoạt động học tập hàng ngày.
+  Upsert mỗi khi commitQuizProgress: tăng vocab_count / grammar_count.
+  Dùng để tính:
+    - Biểu đồ hoạt động 30 ngày (dashboard)
+    - Streak calendar 13 tuần (91 ngày)
+    - Số ngày học (profile stats)
+    - Streak days liên tiếp
+  '''
+}
+
+
+// =============================================================
+// GROUP 7: QUIZ SESSIONS (Analytics — Optional)
+// =============================================================
+
+Table quiz_sessions {
+  id            uuid        [pk, default: `gen_random_uuid()`]
+  user_id       uuid        [not null, ref: > users.id, note: 'ON DELETE CASCADE']
+  mode          varchar(10) [not null, note: 'learn | review']
+  force_type    quiz_type   [null, note: 'null = auto-select theo mastery; non-null = user chọn type']
+  total_cards   int         [not null, default: 0, note: 'Số thẻ trong batch ban đầu']
+  correct_first int         [not null, default: 0, note: 'Số thẻ đúng ngay lần đầu (không tính retry)']
+  accuracy_pct  int         [null, note: '0-100%. null = session chưa hoàn thành']
+  started_at    timestamptz [not null, default: `now()`]
+  completed_at  timestamptz [null, note: 'null = bỏ giữa chừng / đang làm']
+
+  indexes {
+    user_id                        [name: 'idx_quiz_sessions_user']
+    (user_id, started_at)          [name: 'idx_quiz_sessions_user_time']
+    (user_id, completed_at)        [name: 'idx_quiz_sessions_completed']
+  }
+
+  Note: 'Session quiz cho analytics. Tạo khi POST /api/quiz/batch. Cập nhật khi POST /api/cards/progress/batch.'
+}
+
+Table quiz_attempts {
+  id             uuid        [pk, default: `gen_random_uuid()`]
+  session_id     uuid        [not null, ref: > quiz_sessions.id, note: 'ON DELETE CASCADE']
+  card_id        uuid        [not null, ref: > cards.id, note: 'ON DELETE CASCADE']
+  question_type  quiz_type   [not null, note: 'Loại câu hỏi đã trả lời']
+  is_correct     boolean     [not null]
+  was_retry      boolean     [not null, default: false, note: 'true = thẻ đã sai lần trước, đang làm lại']
+  mastery_before int         [not null, note: 'Mastery level trước khi trả lời']
+  mastery_after  int         [not null, note: 'Mastery level sau (before+1 nếu đúng, max(0,before-2) nếu sai)']
+  answered_at    timestamptz [not null, default: `now()`]
+
+  indexes {
+    session_id              [name: 'idx_quiz_attempts_session']
+    (session_id, card_id)   [name: 'idx_quiz_attempts_session_card']
+    card_id                 [name: 'idx_quiz_attempts_card', note: 'Lịch sử quiz của 1 thẻ']
+  }
+
+  Note: '''
+  Chi tiết từng câu trả lời trong session.
+  Dùng để hiển thị kết quả trên QuizResultPage và phân tích sau này.
+  Bảng này tăng nhanh — cân nhắc partition theo tháng hoặc archive.
+  '''
+}
+
+
+// =============================================================
+// GROUP 8: NOTIFICATIONS
+// =============================================================
+
+Table notifications {
+  id         uuid              [pk, default: `gen_random_uuid()`]
+  user_id    uuid              [not null, ref: > users.id, note: 'ON DELETE CASCADE']
+  type       notification_type [not null]
+  title      varchar(200)      [not null, note: 'Tiêu đề ngắn, hiển thị in đậm trong panel']
+  body       text              [not null, note: 'Nội dung chi tiết']
+  data       jsonb             [null, note: 'Payload context: { cardId, commentId, deckId, milestoneType, dueCount... }']
+  is_read    boolean           [not null, default: false]
+  created_at timestamptz       [not null, default: `now()`]
+  read_at    timestamptz       [null, note: 'null = chưa đọc. Set khi user click hoặc mark-all-read']
+
+  indexes {
+    user_id                        [name: 'idx_notifications_user']
+    (user_id, is_read)             [name: 'idx_notifications_unread', note: 'Badge count: WHERE is_read = false']
+    (user_id, created_at)          [name: 'idx_notifications_user_time', note: 'Danh sách mới nhất trước']
+    (user_id, type, created_at)    [name: 'idx_notifications_type', note: 'Lọc theo loại']
+  }
+
+  Note: '''
+  Thông báo in-app cho user. Backend tạo khi:
+    - review_reminder: cron hàng ngày 08:00 với user có thẻ due
+    - streak_warning: cron 20:00 với user chưa học hôm nay
+    - milestone / card_burned: trigger từ POST /cards/progress/batch
+    - comment_reply / comment_like: trigger từ comment/like APIs
+    - deck_cloned: trigger từ POST /decks/:id/clone
+    - system: admin tạo thủ công qua Admin App
+  Tự dọn sau 90 ngày (cron hoặc scheduled job).
+  '''
+}
+
+Table user_notification_settings {
+  id                   uuid    [pk, default: `gen_random_uuid()`]
+  user_id              uuid    [not null, unique, ref: - users.id, note: 'ON DELETE CASCADE — 1-1 với users']
+  review_reminder      boolean [not null, default: true,  note: 'Bật/tắt nhắc ôn tập']
+  streak_warning       boolean [not null, default: true,  note: 'Bật/tắt cảnh báo streak']
+  milestone            boolean [not null, default: true,  note: 'Bật/tắt thông báo mốc']
+  social               boolean [not null, default: true,  note: 'Bật/tắt comment_reply + comment_like + deck_cloned']
+  system               boolean [not null, default: true,  note: 'Bật/tắt thông báo hệ thống']
+  created_at           timestamptz [not null, default: `now()`]
+  updated_at           timestamptz [not null, default: `now()`]
+
+  indexes {
+    user_id [unique, name: 'uq_user_notif_settings']
+  }
+
+  Note: 'Cài đặt loại thông báo. Tạo tự động cùng user_settings khi register. 1-1 với users.'
+}
+
+
+// =============================================================
+// QUICK REFERENCE — Relationship Summary
+// =============================================================
+// users          1──* refresh_tokens         (1 user, nhiều thiết bị)
+// users          1──* password_reset_tokens  (mỗi request 1 token)
+// users          1──1 user_settings          (tạo tự động lúc register)
+// users          1──* card_progress          (tiến trình học từng thẻ)
+// users          1──* user_notes             (ghi chú cá nhân)
+// users          1──* user_deck_state        (quan hệ với từng deck)
+// users          1──* decks                  (deck do user tạo)
+// users          1──* comments               (bình luận)
+// users          1──* replies                (trả lời bình luận)
+// users          1──* comment_likes
+// users          1──* reply_likes
+// users          1──* activity_logs          (1 record/ngày)
+// users          1──* quiz_sessions
+
+// notifications
+// users          1──* notifications              (thông báo in-app)
+// users          1──1 user_notification_settings (cài đặt loại thông báo)
+
+// cards          1──* card_examples          (câu ví dụ)
+// cards          1──* card_dict_entries      (vocab: từ điển)
+// card_dict_entries 1──* card_dict_definitions
+// cards          1──* card_grammar_links     (self-ref: antonym/related)
+// cards          1──* card_references        (grammar: nguồn tham khảo)
+// cards          1──* card_progress          (tiến trình của users)
+// cards          1──* user_notes
+// cards          1──* deck_cards             (thẻ thuộc deck nào)
+// cards          1──* comments
+// cards          1──* quiz_attempts
+
+// decks          1──* deck_cards             (thẻ trong deck)
+// decks          1──* user_deck_state        (trạng thái của users với deck)
+
+// comments       1──* replies
+// comments       1──* comment_likes
+// replies        1──* reply_likes
+
+// quiz_sessions  1──* quiz_attempts
