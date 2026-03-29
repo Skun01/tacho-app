@@ -1,6 +1,6 @@
 export const SETTINGS_COPY = {
   heading: 'Cài đặt',
-  tabs: ['Tài khoản', 'Hiển thị'] as const,
+  tabs: ['Tài khoản', 'Hiển thị', 'Thông báo'] as const,
 
   account: {
     sectionTitle: 'Thông tin tài khoản',
@@ -43,6 +43,38 @@ export const SETTINGS_COPY = {
     maxSessionDesc: 'Áp dụng cho phiên học mới. Phiên ôn sẽ ôn toàn bộ thẻ đến hạn.',
     saveBtn: 'Lưu cài đặt',
     savedToast: 'Đã lưu cài đặt ôn tập',
+  },
+  notifications: {
+    sectionTitle: 'Cài đặt thông báo',
+    sectionHint: 'Chọn loại thông báo bạn muốn nhận. Các thay đổi sẽ được áp dụng ngay.',
+    savedToast: 'Đã lưu cài đặt thông báo',
+    toggles: [
+      {
+        key: 'reviewReminder',
+        label: 'Nhắc ôn tập',
+        description: 'Nhận thông báo khi có thẻ đến hạn ôn.',
+      },
+      {
+        key: 'streakWarning',
+        label: 'Cảnh báo streak',
+        description: 'Nhắc khi bạn sắp mất chuỗi ngày học.',
+      },
+      {
+        key: 'milestone',
+        label: 'Thành tích & cột mốc',
+        description: 'Khi bạn đạt thành tích mới hoặc thẻ đạt Burned.',
+      },
+      {
+        key: 'social',
+        label: 'Xã hội',
+        description: 'Trả lời bình luận, lượt thích và clone deck.',
+      },
+      {
+        key: 'system',
+        label: 'Hệ thống',
+        description: 'Thông báo nội dung mới và cập nhật từ Tacho.',
+      },
+    ] as const,
   },
 } as const
 

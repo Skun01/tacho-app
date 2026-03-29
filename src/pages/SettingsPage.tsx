@@ -1,6 +1,6 @@
 import { useSearchParams } from 'react-router'
 import { DashboardLayout } from '@/components/layout/DashboardLayout'
-import { AccountTab, DisplayTab } from '@/components/settings/SettingsTabs'
+import { AccountTab, DisplayTab, NotificationsTab } from '@/components/settings/SettingsTabs'
 import { SETTINGS_COPY, type SettingsTab } from '@/constants/settings'
 
 const C = SETTINGS_COPY
@@ -35,8 +35,9 @@ export function SettingsPage() {
         </div>
 
         <div className="max-w-xl">
-          {activeTab === 'Tài khoản' && <AccountTab />}
-          {activeTab === 'Hiển thị'  && <DisplayTab />}
+          {activeTab === 'Tài khoản'  && <AccountTab />}
+          {activeTab === 'Hiển thị'   && <DisplayTab />}
+          {activeTab === 'Thông báo'  && <NotificationsTab />}
         </div>
       </div>
     </DashboardLayout>

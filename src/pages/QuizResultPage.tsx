@@ -44,10 +44,10 @@ export function QuizResultPage() {
     accuracy >= ACCURACY_THRESHOLDS.EXCELLENT ? 'bg-emerald-50'
     : accuracy >= ACCURACY_THRESHOLDS.GOOD    ? 'bg-amber-50'
     : 'bg-rose-50'
-  const trophyHex =
-    accuracy >= ACCURACY_THRESHOLDS.EXCELLENT ? '#059669'
-    : accuracy >= ACCURACY_THRESHOLDS.GOOD    ? '#d97706'
-    : '#f43f5e'
+  const trophyClass =
+    accuracy >= ACCURACY_THRESHOLDS.EXCELLENT ? 'text-emerald-600'
+    : accuracy >= ACCURACY_THRESHOLDS.GOOD    ? 'text-amber-500'
+    : 'text-rose-500'
 
   function handleContinue() {
     navigate('/study', { state: { batchIds, mode } })
@@ -78,7 +78,7 @@ export function QuizResultPage() {
           {/* ── Trophy + grade ── */}
           <div className={`flex items-center gap-4 rounded-3xl px-5 py-4 ${accentBg}`}>
             <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-white/60">
-              <TrophyIcon size={32} weight="fill" style={{ color: trophyHex }} />
+              <TrophyIcon size={32} weight="fill" className={trophyClass} />
             </div>
             <div className="min-w-0 flex-1">
               <h1 className="text-xl font-bold text-foreground">{grade.title}</h1>

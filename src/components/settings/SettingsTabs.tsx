@@ -146,3 +146,68 @@ export function DisplayTab() {
     </div>
   )
 }
+
+// ─────────────────────────── Notifications tab ───────────────────────────
+
+type NotifToggleKey = (typeof SETTINGS_COPY.notifications.toggles)[number]['key']
+type NotifSettings = Record<NotifToggleKey, boolean>
+
+const DEFAULT_NOTIF_SETTINGS: NotifSettings = {
+  reviewReminder: true,
+  streakWarning:  true,
+  milestone:      true,
+  social:         true,
+  system:         false,
+}
+
+export function NotificationsTab() {
+  const CN = SETTINGS_COPY.notifications
+  const [settings, setSettings] = useState<NotifSettings>(DEFAULT_NOTIF_SETTINGS)
+
+  function handleToggle(key: NotifToggleKey) {
+    setSettings((prev) => ({ ...prev, [key]: !prev[key] }))
+    // TODO: PATCH /users/me/notification-settings { [key]: !prev[key] }
+    gooeyToast.success(CN.savedToast)
+  }
+
+  return (
+    <div className="flex flex-col gap-3 rounded-2xl bg-background p-5 shadow-[0_2px_12px_0_rgba(29,28,19,0.06)]">
+      <div className="mb-1">
+        <p className="text-sm font-semibold text-foreground">{CN.sectionTitle}</p>
+        <p className="mt-0.5 text-xs text-muted-foreground">{CN.sectionHint}</p>
+      </div>
+
+      {CN.toggles.map((toggle) => {
+        const key = toggle.key as NotifToggleKey
+        const enabled = settings[key]
+        return (
+          <label
+            key={key}
+            className="flex cursor-pointer items-center justify-between gap-4 rounded-xl p-3 transition-colors hover:bg-surface-container-low"
+          >
+            <div className="min-w-0">
+              <p className="text-sm font-medium text-foreground">{toggle.label}</p>
+              <p className="mt-0.5 text-xs text-muted-foreground">{toggle.description}</p>
+            </div>
+
+            {/* Toggle switch */}
+            <div
+              role="switch"
+              aria-checked={enabled}
+              onClick={() => handleToggle(key)}
+              className={`relative flex h-6 w-10 shrink-0 cursor-pointer items-center rounded-full transition-colors ${
+                enabled ? 'bg-primary' : 'bg-surface-container-high'
+              }`}
+            >
+              <span
+                className={`absolute h-4 w-4 rounded-full bg-white shadow-sm transition-transform ${
+                  enabled ? 'translate-x-5' : 'translate-x-1'
+                }`}
+              />
+            </div>
+          </label>
+        )
+      })}
+    </div>
+  )
+}
