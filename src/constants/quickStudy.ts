@@ -13,4 +13,5 @@ export const QUICK_STUDY_COPY = {
   grammarCount: (n: number) => `${n} ngữ pháp`,
   sourceBadge: 'Tacho',
   noCardHint: 'Bộ thẻ này chưa có thẻ nào.',
+  selectHint: 'Chọn 1 bộ thẻ bên trái để bắt đầu',
 } as const

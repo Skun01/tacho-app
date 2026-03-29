@@ -1,22 +1,14 @@
-import { useEffect, useState } from 'react'
-import { useParams, useNavigate } from 'react-router'
+import { useNavigate } from 'react-router'
 import { ArrowLeftIcon } from '@phosphor-icons/react'
 import { DashboardLayout } from '@/components/layout/DashboardLayout'
 import { VocabDetailView } from '@/components/card-detail/VocabDetailView'
 import { GrammarDetailView } from '@/components/card-detail/GrammarDetailView'
 import { CARD_DETAIL_COPY } from '@/constants/cardDetail'
-import { getCardDetail } from '@/services/cardDetailService'
-import type { CardDetail } from '@/types/card'
+import { useCardDetail } from '@/hooks/useCardDetail'
 
 export function CardDetailPage() {
-  const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
-  const [card, setCard] = useState<CardDetail | null | undefined>(undefined)
-
-  useEffect(() => {
-    if (!id) { setCard(null); return }
-    getCardDetail(id).then(setCard)
-  }, [id])
+  const { card } = useCardDetail()
 
   return (
     <DashboardLayout>
@@ -42,7 +34,7 @@ export function CardDetailPage() {
         </p>
       )}
 
-      {card?.type === 'vocab' && <VocabDetailView card={card} />}
+      {card?.type === 'vocab'   && <VocabDetailView card={card} />}
       {card?.type === 'grammar' && <GrammarDetailView card={card} />}
     </DashboardLayout>
   )

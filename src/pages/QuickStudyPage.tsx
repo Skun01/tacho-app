@@ -47,7 +47,7 @@ export function QuickStudyPage() {
 
           {!selectedDeckId && (
             <p className="text-center text-xs text-muted-foreground">
-              Chọn 1 bộ thẻ bên trái để bắt đầu
+              {QUICK_STUDY_COPY.selectHint}
             </p>
           )}
         </aside>
