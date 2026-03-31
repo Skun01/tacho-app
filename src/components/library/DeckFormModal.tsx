@@ -23,6 +23,7 @@ export function DeckFormModal({ mode, initialValues, onClose, onSubmit }: DeckFo
   const [description, setDescription] = useState(initialValues?.description ?? '')
   const [category, setCategory] = useState<DeckCategory>(initialValues?.category ?? 'Mặc định')
   const [coverPreview, setCoverPreview] = useState<string | undefined>(initialValues?.coverPreview)
+  const [coverFile, setCoverFile] = useState<File | undefined>(initialValues?.coverFile)
   const [nameError, setNameError] = useState('')
   const fileRef = useRef<HTMLInputElement>(null)
   const C = DECK_COPY.createModal
@@ -32,6 +33,7 @@ export function DeckFormModal({ mode, initialValues, onClose, onSubmit }: DeckFo
     if (!file) return
     if (file.size > 5 * 1024 * 1024) return
     const url = URL.createObjectURL(file)
+    setCoverFile(file)
     setCoverPreview(url)
   }
 
@@ -39,7 +41,7 @@ export function DeckFormModal({ mode, initialValues, onClose, onSubmit }: DeckFo
     e.preventDefault()
     if (!name.trim()) { setNameError(C.nameRequired); return }
     setNameError('')
-    onSubmit({ name: name.trim(), description: description.trim(), category, coverPreview })
+    onSubmit({ name: name.trim(), description: description.trim(), category, coverPreview, coverFile })
   }
 
   return (

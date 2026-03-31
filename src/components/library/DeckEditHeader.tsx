@@ -49,6 +49,13 @@ export function DeckEditHeader({
     <div className="flex flex-col gap-4 rounded-3xl bg-background p-6 shadow-[0_2px_12px_0_rgba(29,28,19,0.07)]">
       {/* Name + edit button */}
       <div className="flex items-start gap-3">
+        {deck.coverUrl && (
+          <img
+            src={deck.coverUrl}
+            alt={deck.name}
+            className="h-14 w-20 shrink-0 rounded-xl object-cover"
+          />
+        )}
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
             <h1 className="truncate text-xl font-bold text-foreground">{deck.name}</h1>

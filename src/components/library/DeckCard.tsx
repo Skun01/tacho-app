@@ -32,7 +32,9 @@ interface DeckCardProps {
 export function DeckCard({ deck, showReview }: DeckCardProps) {
   const navigate = useNavigate()
   const [bookmarked, setBookmarked] = useState(deck.isBookmarked)
+  const [coverLoadFailed, setCoverLoadFailed] = useState(false)
   const pct = deck.totalCards > 0 ? (deck.learnedCards / deck.totalCards) * 100 : 0
+  const hasCustomCover = Boolean(deck.coverUrl) && !coverLoadFailed
 
   async function handleBookmarkToggle(e: React.MouseEvent) {
     e.stopPropagation()
@@ -49,6 +51,14 @@ export function DeckCard({ deck, showReview }: DeckCardProps) {
       <div
         className={`relative h-28 bg-gradient-to-br ${COVER_GRADIENTS[deck.coverIndex % 6]}`}
       >
+        {hasCustomCover && (
+          <img
+            src={deck.coverUrl}
+            alt={deck.name}
+            className="absolute inset-0 h-full w-full object-cover"
+            onError={() => setCoverLoadFailed(true)}
+          />
+        )}
         <button
           onClick={handleBookmarkToggle}
           aria-label={LIBRARY_COPY.bookmarkAriaLabel}

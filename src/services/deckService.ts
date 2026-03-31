@@ -200,6 +200,53 @@ export async function cloneDeck(
   }
 }
 
+export async function uploadDeckCover(file: File): Promise<string> {
+  const formData = new FormData()
+  formData.append('file', file)
+
+  const response = await api.post<ApiResponse<{ url: string }>>('/decks/cover-upload', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  })
+
+  if (!response.data.success || !response.data.data?.url) {
+    throw new Error(response.data.message ?? 'Common_500')
+  }
+
+  return normalizeDeckCoverUrl(response.data.data.url)
+}
+
+function normalizeDeckCoverUrl(rawUrl: string): string {
+  const trimmed = rawUrl.trim()
+  if (!trimmed) return trimmed
+
+  const baseURL = api.defaults.baseURL
+  const apiOrigin =
+    typeof baseURL === 'string' && /^https?:\/\//i.test(baseURL)
+      ? new URL(baseURL).origin
+      : null
+
+  if (/^https?:\/\//i.test(trimmed)) {
+    if (!apiOrigin) return trimmed
+
+    const url = new URL(trimmed)
+    const windowOrigin = typeof window !== 'undefined' ? window.location.origin : null
+
+    if (windowOrigin && url.origin === windowOrigin && url.pathname.startsWith('/uploads/')) {
+      return `${apiOrigin}${url.pathname}`
+    }
+
+    return trimmed
+  }
+
+  if (trimmed.startsWith('/') && apiOrigin) {
+    return `${apiOrigin}${trimmed}`
+  }
+
+  return trimmed
+}
+
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 export function updateDeckCardsLocally(

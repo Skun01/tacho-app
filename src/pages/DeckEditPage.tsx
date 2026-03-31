@@ -10,7 +10,7 @@ import { ConfirmDeleteModal } from '@/components/library/ConfirmDeleteModal'
 import { CardRow } from '@/components/library/CardRow'
 import { DECK_COPY } from '@/constants/deck'
 import { gooeyToast } from '@/components/ui/goey-toaster'
-import { deleteDeck, updateDeck, addCardsToDeck, removeCardFromDeck } from '@/services/deckService'
+import { deleteDeck, updateDeck, addCardsToDeck, removeCardFromDeck, uploadDeckCover } from '@/services/deckService'
 import { useDeckEdit } from '@/hooks/useDeckEdit'
 import { useDeckDragDrop } from '@/hooks/useDeckDragDrop'
 import { filterCards } from '@/utils/cardUtils'
@@ -116,11 +116,12 @@ export function DeckEditPage() {
       {showEditInfo && (
         <DeckFormModal
           mode="edit"
-          initialValues={{ name: deck.name, description: deck.description, category: deck.category }}
+          initialValues={{ name: deck.name, description: deck.description, category: deck.category, coverPreview: deck.coverUrl }}
           onClose={() => setShowEditInfo(false)}
-          onSubmit={async ({ name, description, category, coverPreview }) => {
+          onSubmit={async ({ name, description, category, coverPreview, coverFile }) => {
             if (!id) return
-            await updateDeck(id, { name, description, category, coverUrl: coverPreview })
+            const uploadedCoverUrl = coverFile ? await uploadDeckCover(coverFile) : coverPreview
+            await updateDeck(id, { name, description, category, coverUrl: uploadedCoverUrl })
             await refreshDeck()
             setShowEditInfo(false)
             gooeyToast.success(C.savedToast)

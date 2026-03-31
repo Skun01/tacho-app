@@ -8,7 +8,7 @@ import { AppDecksTab } from '@/components/library/AppDecksTab'
 import { TextbookTab } from '@/components/library/TextbookTab'
 import { CommunityTab } from '@/components/library/CommunityTab'
 import { LIBRARY_COPY, type LibraryMainTab } from '@/constants/library'
-import { createDeck } from '@/services/deckService'
+import { createDeck, uploadDeckCover } from '@/services/deckService'
 
 export function LibraryPage() {
   const navigate = useNavigate()
@@ -77,13 +77,14 @@ export function LibraryPage() {
         <DeckFormModal
           mode="create"
           onClose={() => setShowCreate(false)}
-          onSubmit={async ({ name, description, category, coverPreview }) => {
+          onSubmit={async ({ name, description, category, coverPreview, coverFile }) => {
+            const uploadedCoverUrl = coverFile ? await uploadDeckCover(coverFile) : coverPreview
             const deck = await createDeck({
               name,
               description,
               category,
               isPublic: false,
-              coverUrl: coverPreview,
+              coverUrl: uploadedCoverUrl,
             })
             setShowCreate(false)
             navigate(`/deck/${deck.id}/edit`)
