@@ -44,7 +44,9 @@ export async function getCardsByIds(ids: string[]): Promise<FlashCard[]> {
 
 export async function updateCardProgress(
   id: string,
-  patch: Partial<CardProgress>,
+  patch: Partial<CardProgress> & {
+    userNote?: string | null
+  },
 ): Promise<FlashCardWithProgress> {
   const response = await api.patch<ApiResponse<FlashCardWithProgress>>(`/cards/${id}/progress`, patch)
   if (!response.data.success || !response.data.data) {

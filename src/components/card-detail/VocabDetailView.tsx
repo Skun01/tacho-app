@@ -7,8 +7,11 @@ import { NoteEditor } from './NoteEditor'
 import { ProgressCard } from './ProgressCard'
 import { CommentsSection } from './CommentsSection'
 import { AddToDeckModal } from '@/components/search/AddToDeckModal'
+import { gooeyToast } from '@/components/ui/goey-toaster'
 import { CARD_DETAIL_COPY } from '@/constants/cardDetail'
+import { updateCardProgress } from '@/services/cardService'
 import type { VocabCardDetail, CardProgressDetail } from '@/types/card'
+import { getApiErrorMessage } from '@/utils/apiError'
 
 interface Props {
   card: VocabCardDetail
@@ -56,6 +59,23 @@ export function VocabDetailView({ card: initial }: Props) {
 
   function handleResetProgress() {
     setCard((c) => ({ ...c, userProgress: undefined }))
+  }
+
+  async function handleSaveNote(html: string) {
+    const previousNote = card.userNote
+    const nextNote = html.trim() ? html : undefined
+
+    setCard((c) => ({ ...c, userNote: nextNote }))
+    setEditingNote(false)
+
+    try {
+      await updateCardProgress(card.id, { userNote: nextNote ?? null })
+      gooeyToast.success('Đã lưu ghi chú.')
+    } catch (error) {
+      setCard((c) => ({ ...c, userNote: previousNote }))
+      setEditingNote(true)
+      gooeyToast.error(getApiErrorMessage(error))
+    }
   }
 
   return (
@@ -159,7 +179,7 @@ export function VocabDetailView({ card: initial }: Props) {
         {editingNote ? (
           <NoteEditor
             initialHtml={card.userNote}
-            onSave={(html) => { setCard((c) => ({ ...c, userNote: html })); setEditingNote(false) }}
+            onSave={handleSaveNote}
             onCancel={() => setEditingNote(false)}
           />
         ) : (
