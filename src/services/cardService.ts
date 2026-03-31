@@ -1,4 +1,6 @@
 import type { CardProgress, FlashCard, FlashCardWithProgress } from '@/types/card'
+import type { ApiResponse } from '@/types/api'
+import api from './api'
 import { mockDataStore } from './mockDataStore'
 
 /**
@@ -6,7 +8,12 @@ import { mockDataStore } from './mockDataStore'
  * Replace body with: return apiClient.get('/cards', { params: { q: query } })
  */
 export async function searchCards(query: string): Promise<FlashCardWithProgress[]> {
-  return mockDataStore.searchCards(query)
+  const response = await api.get<ApiResponse<FlashCardWithProgress[]>>('/cards', { params: { q: query } })
+  if (!response.data.success) {
+    throw new Error(response.data.message ?? 'Common_500')
+  }
+
+  return response.data.data ?? []
 }
 
 /**
@@ -14,7 +21,12 @@ export async function searchCards(query: string): Promise<FlashCardWithProgress[
  * Replace body with: return apiClient.get(`/cards/${id}`)
  */
 export async function getCard(id: string): Promise<FlashCardWithProgress | null> {
-  return mockDataStore.getCard(id)
+  const response = await api.get<ApiResponse<FlashCardWithProgress | null>>(`/cards/${id}`)
+  if (!response.data.success) {
+    throw new Error(response.data.message ?? 'Common_500')
+  }
+
+  return response.data.data ?? null
 }
 
 /**
@@ -22,14 +34,24 @@ export async function getCard(id: string): Promise<FlashCardWithProgress | null>
  * Replace body with: return apiClient.get('/cards', { params: { ids } })
  */
 export async function getCardsByIds(ids: string[]): Promise<FlashCard[]> {
-  return mockDataStore.getCardsByIds(ids)
+  const response = await api.get<ApiResponse<FlashCard[]>>('/cards', { params: { ids: ids.join(',') } })
+  if (!response.data.success) {
+    throw new Error(response.data.message ?? 'Common_500')
+  }
+
+  return response.data.data ?? []
 }
 
 export async function updateCardProgress(
   id: string,
   patch: Partial<CardProgress>,
 ): Promise<FlashCardWithProgress> {
-  return mockDataStore.updateCardProgress(id, patch)
+  const response = await api.patch<ApiResponse<FlashCardWithProgress>>(`/cards/${id}/progress`, patch)
+  if (!response.data.success || !response.data.data) {
+    throw new Error(response.data.message ?? 'Common_500')
+  }
+
+  return response.data.data
 }
 
 export async function commitQuizProgress(

@@ -7,7 +7,25 @@ import type {
   ReorderCardsPayload,
 } from '@/types/deck'
 import type { FlashCard } from '@/types/card'
-import { mockDataStore } from './mockDataStore'
+import type { ApiResponse } from '@/types/api'
+import api from './api'
+
+type ApiDeckUserState = {
+  isOwner: boolean
+  isBookmarked: boolean
+  isSaved: boolean
+  isInReview: boolean
+  learnedCards: number
+  reviewDue: number
+}
+
+type ApiDeckListItem = Omit<DeckListItem, 'isOwner' | 'isBookmarked' | 'isSaved' | 'isInReview' | 'learnedCards' | 'reviewDue'> & {
+  userState?: ApiDeckUserState
+}
+
+type ApiDeckDetail = Omit<DeckDetailWithState, 'isOwner' | 'isBookmarked' | 'isSaved' | 'isInReview' | 'learnedCards' | 'reviewDue'> & {
+  userState?: ApiDeckUserState
+}
 
 // ── All list-view decks in one flat array ─────────────────────────────────────
 const ALL_DECKS: DeckListItem[] = []
@@ -25,7 +43,20 @@ const DEDUPED_DECKS = ALL_DECKS.reduce<Map<string, DeckListItem>>((acc, d) => {
  */
 export async function listDecks(params: ListDecksParams = {}): Promise<DeckListItem[]> {
   void DEDUPED_DECKS
-  return mockDataStore.listDecks(params)
+  const response = await api.get<ApiResponse<ApiDeckListItem[]>>('/decks', { params })
+  if (!response.data.success) {
+    throw new Error(response.data.message ?? 'Common_500')
+  }
+
+  return (response.data.data ?? []).map((item) => ({
+    ...item,
+    isOwner: item.userState?.isOwner ?? false,
+    isBookmarked: item.userState?.isBookmarked ?? false,
+    isSaved: item.userState?.isSaved ?? false,
+    isInReview: item.userState?.isInReview ?? false,
+    learnedCards: item.userState?.learnedCards ?? 0,
+    reviewDue: item.userState?.reviewDue ?? 0,
+  }))
 }
 
 /**
@@ -33,7 +64,21 @@ export async function listDecks(params: ListDecksParams = {}): Promise<DeckListI
  * Replace body with: return apiClient.get(`/decks/${id}`)
  */
 export async function getDeckDetail(id: string): Promise<DeckDetailWithState> {
-  return mockDataStore.getDeckDetail(id)
+  const response = await api.get<ApiResponse<ApiDeckDetail>>(`/decks/${id}`)
+  if (!response.data.success || !response.data.data) {
+    throw new Error(response.data.message ?? 'Common_404')
+  }
+
+  const deck = response.data.data
+  return {
+    ...deck,
+    isOwner: deck.userState?.isOwner ?? false,
+    isBookmarked: deck.userState?.isBookmarked ?? false,
+    isSaved: deck.userState?.isSaved ?? false,
+    isInReview: deck.userState?.isInReview ?? false,
+    learnedCards: deck.userState?.learnedCards ?? 0,
+    reviewDue: deck.userState?.reviewDue ?? 0,
+  }
 }
 
 // ── Write (mock — replace with axios calls when backend is ready) ─────────────
@@ -41,66 +86,118 @@ export async function getDeckDetail(id: string): Promise<DeckDetailWithState> {
 export async function createDeck(
   payload: CreateDeckPayload,
 ): Promise<DeckDetailWithState> {
-  return mockDataStore.createDeck(payload)
+  const response = await api.post<ApiResponse<ApiDeckDetail>>('/decks', payload)
+  if (!response.data.success || !response.data.data) {
+    throw new Error(response.data.message ?? 'Common_500')
+  }
+
+  const deck = response.data.data
+  return {
+    ...deck,
+    isOwner: deck.userState?.isOwner ?? false,
+    isBookmarked: deck.userState?.isBookmarked ?? false,
+    isSaved: deck.userState?.isSaved ?? false,
+    isInReview: deck.userState?.isInReview ?? false,
+    learnedCards: deck.userState?.learnedCards ?? 0,
+    reviewDue: deck.userState?.reviewDue ?? 0,
+  }
 }
 
 export async function updateDeck(
   id: string,
   payload: UpdateDeckPayload,
 ): Promise<void> {
-  await mockDataStore.updateDeck(id, payload)
+  const response = await api.patch<ApiResponse<object>>(`/decks/${id}`, payload)
+  if (!response.data.success) {
+    throw new Error(response.data.message ?? 'Common_500')
+  }
 }
 
 export async function deleteDeck(id: string): Promise<void> {
-  await mockDataStore.deleteDeck(id)
+  const response = await api.delete<ApiResponse<object>>(`/decks/${id}`)
+  if (!response.data.success) {
+    throw new Error(response.data.message ?? 'Common_500')
+  }
 }
 
 export async function addCardsToDeck(
   deckId: string,
   cardIds: string[],
 ): Promise<void> {
-  await mockDataStore.addCardsToDeck(deckId, cardIds)
+  const response = await api.post<ApiResponse<object>>(`/decks/${deckId}/cards`, { cardIds })
+  if (!response.data.success) {
+    throw new Error(response.data.message ?? 'Common_500')
+  }
 }
 
 export async function removeCardFromDeck(
   deckId: string,
   cardId: string,
 ): Promise<void> {
-  await mockDataStore.removeCardFromDeck(deckId, cardId)
+  const response = await api.delete<ApiResponse<object>>(`/decks/${deckId}/cards/${cardId}`)
+  if (!response.data.success) {
+    throw new Error(response.data.message ?? 'Common_500')
+  }
 }
 
 export async function reorderCards(
   deckId: string,
   payload: ReorderCardsPayload,
 ): Promise<void> {
-  await mockDataStore.reorderCards(deckId, payload)
+  const response = await api.patch<ApiResponse<object>>(`/decks/${deckId}/cards/reorder`, payload)
+  if (!response.data.success) {
+    throw new Error(response.data.message ?? 'Common_500')
+  }
 }
 
 export async function toggleBookmark(
   deckId: string,
   bookmarked: boolean,
 ): Promise<void> {
-  await mockDataStore.toggleDeckBookmark(deckId, bookmarked)
+  const response = await api.patch<ApiResponse<object>>(`/decks/${deckId}/state`, { isBookmarked: bookmarked })
+  if (!response.data.success) {
+    throw new Error(response.data.message ?? 'Common_500')
+  }
 }
 
 export async function toggleInReview(
   deckId: string,
   inReview: boolean,
 ): Promise<void> {
-  await mockDataStore.toggleDeckInReview(deckId, inReview)
+  const response = await api.patch<ApiResponse<object>>(`/decks/${deckId}/state`, { isInReview: inReview })
+  if (!response.data.success) {
+    throw new Error(response.data.message ?? 'Common_500')
+  }
 }
 
 export async function toggleSaved(
   deckId: string,
   saved: boolean,
 ): Promise<void> {
-  await mockDataStore.toggleDeckSaved(deckId, saved)
+  const response = await api.patch<ApiResponse<object>>(`/decks/${deckId}/state`, { isSaved: saved })
+  if (!response.data.success) {
+    throw new Error(response.data.message ?? 'Common_500')
+  }
 }
 
 export async function cloneDeck(
   deckId: string,
 ): Promise<DeckDetailWithState> {
-  return mockDataStore.cloneDeck(deckId)
+  const response = await api.post<ApiResponse<ApiDeckDetail>>(`/decks/${deckId}/clone`)
+  if (!response.data.success || !response.data.data) {
+    throw new Error(response.data.message ?? 'Common_500')
+  }
+
+  const deck = response.data.data
+  return {
+    ...deck,
+    isOwner: deck.userState?.isOwner ?? false,
+    isBookmarked: deck.userState?.isBookmarked ?? false,
+    isSaved: deck.userState?.isSaved ?? false,
+    isInReview: deck.userState?.isInReview ?? false,
+    learnedCards: deck.userState?.learnedCards ?? 0,
+    reviewDue: deck.userState?.reviewDue ?? 0,
+  }
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
