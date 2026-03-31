@@ -32,9 +32,8 @@ export function AccountTab() {
     if (!displayName.trim()) return
     setSaving(true)
     try {
-      await authService.updateDisplayName(displayName.trim())
-      const updated = authService.getCurrentUser()
-      if (updated && token) setUser(token, updated)
+      const updated = await authService.updateDisplayName(displayName.trim())
+      if (token) setUser(token, updated.data.data)
       gooeyToast.success(C.account.savedToast)
     } finally {
       setSaving(false)

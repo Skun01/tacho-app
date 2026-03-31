@@ -26,10 +26,11 @@ export const useAuthStore = create<AuthState>((set) => ({
     set({ isLoading: true })
     try {
       const { authService } = await import('@/services/authService')
-      const { data } = await authService.refresh()
-      const user = authService.getCurrentUser()
+      const refreshRes = await authService.refresh()
+      const authData = refreshRes.data.data
+      const user = authData.user ?? (await authService.getMe()).data.data
       set({
-        token: data.data.accessToken,
+        token: authData.accessToken,
         user,
         isLoading: false,
       })

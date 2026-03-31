@@ -3,6 +3,7 @@ import { XIcon } from '@phosphor-icons/react'
 import { authService } from '@/services/authService'
 import { gooeyToast } from 'goey-toast'
 import { SETTINGS_COPY } from '@/constants/settings'
+import { getApiErrorMessage } from '@/utils/apiError'
 
 const C = SETTINGS_COPY.password
 
@@ -30,8 +31,8 @@ export function ChangePasswordModal({ onClose }: Props) {
       gooeyToast.success(C.successToast)
       onClose()
     } catch (err) {
-      const msg = err instanceof Error ? err.message : ''
-      setError(msg === 'WRONG_CURRENT_PASSWORD' ? C.wrongCurrentError : msg)
+      const message = getApiErrorMessage(err)
+      setError(message)
     } finally {
       setLoading(false)
     }

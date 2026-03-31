@@ -61,10 +61,10 @@ export function TypeAQuestion({ question, answerState, submittedValue, showHint 
         </p>
       )}
 
-      {/* Extra hint panel: cardMeaning revealed via toggle button */}
+      {/* Extra hint panel: promptHint (per-example) or cardMeaning fallback */}
       {showHint && question.promptKeyword && (
         <p className="max-w-sm rounded-xl bg-amber-50 px-4 py-2 text-sm font-medium text-amber-700 ring-1 ring-amber-200">
-          {question.cardMeaning}
+          {question.promptHint ?? question.cardMeaning}
         </p>
       )}
 

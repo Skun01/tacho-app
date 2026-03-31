@@ -11,7 +11,6 @@ import { getApiErrorMessage } from '@/utils/apiError'
 
 export function ForgotPasswordForm() {
   const [sent, setSent] = useState(false)
-  const [resetToken, setResetToken] = useState<string | null>(null)
   const {
     register,
     handleSubmit,
@@ -20,8 +19,7 @@ export function ForgotPasswordForm() {
 
   const onSubmit = async (data: ForgotPasswordSchema) => {
     try {
-      const response = await authService.forgotPassword(data.email)
-      setResetToken(response.token)
+      await authService.forgotPassword(data.email)
       setSent(true)
       gooeyToast.success(AUTH_FORGOT_PASSWORD_COPY.sentToast)
     } catch (error) {
@@ -49,14 +47,6 @@ export function ForgotPasswordForm() {
         >
           {AUTH_FORGOT_PASSWORD_COPY.backToLogin}
         </Link>
-        {resetToken && (
-          <Link
-            to={`/reset-password?token=${encodeURIComponent(resetToken)}`}
-            className="text-sm font-semibold text-primary transition-colors hover:underline"
-          >
-            {AUTH_FORGOT_PASSWORD_COPY.openResetLink}
-          </Link>
-        )}
       </div>
     )
   }
