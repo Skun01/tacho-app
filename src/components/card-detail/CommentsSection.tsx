@@ -64,7 +64,7 @@ export function CommentsSection({ cardId }: Props) {
   }
 
   async function handleLike(commentId: string) {
-    await toggleLikeComment(commentId)
+    await toggleLikeComment(cardId, commentId)
     setComments((prev) =>
       prev.map((c) =>
         c.id !== commentId
@@ -75,7 +75,7 @@ export function CommentsSection({ cardId }: Props) {
   }
 
   async function handleReplySubmit(commentId: string, replyText: string) {
-    const newReply = await postReply(commentId, replyText)
+    const newReply = await postReply(cardId, commentId, replyText)
     setComments((prev) =>
       prev.map((c) =>
         c.id !== commentId
@@ -86,7 +86,7 @@ export function CommentsSection({ cardId }: Props) {
   }
 
   async function handleLikeReply(commentId: string, replyId: string) {
-    await toggleLikeReply(commentId, replyId)
+    await toggleLikeReply(cardId, commentId, replyId)
     setComments((prev) =>
       prev.map((c) =>
         c.id !== commentId

@@ -1,20 +1,15 @@
 import type { Comment, CommentPage, Reply } from '@/types/comment'
-import { MOCK_COMMENTS } from '@/mocks/comments'
+import type { ApiResponse } from '@/types/api'
+import api from './api'
 
 const PAGE_SIZE = 5
 
-// In-memory store for mock session mutations
-let _store: Comment[] = structuredClone(MOCK_COMMENTS)
+function ensureSuccess<T>(response: ApiResponse<T>): T {
+  if (!response.success || response.data == null) {
+    throw new Error(response.message ?? 'Common_500')
+  }
 
-function reset() {
-  _store = structuredClone(MOCK_COMMENTS)
-}
-if (import.meta.env.DEV) {
-  (window as unknown as Record<string, unknown>).__resetComments = reset
-}
-
-function delay(ms = 300) {
-  return new Promise((r) => setTimeout(r, ms))
+  return response.data
 }
 
 export async function getComments(
@@ -22,67 +17,39 @@ export async function getComments(
   page: number,
   pageSize = PAGE_SIZE,
 ): Promise<CommentPage> {
-  await delay()
-  const all = _store.filter((c) => c.cardId === cardId)
-  const start = (page - 1) * pageSize
-  const slice = all.slice(start, start + pageSize)
-  return {
-    comments: structuredClone(slice),
-    total: all.length,
-    page,
-    hasMore: start + pageSize < all.length,
-  }
+  const { data } = await api.get<ApiResponse<CommentPage>>(`/cards/${cardId}/comments`, {
+    params: { page, pageSize },
+  })
+
+  return ensureSuccess(data)
 }
 
 export async function postComment(cardId: string, text: string): Promise<Comment> {
-  await delay(200)
-  const newComment: Comment = {
-    id: `cm-${cardId}-${Date.now()}`,
-    cardId,
-    authorName: 'Bạn',
-    text,
-    createdAt: new Date().toISOString(),
-    likeCount: 0,
-    likedByMe: false,
-    replies: [],
-    replyCount: 0,
-  }
-  _store.unshift(newComment)
-  return structuredClone(newComment)
+  const { data } = await api.post<ApiResponse<Comment>>(`/cards/${cardId}/comments`, { text })
+  return ensureSuccess(data)
 }
 
-export async function toggleLikeComment(commentId: string): Promise<void> {
-  await delay(100)
-  const c = _store.find((x) => x.id === commentId)
-  if (!c) return
-  c.likedByMe = !c.likedByMe
-  c.likeCount += c.likedByMe ? 1 : -1
+export async function toggleLikeComment(cardId: string, commentId: string): Promise<void> {
+  const { data } = await api.patch<ApiResponse<object>>(
+    `/cards/${cardId}/comments/${commentId}/like`,
+  )
+
+  ensureSuccess(data)
 }
 
-export async function postReply(commentId: string, text: string): Promise<Reply> {
-  await delay(200)
-  const c = _store.find((x) => x.id === commentId)
-  const newReply: Reply = {
-    id: `rp-${commentId}-${Date.now()}`,
-    commentId,
-    authorName: 'Bạn',
-    text,
-    createdAt: new Date().toISOString(),
-    likeCount: 0,
-    likedByMe: false,
-  }
-  if (c) {
-    c.replies.push(newReply)
-    c.replyCount = c.replies.length
-  }
-  return structuredClone(newReply)
+export async function postReply(cardId: string, commentId: string, text: string): Promise<Reply> {
+  const { data } = await api.post<ApiResponse<Reply>>(
+    `/cards/${cardId}/comments/${commentId}/replies`,
+    { text },
+  )
+
+  return ensureSuccess(data)
 }
 
-export async function toggleLikeReply(commentId: string, replyId: string): Promise<void> {
-  await delay(100)
-  const c = _store.find((x) => x.id === commentId)
-  const r = c?.replies.find((x) => x.id === replyId)
-  if (!r) return
-  r.likedByMe = !r.likedByMe
-  r.likeCount += r.likedByMe ? 1 : -1
+export async function toggleLikeReply(cardId: string, commentId: string, replyId: string): Promise<void> {
+  const { data } = await api.patch<ApiResponse<object>>(
+    `/cards/${cardId}/comments/${commentId}/replies/${replyId}/like`,
+  )
+
+  ensureSuccess(data)
 }
