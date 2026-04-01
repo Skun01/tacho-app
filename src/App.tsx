@@ -27,11 +27,10 @@ function App() {
         <BrowserRouter>
           <AppInit>
             <Routes>
-              {/* Public — accessible to anyone */}
-              <Route path="/" element={<LandingPage />} />
 
               {/* Guest-only — redirect to /dashboard if already logged in */}
               <Route element={<GuestRoute />}>
+                <Route path="/" element={<LandingPage />} />
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/register" element={<RegisterPage />} />
                 <Route path="/forgot-password" element={<ForgotPasswordPage />} />

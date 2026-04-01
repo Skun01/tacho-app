@@ -50,9 +50,9 @@ export function AuthLayout({
         <div className="relative z-10 flex h-full flex-col justify-between">
           <BrandLogo variant="light" />
 
-          {/* Kanji vertical strip */}
+          {/* Kanji vertical strip — decorative only, no pointer events */}
           <div
-            className="absolute right-0 top-0 flex h-full items-center py-16 opacity-20"
+            className="pointer-events-none absolute right-0 top-0 flex h-full items-center py-16 opacity-20"
             style={{ writingMode: 'vertical-rl' }}
             aria-hidden="true"
           >
