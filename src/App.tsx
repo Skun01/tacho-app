@@ -2,7 +2,7 @@ import {BrowserRouter, Route, Routes} from 'react-router'
 import { LoginPage } from './pages/LoginPage'
 import { RegisterPage } from './pages/RegisterPage'
 import { DashboardPage } from './pages/DashboardPage'
-import { HomePage } from './pages/HomePage'
+import { LandingPage } from './pages/LandingPage'
 import { GooeyToaster } from './components/ui/goey-toaster'
 
 function App() {
@@ -13,7 +13,7 @@ function App() {
         {/* public routes */}
         <Route
           path="/"
-          element={<HomePage/>}
+          element={<LandingPage/>}
         />
 
         <Route
