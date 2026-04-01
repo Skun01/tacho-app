@@ -8,6 +8,7 @@ export const NAVBAR_COPY = {
   profileMenu: {
     profile: 'Tài khoản',
     dashboard: 'Dashboard',
+    darkMode: 'Giao diện tối',
     logout: 'Đăng xuất',
   },
 } as const

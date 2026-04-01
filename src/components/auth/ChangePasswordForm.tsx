@@ -100,7 +100,7 @@ export function ChangePasswordForm() {
         <Button
           type="submit"
           disabled={isPending}
-          className="mt-1 self-start gap-2 rounded-xl bg-gradient-to-r from-primary to-primary-container text-primary-foreground hover:opacity-90 disabled:opacity-60"
+          className="mt-1 self-start gap-2 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-60"
         >
           {isPending && <SpinnerGapIcon size={15} className="animate-spin" />}
           {AUTH_PROFILE_COPY.changePasswordButton}

@@ -76,7 +76,7 @@ export function ResetPasswordForm({ token }: ResetPasswordFormProps) {
         <Button
           type="submit"
           disabled={isPending}
-          className="gap-2 rounded-xl bg-gradient-to-r from-primary to-primary-container text-primary-foreground hover:opacity-90 disabled:opacity-60"
+          className="gap-2 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-60"
         >
           {isPending && <SpinnerGapIcon size={16} className="animate-spin" />}
           {AUTH_RESET_PASSWORD_COPY.submitButton}

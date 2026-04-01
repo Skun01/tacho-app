@@ -8,11 +8,6 @@ import { NavbarNotifications } from './NavbarNotifications'
 import { NavbarUserMenu } from './NavbarUserMenu'
 import { NAVBAR_COPY } from '@/constants/navbar'
 
-/**
- * Navbar chính cho authenticated pages.
- * Chỉ quản lý scroll state → đổi header style.
- * Mọi logic khác được delegate xuống các sub-components.
- */
 export function Navbar() {
   const [scrolled, setScrolled] = useState(false)
 
@@ -53,7 +48,7 @@ export function Navbar() {
           className="hidden md:flex items-center gap-1.5 text-secondary hover:text-primary shrink-0"
         >
           <Link to="/quick-learn">
-            <LightningIcon  size={16} weight="duotone" />
+            <LightningIcon size={16} weight="duotone" />
             {NAVBAR_COPY.quickLearn}
           </Link>
         </Button>

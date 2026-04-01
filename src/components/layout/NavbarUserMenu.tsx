@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router'
-import { CaretDownIcon, HouseIcon, UserIcon, SignOutIcon } from '@phosphor-icons/react'
+import { CaretDownIcon, HouseIcon, UserIcon, SignOutIcon, MoonIcon, SunIcon } from '@phosphor-icons/react'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -8,11 +8,13 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Switch } from '@/components/ui/switch'
 import { useAuthStore } from '@/stores/authStore'
+import { useThemeStore } from '@/stores/themeStore'
 import { useLogout } from '@/hooks/useAuth'
 import { NAVBAR_COPY } from '@/constants/navbar'
 
-// ── Helper ────────────────────────────────────────────────────────────────────
+//Helper
 function getInitials(name: string | undefined): string {
   if (!name) return '?'
   const parts = name.trim().split(/\s+/)
@@ -20,15 +22,12 @@ function getInitials(name: string | undefined): string {
   return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
 }
 
-/**
- * Profile dropdown trong Navbar.
- * Tự lấy user từ authStore + gọi useLogout — không cần props.
- * Tách vì: nhóm 2+ state (user, isLoggingOut) + handler + JSX riêng biệt.
- */
 export function NavbarUserMenu() {
   const user = useAuthStore((s) => s.user)
   const { mutate: logout, isPending: isLoggingOut } = useLogout()
+  const { theme, toggleTheme } = useThemeStore()
   const navigate = useNavigate()
+  const isDark = theme === 'dark'
 
   return (
     <DropdownMenu>
@@ -106,6 +105,29 @@ export function NavbarUserMenu() {
           <UserIcon size={15} weight="duotone" style={{ color: 'var(--secondary)' }} />
           {NAVBAR_COPY.profileMenu.profile}
         </DropdownMenuItem>
+
+        <DropdownMenuSeparator />
+
+        {/* Theme toggle — dùng div thay MenuItem để không đóng dropdown khi click switch */}
+        <div
+          className="flex items-center justify-between gap-2 px-2 py-1.5 rounded-sm cursor-pointer select-none"
+          style={{ color: 'var(--on-surface)' }}
+          onClick={toggleTheme}
+        >
+          <div className="flex items-center gap-2">
+            {isDark
+              ? <MoonIcon size={15} weight="duotone" style={{ color: 'var(--secondary)' }} />
+              : <SunIcon size={15} weight="duotone" style={{ color: 'var(--secondary)' }} />
+            }
+            <span className="text-sm">{NAVBAR_COPY.profileMenu.darkMode}</span>
+          </div>
+          <Switch
+            checked={isDark}
+            onCheckedChange={toggleTheme}
+            aria-label="Chuyển giao diện tối/sáng"
+            onClick={(e) => e.stopPropagation()}
+          />
+        </div>
 
         <DropdownMenuSeparator />
 

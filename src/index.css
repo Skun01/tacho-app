@@ -66,9 +66,61 @@
   --surface: #fff9eb;
   --surface-container-low: #f9f3e5;
   --surface-container: #f0ead9;
+  --surface-container-high: #ede8da;
   --surface-container-highest: #e8e2d4;
   --on-surface: #1d1c13;
+  --on-surface-variant: #4a4740;
+  --on-secondary-container: #051f24;
   --outline-variant: #1d1c1326;
+}
+
+/* ─── Dark Mode ───────────────────────────────────────────────────────────── */
+/* Áp dụng bằng class 'dark' trên <html> — không dùng prefers-color-scheme */
+.dark {
+  --background: #1d1c13;
+  --foreground: #e8e6d9;
+
+  --card: #222119;
+  --card-foreground: #e8e6d9;
+
+  --popover: #1d1c13;
+  --popover-foreground: #e8e6d9;
+
+  --primary: #adc6ff;
+  --primary-foreground: #002453;
+
+  --primary-container: #003585;
+
+  --secondary: #b2ccd1;
+  --secondary-foreground: #051f24;
+
+  --secondary-container: #324b50;
+
+  --tertiary: #ffb87a;
+  --tertiary-foreground: #3d1d00;
+
+  --muted: #222119;
+  --muted-foreground: #b2ccd1;
+
+  --accent: #38372d;
+  --accent-foreground: #e8e6d9;
+
+  --destructive: #f87171;
+
+  --border: #e8e6d926;
+  --input: #38372d;
+  --ring: #adc6ff;
+
+  /* Surface hierarchy — dark */
+  --surface: #1d1c13;
+  --surface-container-low: #222119;
+  --surface-container: #272620;
+  --surface-container-high: #2d2c23;
+  --surface-container-highest: #38372d;
+  --on-surface: #e8e6d9;
+  --on-surface-variant: #cac7bb;
+  --on-secondary-container: #e8f3f6;
+  --outline-variant: #4a4740;
 }
 
 @theme inline {
@@ -107,8 +159,11 @@
   --color-surface: var(--surface);
   --color-surface-container-low: var(--surface-container-low);
   --color-surface-container: var(--surface-container);
+  --color-surface-container-high: var(--surface-container-high);
   --color-surface-container-highest: var(--surface-container-highest);
   --color-on-surface: var(--on-surface);
+  --color-on-surface-variant: var(--on-surface-variant);
+  --color-on-secondary-container: var(--on-secondary-container);
   --color-outline-variant: var(--outline-variant);
 }
 
