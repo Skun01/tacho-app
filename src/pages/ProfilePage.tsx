@@ -1,6 +1,6 @@
 import { PageHelmet } from '@/components/seo/PageHelmet'
 import { Navbar } from '@/components/layout/Navbar'
-import { ProfileHeader } from '@/components/layout/ProfileHeader'
+import { ProfileHeader } from '@/components/profile/ProfileHeader'
 import { UpdateProfileForm } from '@/components/auth/UpdateProfileForm'
 import { ChangePasswordForm } from '@/components/auth/ChangePasswordForm'
 import { AUTH_PROFILE_COPY } from '@/constants/auth'

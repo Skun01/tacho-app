@@ -78,7 +78,7 @@ export function LandingNavbar() {
             size="sm"
             asChild
             className={scrolled
-              ? 'bg-gradient-to-r from-primary to-primary-container text-primary-foreground hover:opacity-90'
+              ? 'bg-primary text-primary-foreground hover:bg-primary/90'
               : 'bg-white/15 backdrop-blur-sm text-white border border-white/30 hover:bg-white/25'
             }
           >
@@ -128,7 +128,7 @@ export function LandingNavbar() {
             </Button>
             <Button
               asChild
-              className="w-full bg-gradient-to-r from-primary to-primary-container text-primary-foreground hover:opacity-90"
+              className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
             >
               <Link to="/register" onClick={() => setMobileOpen(false)}>
                 {LANDING_NAV.ctaRegister}

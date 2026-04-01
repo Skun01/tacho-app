@@ -11,10 +11,6 @@ function getInitials(name: string | undefined): string {
   return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
 }
 
-/**
- * Header của ProfilePage — avatar lớn, tên, email, nút quay lại.
- * Tách ra vì: JSX block có mục đích riêng, đặt tên được (§14).
- */
 export function ProfileHeader() {
   const user = useAuthStore((s) => s.user)
   const navigate = useNavigate()
@@ -28,7 +24,6 @@ export function ProfileHeader() {
       }}
     >
       <div className="mx-auto max-w-2xl px-6 lg:px-8">
-        {/* Nút quay lại */}
         <div className="pt-6">
           <Button
             variant="ghost"
@@ -42,7 +37,6 @@ export function ProfileHeader() {
           </Button>
         </div>
 
-        {/* Avatar + info */}
         <div className="flex items-end gap-6 pb-8 pt-4">
           <Avatar className="h-20 w-20 shrink-0 ring-4 ring-surface">
             <AvatarImage

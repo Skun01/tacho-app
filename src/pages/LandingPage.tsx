@@ -1,4 +1,4 @@
-import { LandingNavbar } from '@/components/layout/LandingNavbar'
+import { LandingNavbar } from '@/components/landing/LandingNavbar'
 import { Footer } from '@/components/layout/Footer'
 import { ScrollToTopButton } from '@/components/layout/ScrollToTopButton'
 import { HeroSection } from '@/components/landing/HeroSection'
