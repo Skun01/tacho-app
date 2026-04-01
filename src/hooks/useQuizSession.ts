@@ -3,7 +3,7 @@ import type { NavigateFunction } from 'react-router'
 import { getCardDetail } from '@/services/cardDetailService'
 import { getStudyBatchIds } from '@/services/dashboardService'
 import { commitQuizProgress } from '@/services/cardService'
-import { getQuizBatch } from '@/services/quizService'
+import { getQuizBatch, submitFillBlankAnswer } from '@/services/quizService'
 import { checkAnswer } from '@/utils/quizGenerator'
 import type { CardDetail } from '@/types/card'
 import type { QuizQuestion, AnswerState, QuizAttempt } from '@/types/quiz'
@@ -47,6 +47,7 @@ export function useQuizSession(
   const [cardInfoLoading, setCardInfoLoading] = useState(false)
   const [scrollY, setScrollY] = useState(0)
   const [flashcardHistory, setFlashcardHistory] = useState<FlashcardHistoryEntry[]>([])
+  const [quizSource, setQuizSource] = useState<'mock' | 'api-fill-blank'>('mock')
 
   // ── Load ──────────────────────────────────────────────────────────────────────
   useEffect(() => {
@@ -55,7 +56,7 @@ export function useQuizSession(
         ? routeState.batchIds
         : await getStudyBatchIds(routeState?.mode ?? 'learn')
       setBatchIds(nextBatchIds)
-      const { questions, masteryMap } = await getQuizBatch(nextBatchIds, routeState?.forceType)
+      const { questions, masteryMap, source } = await getQuizBatch(nextBatchIds, routeState?.forceType)
       questions.forEach((q) => {
         if (!cardInfosRef.current.has(q.cardId)) {
           cardInfosRef.current.set(q.cardId, {
@@ -66,6 +67,7 @@ export function useQuizSession(
         }
       })
       setQueue(questions)
+      setQuizSource(source)
       setInitialCount(questions.length)
       const mc = new Map<string, { before: number; after: number }>()
       Object.entries(masteryMap).forEach(([cardId, stage]) => {
@@ -136,7 +138,20 @@ export function useQuizSession(
 
   async function handleNext() {
     if (!current) return
-    const isCorrect = answerState === 'correct'
+    let isCorrect = answerState === 'correct'
+
+    if (quizSource === 'api-fill-blank' && current.exampleId) {
+      const submitResult = await submitFillBlankAnswer({
+        cardId: current.cardId,
+        exampleId: current.exampleId,
+        userAnswer: inputRef.current?.value ?? inputValue,
+      })
+
+      isCorrect = submitResult.isCorrect
+      if (!isCorrect && submitResult.wrongFeedback) {
+        current.wrongFeedback = submitResult.wrongFeedback
+      }
+    }
 
     setAttempts((prev) => [
       ...prev,
@@ -157,13 +172,15 @@ export function useQuizSession(
       const finalMastery = new Map(masteryChanges)
       const ex = finalMastery.get(current.cardId)!
       finalMastery.set(current.cardId, { ...ex, after: Math.max(0, Math.min(14, ex.after + 1)) })
-      await commitQuizProgress(
-        Array.from(finalMastery.entries()).map(([cardId, mc]) => ({
-          cardId,
-          before: mc.before,
-          after: mc.after,
-        })),
-      )
+      if (quizSource === 'mock') {
+        await commitQuizProgress(
+          Array.from(finalMastery.entries()).map(([cardId, mc]) => ({
+            cardId,
+            before: mc.before,
+            after: mc.after,
+          })),
+        )
+      }
       navigate('/quiz/result', {
         state: {
           attempts: nextAttempts,
@@ -226,13 +243,15 @@ export function useQuizSession(
 
     const remaining = queue.slice(1)
     if (correct && remaining.length === 0) {
-      await commitQuizProgress(
-        Array.from(nextMastery.entries()).map(([cardId, mc]) => ({
-          cardId,
-          before: mc.before,
-          after: mc.after,
-        })),
-      )
+      if (quizSource === 'mock') {
+        await commitQuizProgress(
+          Array.from(nextMastery.entries()).map(([cardId, mc]) => ({
+            cardId,
+            before: mc.before,
+            after: mc.after,
+          })),
+        )
+      }
       navigate('/quiz/result', {
         state: {
           attempts: nextAttempts,

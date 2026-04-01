@@ -10,6 +10,7 @@ export interface QuizChoice {
 export interface QuizQuestion {
   id: string
   cardId: string
+  exampleId?: string
   type: QuestionType
   isRetry: boolean
   jlptLevel: string
@@ -27,6 +28,7 @@ export interface QuizQuestion {
   exampleMeaning?: string    // Type B: Vietnamese meaning shown after answer
   correctAnswer: string
   acceptedAnswers: string[]
+  wrongFeedback?: string
   choices?: QuizChoice[]     // Type C only
 }
 
