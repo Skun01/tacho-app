@@ -9,6 +9,7 @@ import { LandingPage } from './pages/LandingPage'
 import { LoginPage } from './pages/LoginPage'
 import { RegisterPage } from './pages/RegisterPage'
 import { DashboardPage } from './pages/DashboardPage'
+import { ProfilePage } from './pages/ProfilePage'
 import { ForgotPasswordPage } from './pages/ForgotPasswordPage'
 import { ResetPasswordPage } from './pages/ResetPasswordPage'
 
@@ -40,6 +41,7 @@ function App() {
               {/* Protected — redirect to /login if not logged in */}
               <Route element={<ProtectedRoute />}>
                 <Route path="/dashboard" element={<DashboardPage />} />
+                <Route path="/profile" element={<ProfilePage />} />
               </Route>
             </Routes>
           </AppInit>

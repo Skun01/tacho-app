@@ -1,6 +1,18 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router'
+import { BooksIcon, LightningIcon } from '@phosphor-icons/react'
+import { Button } from '@/components/ui/button'
+import { NavbarLogo } from './NavbarLogo'
+import { NavbarSearch } from './NavbarSearch'
+import { NavbarNotifications } from './NavbarNotifications'
+import { NavbarUserMenu } from './NavbarUserMenu'
+import { NAVBAR_COPY } from '@/constants/navbar'
 
+/**
+ * Navbar chính cho authenticated pages.
+ * Chỉ quản lý scroll state → đổi header style.
+ * Mọi logic khác được delegate xuống các sub-components.
+ */
 export function Navbar() {
   const [scrolled, setScrolled] = useState(false)
 
@@ -14,34 +26,45 @@ export function Navbar() {
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
         scrolled
-          ? 'bg-surface/80 backdrop-blur-[12px] shadow-[0_4px_32px_0_rgba(29,28,19,0.06)]'
-          : 'bg-transparent'
+          ? 'bg-surface/85 backdrop-blur-[12px] shadow-[0_4px_32px_0_rgba(29,28,19,0.06)]'
+          : 'bg-surface border-b border-border/40'
       }`}
     >
-      <nav className="mx-auto flex max-w-6xl items-center justify-between px-8 py-5">
-        <Link to="/" className="flex items-center gap-2">
-          <span className="font-['Kiwi_Maru'] text-xl font-medium text-primary">
-            太
-          </span>
-          <span className="text-lg font-semibold tracking-wide text-primary">
-            Tacho
-          </span>
-        </Link>
+      <nav className="mx-auto flex max-w-6xl items-center gap-4 px-6 py-3 lg:px-8">
 
-        <div className="flex items-center gap-8">
-          <Link
-            to="/login"
-            className="text-sm font-medium text-secondary transition-colors hover:text-primary"
-          >
-            Đăng nhập
+        <NavbarLogo />
+
+        <Button
+          variant="ghost"
+          size="sm"
+          asChild
+          className="hidden md:flex items-center gap-1.5 text-secondary hover:text-primary shrink-0"
+        >
+          <Link to="/library">
+            <BooksIcon size={16} weight="duotone" />
+            {NAVBAR_COPY.library}
           </Link>
-          <Link
-            to="/register"
-            className="rounded-xl bg-gradient-to-r from-primary to-primary-container px-6 py-2.5 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90"
-          >
-            Bắt đầu miễn phí
+        </Button>
+
+        <Button
+          variant="ghost"
+          size="sm"
+          asChild
+          className="hidden md:flex items-center gap-1.5 text-secondary hover:text-primary shrink-0"
+        >
+          <Link to="/quick-learn">
+            <LightningIcon  size={16} weight="duotone" />
+            {NAVBAR_COPY.quickLearn}
           </Link>
+        </Button>
+
+        <NavbarSearch />
+
+        <div className="flex items-center gap-1 shrink-0">
+          <NavbarNotifications />
+          <NavbarUserMenu />
         </div>
+
       </nav>
     </header>
   )
