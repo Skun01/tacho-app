@@ -123,3 +123,21 @@
     min-height: 100vh;
   }
 }
+
+/* ─── Font Utilities ─────────────────────────────────────────────────────── */
+/* Dùng cho heading tiếng Việt — Nunito trước, không force Kiwi Maru */
+.font-heading-vn {
+  font-family: "Nunito", system-ui, sans-serif;
+  font-weight: 700;
+}
+
+/* Dùng cho text tiếng Nhật thuần (Kanji, Kana) — Kiwi Maru trước */
+.font-heading-jp {
+  font-family: "Kiwi Maru", serif;
+  font-weight: 500;
+}
+
+/* Global heading fallback — Nunito trước để tiếng Việt không vỡ */
+h1, h2, h3, h4, h5, h6 {
+  font-family: "Nunito", "Kiwi Maru", system-ui, sans-serif;
+}

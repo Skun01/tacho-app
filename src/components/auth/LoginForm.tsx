@@ -1,73 +1,105 @@
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Link } from 'react-router'
+import { SpinnerGapIcon } from '@phosphor-icons/react'
 import { AUTH_LOGIN_COPY } from '@/constants/auth'
 import { loginSchema, type LoginSchema } from '@/lib/validations/auth'
+import { useLogin } from '@/hooks/useAuth'
+import { Button } from '@/components/ui/button'
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
 
 export function LoginForm() {
-  const {
-    register,
-    handleSubmit,
-    formState: { errors, isSubmitting },
-  } = useForm<LoginSchema>({
+  const { mutate: login, isPending } = useLogin()
+
+  const form = useForm<LoginSchema>({
     resolver: zodResolver(loginSchema),
+    defaultValues: { email: '', password: '' },
   })
 
-  const onSubmit = async (_data: LoginSchema) => {
-    // TODO: wire up authService.login
+  const onSubmit = (data: LoginSchema) => {
+    login(data)
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6">
-      <div className="flex flex-col gap-2">
-        <label className="text-sm font-medium text-foreground">
-          {AUTH_LOGIN_COPY.emailLabel}
-        </label>
-        <input
-          {...register('email')}
-          type="email"
-          placeholder={AUTH_LOGIN_COPY.emailPlaceholder}
-          className="border-b border-foreground/40 bg-transparent py-2 text-sm outline-none placeholder:text-muted-foreground focus:border-primary"
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-6">
+
+        <FormField
+          control={form.control}
+          name="email"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>{AUTH_LOGIN_COPY.emailLabel}</FormLabel>
+              <FormControl>
+                <Input
+                  type="email"
+                  placeholder={AUTH_LOGIN_COPY.emailPlaceholder}
+                  className="border-0 border-b border-foreground/40 rounded-none bg-transparent px-0 shadow-none focus-visible:ring-0 focus-visible:border-primary"
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
         />
-        {errors.email && (
-          <span className="text-xs text-destructive">{errors.email.message}</span>
-        )}
-      </div>
 
-      <div className="flex flex-col gap-2">
-        <div className="flex items-center justify-between">
-          <label className="text-sm font-medium text-foreground">
-            {AUTH_LOGIN_COPY.passwordLabel}
-          </label>
-          <a href="#" className="text-xs text-secondary hover:text-primary">
-            {AUTH_LOGIN_COPY.forgotPassword}
-          </a>
-        </div>
-        <input
-          {...register('password')}
-          type="password"
-          placeholder={AUTH_LOGIN_COPY.passwordPlaceholder}
-          className="border-b border-foreground/40 bg-transparent py-2 text-sm outline-none placeholder:text-muted-foreground focus:border-primary"
+        <FormField
+          control={form.control}
+          name="password"
+          render={({ field }) => (
+            <FormItem>
+              <div className="flex items-center justify-between">
+                <FormLabel>{AUTH_LOGIN_COPY.passwordLabel}</FormLabel>
+                <Link
+                  to="/forgot-password"
+                  className="text-xs hover:opacity-70"
+                  style={{ color: 'var(--secondary)' }}
+                  tabIndex={-1}
+                >
+                  {AUTH_LOGIN_COPY.forgotPassword}
+                </Link>
+              </div>
+              <FormControl>
+                <Input
+                  type="password"
+                  placeholder={AUTH_LOGIN_COPY.passwordPlaceholder}
+                  className="border-0 border-b border-foreground/40 rounded-none bg-transparent px-0 shadow-none focus-visible:ring-0 focus-visible:border-primary"
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
         />
-        {errors.password && (
-          <span className="text-xs text-destructive">{errors.password.message}</span>
-        )}
-      </div>
 
-      <button
-        type="submit"
-        disabled={isSubmitting}
-        className="mt-2 rounded-xl bg-gradient-to-r from-primary to-primary-container px-8 py-3 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-60"
-      >
-        {isSubmitting ? AUTH_LOGIN_COPY.loadingButton : AUTH_LOGIN_COPY.submitButton}
-      </button>
+        <Button
+          type="submit"
+          disabled={isPending}
+          className="mt-2 gap-2 rounded-xl bg-gradient-to-r from-primary to-primary-container text-primary-foreground hover:opacity-90 disabled:opacity-60"
+        >
+          {isPending && <SpinnerGapIcon size={16} className="animate-spin" />}
+          {AUTH_LOGIN_COPY.submitButton}
+        </Button>
 
-      <p className="text-center text-sm text-muted-foreground">
-        {AUTH_LOGIN_COPY.registerPrompt}{' '}
-        <Link to="/register" className="font-semibold text-primary hover:underline">
-          {AUTH_LOGIN_COPY.registerLink}
-        </Link>
-      </p>
-    </form>
+        <p className="text-center text-sm" style={{ color: 'var(--on-surface-variant)' }}>
+          {AUTH_LOGIN_COPY.registerPrompt}{' '}
+          <Link
+            to="/register"
+            className="font-semibold hover:opacity-70"
+            style={{ color: 'var(--primary)' }}
+          >
+            {AUTH_LOGIN_COPY.registerLink}
+          </Link>
+        </p>
+      </form>
+    </Form>
   )
 }

@@ -37,7 +37,18 @@ export function setupInterceptors() {
   })
 
   api.interceptors.response.use(
-    (response) => response,
+    (response) => {
+      // Backend trả HTTP 200 cho mọi response (kể cả lỗi nghiệp vụ).
+      // Nếu success === false → reject để onError trong useMutation hoạt động đúng.
+      if (response.data && response.data.success === false) {
+        const err = Object.assign(
+          new Error(response.data.message ?? 'API Error'),
+          { apiData: response.data }, // { code, success, message, data }
+        )
+        return Promise.reject(err)
+      }
+      return response
+    },
     async (error) => {
       const originalRequest = error.config as InternalAxiosRequestConfig & {
         _retry?: boolean

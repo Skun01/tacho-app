@@ -1,13 +1,13 @@
-import { GithubLogo, FacebookLogo, Envelope, LinkedinLogo } from '@phosphor-icons/react'
+import { GithubLogoIcon, FacebookLogoIcon, EnvelopeIcon, LinkedinLogoIcon } from '@phosphor-icons/react'
 import { Button } from '@/components/ui/button'
 import { LANDING_ABOUT } from '@/constants/landing'
 import avatarSrc from '@/assets/avatar.jpg'
 
 const SOCIAL_ICONS = {
-  github: GithubLogo,
-  facebook: FacebookLogo,
-  email: Envelope,
-  linkedin: LinkedinLogo,
+  github: GithubLogoIcon,
+  facebook: FacebookLogoIcon,
+  email: EnvelopeIcon,
+  linkedin: LinkedinLogoIcon,
 } as const
 
 export function AboutSection() {
