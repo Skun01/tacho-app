@@ -76,6 +76,7 @@ export const AUTH_PROFILE_COPY = {
 
 export const AUTH_ERROR_MESSAGES: Record<string, string> = {
   Invalid_Credentials: 'Email hoặc mật khẩu không đúng.',
+  Invalid_400: 'Email hoặc mật khẩu không đúng.',
   Email_Exist_409: 'Email này đã được sử dụng.',
   User_NotFound_404: 'Không tìm thấy tài khoản với email này.',
   Invalid_Token_400: 'Link đặt lại mật khẩu không hợp lệ hoặc đã hết hạn.',

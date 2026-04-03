@@ -39,11 +39,12 @@ export function setupInterceptors() {
   api.interceptors.response.use(
     (response) => {
       // Backend trả HTTP 200 cho mọi response (kể cả lỗi nghiệp vụ).
-      // Nếu success === false → reject để onError trong useMutation hoạt động đúng.
-      if (response.data && response.data.success === false) {
+      // Nếu success/Success === false → reject để onError trong useMutation hoạt động đúng.
+      const isSuccess = response.data?.success ?? response.data?.Success;
+      if (response.data && isSuccess === false) {
         const err = Object.assign(
-          new Error(response.data.message ?? 'API Error'),
-          { apiData: response.data }, // { code, success, message, data }
+          new Error(response.data.message ?? response.data.Message ?? 'API Error'),
+          { apiData: response.data }, // { code, success, message, data } hoặc PascalCase
         )
         return Promise.reject(err)
       }

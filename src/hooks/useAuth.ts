@@ -14,39 +14,50 @@ import type {
 } from '@/types/auth'
 import { gooeyToast } from '@/components/ui/goey-toaster'
 
-// ─── Error type từ setupInterceptors ─────────────────────────────────────────
 interface ApiErrorData {
-  code: number
-  success: false
-  message: string | null
-  data: unknown
+  code?: number
+  Code?: number
+  success?: boolean
+  Success?: boolean
+  message?: string | null
+  Message?: string | null
+  data?: unknown
+  Data?: unknown
 }
 
 interface ApiError extends Error {
   apiData?: ApiErrorData
+  response?: {
+    data?: ApiErrorData
+  }
 }
 
 // ─── Helper: extract human-readable error message ────────────────────────────
 function getErrorMessage(error: unknown): string {
-  // Lỗi nghiệp vụ từ interceptor: error.apiData.message chứa mã lỗi (vd: "Email_Exist_409")
-  const apiData = (error as ApiError)?.apiData
-  const validationData = apiData?.data as Record<string, string[]> | undefined
+  const err = error as ApiError
+  const data = err?.apiData || err?.response?.data
 
-  if (apiData?.code === 400 && validationData && typeof validationData === 'object') {
+  if (!data) return AUTH_ERROR_MESSAGES.default
+
+  const code = data.code ?? data.Code
+  const message = data.message ?? data.Message
+  const validationData = (data.data ?? data.Data) as Record<string, string[]> | undefined
+
+  if (code === 400 && validationData && typeof validationData === 'object') {
     const firstError = Object.values(validationData)
       .flat()
-      .find((message) => Boolean(message))
+      .find((msg) => Boolean(msg))
 
     if (firstError && AUTH_ERROR_MESSAGES[firstError]) {
       return AUTH_ERROR_MESSAGES[firstError]
     }
   }
 
-  if (apiData?.message && AUTH_ERROR_MESSAGES[apiData.message]) {
-    return AUTH_ERROR_MESSAGES[apiData.message]
+  if (message && AUTH_ERROR_MESSAGES[message]) {
+    return AUTH_ERROR_MESSAGES[message]
   }
-  // Lỗi validation_400: message = "Validation_400", data chứa chi tiết field errors
-  if (apiData?.code === 400) {
+
+  if (code === 400) {
     return AUTH_ERROR_MESSAGES['Validation_400']
   }
   return AUTH_ERROR_MESSAGES.default
