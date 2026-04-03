@@ -1,6 +1,6 @@
 import { useMutation } from '@tanstack/react-query'
 import { useNavigate } from 'react-router'
-import { AUTH_ERROR_MESSAGES } from '@/constants/auth'
+import { AUTH_ERROR_MESSAGES, AUTH_PROFILE_COPY } from '@/constants/auth'
 import { authService } from '@/services/authService'
 import { useAuthStore } from '@/stores/authStore'
 import type {
@@ -9,6 +9,7 @@ import type {
   LoginRequest,
   RegisterRequest,
   ResetPasswordRequest,
+  UpdateProfileFormPayload,
   UpdateProfileRequest,
 } from '@/types/auth'
 import { gooeyToast } from '@/components/ui/goey-toaster'
@@ -29,6 +30,18 @@ interface ApiError extends Error {
 function getErrorMessage(error: unknown): string {
   // Lỗi nghiệp vụ từ interceptor: error.apiData.message chứa mã lỗi (vd: "Email_Exist_409")
   const apiData = (error as ApiError)?.apiData
+  const validationData = apiData?.data as Record<string, string[]> | undefined
+
+  if (apiData?.code === 400 && validationData && typeof validationData === 'object') {
+    const firstError = Object.values(validationData)
+      .flat()
+      .find((message) => Boolean(message))
+
+    if (firstError && AUTH_ERROR_MESSAGES[firstError]) {
+      return AUTH_ERROR_MESSAGES[firstError]
+    }
+  }
+
   if (apiData?.message && AUTH_ERROR_MESSAGES[apiData.message]) {
     return AUTH_ERROR_MESSAGES[apiData.message]
   }
@@ -138,13 +151,29 @@ export function useChangePassword() {
 // ─── useUpdateProfile ─────────────────────────────────────────────────────────
 export function useUpdateProfile() {
   const setUser = useAuthStore((s) => s.setUser)
+  const user = useAuthStore((s) => s.user)
 
   return useMutation({
-    mutationFn: (payload: UpdateProfileRequest) =>
-      authService.updateProfile(payload),
+    mutationFn: async (payload: UpdateProfileFormPayload) => {
+      let currentAvatarUrl: string | null | undefined = user?.avatarUrl ?? undefined;
+      if (payload.removeAvatar) {
+        currentAvatarUrl = null;
+      }
+
+      const profileResponse = await authService.updateProfile({
+        displayName: payload.displayName,
+        avatarUrl: currentAvatarUrl,
+      } as UpdateProfileRequest)
+
+      if (!payload.avatarFile) {
+        return profileResponse
+      }
+
+      return await authService.uploadAvatar(payload.avatarFile)
+    },
     onSuccess: ({ data }) => {
       setUser(data.data)
-      gooeyToast.success('Thông tin đã được cập nhật.')
+      gooeyToast.success(AUTH_PROFILE_COPY.saveProfileSuccess)
     },
     onError: (error) => {
       gooeyToast.error(getErrorMessage(error))
