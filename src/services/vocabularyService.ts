@@ -6,20 +6,16 @@ import type {
   UserCardNoteItem,
 } from '@/types/vocabulary'
 import { MOCK_VOCABULARY_CARDS } from '@/constants/vocabularyMockData'
+import api from './api'
 
 /**
- * Vocabulary Service — hiện dùng mock data.
- *
- * Khi backend API sẵn sàng, chỉ cần thay:
- *   Promise.resolve(...)  →  api.get('/vocabulary/...')
- *   Promise.resolve(...)  →  api.post('/notes/...')
+ * Vocabulary Service.
+ * - Detail + Notes đang dùng backend API thật.
+ * - Search tạm thời vẫn dùng mock data cho tới khi backend search sẵn sàng.
  */
 
-// ── In-memory mock store cho notes (mutable) ────────────────────────────────
-let mockNoteIdCounter = 100
-
 export const vocabularyService = {
-  // ─── Search ─────────────────────────────────────────────────────────────────
+  // ─── Search
   async search(
     params: VocabularySearchParams,
   ): Promise<ApiResponse<VocabularyCardSummary[]>> {
@@ -78,130 +74,116 @@ export const vocabularyService = {
     }
   },
 
-  // ─── Detail ─────────────────────────────────────────────────────────────────
+  // Detail
   async getDetail(
     id: string,
   ): Promise<ApiResponse<VocabularyCardDetail | null>> {
-    await new Promise((r) => setTimeout(r, 300))
-
-    const card = MOCK_VOCABULARY_CARDS.find((c) => c.id === id) ?? null
-
-    if (!card) {
+    try {
+      const res = await api.get<ApiResponse<VocabularyCardDetail>>(`/vocabulary/${id}`)
+      return res.data
+    } catch (error) {
       return {
         code: 404,
         success: false,
-        message: 'NotFound_404',
+        message: (error as Error).message ?? 'Common_404',
         data: null,
         metaData: null,
       }
     }
+  },
 
-    return {
-      code: 200,
-      success: true,
-      message: null,
-      data: {
-        ...card,
-        userNotes: card.userNotes.map((n) => ({ ...n })),
-        sentences: card.sentences.map((s) => ({ ...s })),
-      },
-      metaData: null,
+  // Community Notes (for pagination support)
+  async getCommunityNotes(
+    cardId: string,
+    page = 1,
+    pageSize = 10,
+  ): Promise<ApiResponse<UserCardNoteItem[]>> {
+    try {
+      const res = await api.get<ApiResponse<UserCardNoteItem[]>>(`/cards/${cardId}/notes`, {
+        params: { page, pageSize },
+      })
+      return res.data
+    } catch (error) {
+      return {
+        code: 400,
+        success: false,
+        message: (error as Error).message ?? 'Common_400',
+        data: [],
+        metaData: null,
+      }
     }
   },
 
-  // ─── Notes CRUD ─────────────────────────────────────────────────────────────
+  // Notes CRUD
 
-  /**
-   * Tạo ghi chú mới.
-   * Tương lai: POST /api/cards/:cardId/notes  { content }
-   */
+  /** Tạo/cập nhật ghi chú của user hiện tại. */
   async createNote(
     cardId: string,
     content: string,
   ): Promise<ApiResponse<UserCardNoteItem>> {
-    await new Promise((r) => setTimeout(r, 300))
-
-    const newNote: UserCardNoteItem = {
-      id: `note-${++mockNoteIdCounter}`,
-      userId: 'current-user',
-      userName: 'Bạn',
-      content,
-      likesCount: 0,
-      isLikedByMe: false,
-      createdAt: new Date().toISOString(),
-    }
-
-    // Thêm vào mock data (in-memory)
-    const card = MOCK_VOCABULARY_CARDS.find((c) => c.id === cardId)
-    if (card) {
-      card.userNotes.unshift(newNote)
-    }
-
-    return {
-      code: 200,
-      success: true,
-      message: null,
-      data: newNote,
-      metaData: null,
+    try {
+      const res = await api.post<ApiResponse<UserCardNoteItem>>(`/cards/${cardId}/notes`, {
+        content,
+      })
+      return res.data
+    } catch (error) {
+      return {
+        code: 400,
+        success: false,
+        message: (error as Error).message ?? 'Common_400',
+        data: {
+          id: '',
+          userId: '',
+          userName: '',
+          content: '',
+          likesCount: 0,
+          isLikedByMe: false,
+          createdAt: new Date().toISOString(),
+        },
+        metaData: null,
+      }
     }
   },
 
-  /**
-   * Xóa ghi chú.
-   * Tương lai: DELETE /api/notes/:noteId
-   */
+  /** Xóa ghi chú của user hiện tại theo cardId. noteId giữ lại để tương thích chữ ký cũ. */
   async deleteNote(
     cardId: string,
-    noteId: string,
+    _noteId: string,
   ): Promise<ApiResponse<null>> {
-    await new Promise((r) => setTimeout(r, 200))
-
-    const card = MOCK_VOCABULARY_CARDS.find((c) => c.id === cardId)
-    if (card) {
-      card.userNotes = card.userNotes.filter((n) => n.id !== noteId)
-    }
-
-    return {
-      code: 200,
-      success: true,
-      message: null,
-      data: null,
-      metaData: null,
+    try {
+      const res = await api.delete<ApiResponse<boolean>>(`/cards/${cardId}/notes/me`)
+      return {
+        ...res.data,
+        data: null,
+      }
+    } catch (error) {
+      return {
+        code: 400,
+        success: false,
+        message: (error as Error).message ?? 'Common_400',
+        data: null,
+        metaData: null,
+      }
     }
   },
 
-  /**
-   * Toggle like/unlike ghi chú.
-   * Tương lai: POST /api/notes/:noteId/toggle-like
-   */
+  /** Toggle like/unlike ghi chú. */
   async toggleNoteLike(
     noteId: string,
   ): Promise<ApiResponse<{ isLiked: boolean; likesCount: number }>> {
-    await new Promise((r) => setTimeout(r, 150))
-
-    // Tìm note trong tất cả cards
-    for (const card of MOCK_VOCABULARY_CARDS) {
-      const note = card.userNotes.find((n) => n.id === noteId)
-      if (note) {
-        note.isLikedByMe = !note.isLikedByMe
-        note.likesCount += note.isLikedByMe ? 1 : -1
-
-        return {
-          code: 200,
-          success: true,
-          message: null,
-          data: { isLiked: note.isLikedByMe, likesCount: note.likesCount },
-          metaData: null,
-        }
+    try {
+      const res = await api.post<ApiResponse<{ isLiked: boolean; likesCount: number }>>(
+        `/notes/${noteId}/toggle-like`,
+      )
+      return res.data
+    } catch (error) {
+      return {
+        code: 400,
+        success: false,
+        message: (error as Error).message ?? 'Common_400',
+        data: { isLiked: false, likesCount: 0 },
+        metaData: null,
       }
-    }
-
-    return {
-      code: 404,
-      success: false,
-      message: 'NotFound_404',
-      data: { isLiked: false, likesCount: 0 },
-      metaData: null,
     }
   },
 }

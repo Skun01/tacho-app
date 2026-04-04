@@ -1,6 +1,7 @@
 import { useRef, useMemo } from 'react'
 import { useParams } from 'react-router'
 import { ArrowLeftIcon, WarningCircleIcon } from '@phosphor-icons/react'
+import { useAuthStore } from '@/stores/authStore'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Navbar } from '@/components/layout/Navbar'
@@ -15,11 +16,10 @@ import { VocabDetailCard } from '@/components/vocabulary/VocabDetailCard'
 import { useVocabularyDetail } from '@/hooks/useVocabularyDetail'
 import { VOCAB_DETAIL_COPY } from '@/constants/vocabularyDetail'
 
-const CURRENT_USER_ID = 'current-user'
-
 export function VocabularyDetailPage() {
   const { id } = useParams<{ id: string }>()
   const { card, isLoading, notFound, refetch } = useVocabularyDetail(id)
+  const currentUserId = useAuthStore((state) => state.user?.id ?? null)
   const communityNotesRef = useRef<HTMLDivElement>(null)
 
   const scrollToCommunityNotes = () => {
@@ -27,13 +27,13 @@ export function VocabularyDetailPage() {
   }
 
   const myNote = useMemo(
-    () => card?.userNotes.find((n) => n.userId === CURRENT_USER_ID) ?? null,
-    [card?.userNotes],
+    () => (currentUserId ? card?.userNotes.find((n) => n.userId === currentUserId) ?? null : null),
+    [card?.userNotes, currentUserId],
   )
 
   const communityNotes = useMemo(
-    () => card?.userNotes.filter((n) => n.userId !== CURRENT_USER_ID) ?? [],
-    [card?.userNotes],
+    () => (currentUserId ? card?.userNotes.filter((n) => n.userId !== currentUserId) ?? [] : card?.userNotes ?? []),
+    [card?.userNotes, currentUserId],
   )
 
   return (
