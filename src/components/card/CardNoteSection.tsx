@@ -90,8 +90,8 @@ export function CardNoteSection({
         <Card className="border-none py-0 section-card-surface section-card-elevation">
           <CardContent className="p-4 flex flex-col gap-3">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-muted-foreground">Ghi chú của bạn</span>
-              <span className="text-[10px] text-muted-foreground">
+              <span className="section-title-text">Ghi chú của bạn</span>
+              <span className="section-meta-text">
                 {new Date(myNote.createdAt).toLocaleDateString('vi-VN')}
               </span>
             </div>
@@ -103,7 +103,7 @@ export function CardNoteSection({
               <Button
                 variant="ghost"
                 size="sm"
-                className={`gap-1 text-xs px-2 h-7 ${myNote.isLikedByMe ? 'text-red-500' : 'text-muted-foreground'}`}
+                className={`gap-1 text-sm px-2 h-7 ${myNote.isLikedByMe ? 'text-red-500' : 'text-muted-foreground'}`}
                 onClick={handleToggleLike}
                 disabled={isLiking}
               >

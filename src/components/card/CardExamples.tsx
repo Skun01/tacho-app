@@ -25,13 +25,13 @@ export function CardExamples({ sentences }: CardExamplesProps) {
     <section className="flex flex-col gap-4">
       {/* Section header with toggle */}
       <div className="flex items-center justify-between">
-        <span className="text-xs font-bold tracking-wider text-muted-foreground">
+        <span className="section-title-text">
           {VOCAB_DETAIL_COPY.examples.title}
         </span>
         <Button
           variant="ghost"
           size="sm"
-          className="gap-1.5 text-xs text-muted-foreground"
+          className="gap-1.5 section-label-text"
           onClick={() => setShowMeanings((prev) => !prev)}
         >
           {showMeanings ? (
@@ -76,7 +76,7 @@ function ExampleCard({
         {/* Left: text + meaning */}
         <div className="flex flex-col gap-1 min-w-0 flex-1">
           <p
-            className="font-heading-jp text-base text-foreground"
+            className="font-heading-jp text-lg text-foreground"
             style={{ lineHeight: 1.8 }}
           >
             {sentence.text}
@@ -84,7 +84,7 @@ function ExampleCard({
 
           {/* Meaning — always rendered, blur when hidden, hover to reveal */}
           <p
-            className={`text-sm text-muted-foreground select-none transition-all duration-200 ${
+            className={`section-caption-text select-none transition-all duration-200 ${
               isMeaningVisible
                 ? ''
                 : 'blur-[6px] group-hover:blur-none'
@@ -97,7 +97,7 @@ function ExampleCard({
         {/* Right: level badge + audio */}
         <div className="flex items-center gap-2 shrink-0 mt-1">
           {sentence.level && (
-            <Badge variant="outline" className="text-[10px] font-semibold">
+            <Badge variant="outline" className="text-sm font-semibold">
               {sentence.level}
             </Badge>
           )}

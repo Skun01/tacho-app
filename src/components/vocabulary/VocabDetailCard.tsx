@@ -20,19 +20,19 @@ export function VocabDetailCard({ card }: VocabDetailCardProps) {
     <Card className="border-none py-0 section-card-surface section-card-elevation">
       <CardContent className="p-5 flex flex-col gap-5">
         {/* Section header */}
-        <span className="text-xs font-bold tracking-wider text-muted-foreground">
+        <span className="section-title-text">
           {VOCAB_DETAIL_COPY.detail.title}
         </span>
 
         {/* ── NGHĨA TỪ ĐIỂN ─────────────────────────────────────── */}
         <div className="flex flex-col gap-3">
-          <span className="text-[11px] font-semibold tracking-wider text-muted-foreground">
+          <span className="section-label-text">
             {VOCAB_DETAIL_COPY.detail.dictMeaning}
           </span>
 
           {card.meanings.map((meaning, idx) => (
             <div key={idx} className="flex flex-col gap-1.5">
-              <Badge variant="secondary" className="w-fit text-[10px]">
+              <Badge variant="secondary" className="w-fit text-sm">
                 {PART_OF_SPEECH_LABELS[meaning.partOfSpeech] ?? meaning.partOfSpeech}
               </Badge>
               <ol className="list-decimal list-inside flex flex-col gap-0.5">
@@ -50,7 +50,7 @@ export function VocabDetailCard({ card }: VocabDetailCardProps) {
 
         {/* ── CÁCH ĐỌC ──────────────────────────────────────────── */}
         <div className="flex flex-col gap-2">
-          <span className="text-[11px] font-semibold tracking-wider text-muted-foreground">
+          <span className="section-label-text">
             {VOCAB_DETAIL_COPY.detail.reading}
           </span>
 
@@ -102,12 +102,12 @@ function PitchDisplay({
                 pattern[i] === 1 ? 'bg-primary' : 'bg-accent'
               }`}
             />
-            <span className="font-heading-jp text-sm text-foreground">{mora}</span>
+            <span className="font-heading-jp text-base text-foreground">{mora}</span>
           </span>
         ))}
       </div>
     )
   }
 
-  return <span className="font-heading-jp text-sm text-foreground">{reading}</span>
+  return <span className="font-heading-jp text-base text-foreground">{reading}</span>
 }

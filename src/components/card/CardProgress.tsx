@@ -13,10 +13,10 @@ export function CardProgress() {
       <CardContent className="p-5 flex flex-col gap-4">
         {/* Header */}
         <div className="flex items-center justify-between">
-          <span className="text-xs font-bold tracking-wider text-muted-foreground">
+          <span className="section-title-text">
             {VOCAB_DETAIL_COPY.progress.title}
           </span>
-          <GearSixIcon size={16} className="text-muted-foreground" />
+          <GearSixIcon size={16} className="text-foreground/70" />
         </div>
 
         {/* Coming soon placeholder */}
@@ -26,16 +26,16 @@ export function CardProgress() {
           </Badge>
           <div className="flex gap-6 text-center mt-2">
             <div className="flex flex-col gap-0.5">
-              <span className="text-[10px] text-muted-foreground">{VOCAB_DETAIL_COPY.progress.nextReview}</span>
-              <span className="text-xs font-semibold text-foreground">—</span>
+              <span className="section-meta-text">{VOCAB_DETAIL_COPY.progress.nextReview}</span>
+              <span className="section-label-text">—</span>
             </div>
             <div className="flex flex-col gap-0.5">
-              <span className="text-[10px] text-muted-foreground">{VOCAB_DETAIL_COPY.progress.firstLearned}</span>
-              <span className="text-xs font-semibold text-foreground">—</span>
+              <span className="section-meta-text">{VOCAB_DETAIL_COPY.progress.firstLearned}</span>
+              <span className="section-label-text">—</span>
             </div>
             <div className="flex flex-col gap-0.5">
-              <span className="text-[10px] text-muted-foreground">{VOCAB_DETAIL_COPY.progress.reviewCount}</span>
-              <span className="text-xs font-semibold text-foreground">—</span>
+              <span className="section-meta-text">{VOCAB_DETAIL_COPY.progress.reviewCount}</span>
+              <span className="section-label-text">—</span>
             </div>
           </div>
         </div>

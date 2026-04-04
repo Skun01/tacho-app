@@ -21,11 +21,11 @@ export function CardHero({ level, typeLabel, title, summary }: CardHeroProps) {
       {/* Badges row */}
       <div className="flex items-center gap-2">
         {level && (
-          <Badge variant="outline" className="font-semibold text-xs">
+          <Badge variant="outline" className="font-semibold text-sm">
             {level}
           </Badge>
         )}
-        <Badge variant="secondary" className="text-xs">
+        <Badge variant="secondary" className="text-sm">
           {typeLabel}
         </Badge>
       </div>
@@ -34,7 +34,7 @@ export function CardHero({ level, typeLabel, title, summary }: CardHeroProps) {
       <h1
         className="font-heading-jp"
         style={{
-          fontSize: 'clamp(2.5rem, 6vw, 4rem)',
+          fontSize: 'clamp(2.75rem, 6.5vw, 4.25rem)',
           lineHeight: 1.1,
           letterSpacing: '0.02em',
           color: 'var(--on-surface)',

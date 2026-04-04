@@ -21,7 +21,7 @@ export function VocabRelated({
 
   return (
     <section className="flex flex-col gap-4">
-      <span className="text-xs font-bold tracking-wider text-muted-foreground">
+      <span className="section-title-text">
         {VOCAB_DETAIL_COPY.related.title}
       </span>
 
@@ -45,10 +45,10 @@ export function VocabRelated({
 function RelatedGroup({ label, items }: { label: string; items: string[] }) {
   return (
     <div className="flex flex-col gap-2">
-      <span className="text-[11px] font-semibold text-muted-foreground">{label}</span>
+      <span className="section-label-text">{label}</span>
       <div className="flex flex-wrap gap-2">
         {items.map((item) => (
-          <Badge key={item} variant="outline" className="font-heading-jp text-sm cursor-default py-1 px-3">
+          <Badge key={item} variant="outline" className="font-heading-jp text-base cursor-default py-1 px-3">
             {item}
           </Badge>
         ))}

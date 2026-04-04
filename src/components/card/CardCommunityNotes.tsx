@@ -36,15 +36,15 @@ export function CardCommunityNotes({ communityNotes, onNotesChanged }: CardCommu
 
   return (
     <section className="flex flex-col gap-4" id="card-community-notes">
-      <span className="text-xs font-bold tracking-wider text-muted-foreground">
+      <span className="section-title-text">
         {VOCAB_DETAIL_COPY.notes.title}
       </span>
 
       {communityNotes.length === 0 ? (
         <Card className="border-none py-0 section-card-surface section-card-elevation">
           <CardContent className="p-8 flex flex-col items-center gap-2 opacity-60">
-            <p className="text-sm font-medium text-foreground">{VOCAB_DETAIL_COPY.notes.empty}</p>
-            <p className="text-xs text-muted-foreground text-center max-w-xs">{VOCAB_DETAIL_COPY.notes.emptyHint}</p>
+            <p className="section-label-text text-center">{VOCAB_DETAIL_COPY.notes.empty}</p>
+            <p className="section-caption-text text-center max-w-xs">{VOCAB_DETAIL_COPY.notes.emptyHint}</p>
           </CardContent>
         </Card>
       ) : (
@@ -54,9 +54,9 @@ export function CardCommunityNotes({ communityNotes, onNotesChanged }: CardCommu
               <CardContent className="p-4 flex flex-col gap-3">
                 {/* Author + time */}
                 <div className="flex items-center gap-2">
-                  <UserCircleIcon size={20} weight="fill" className="text-muted-foreground" />
-                  <span className="text-sm font-medium text-foreground">{note.userName}</span>
-                  <span className="text-[10px] text-muted-foreground">
+                  <UserCircleIcon size={20} weight="fill" className="text-foreground/70" />
+                  <span className="section-label-text text-foreground">{note.userName}</span>
+                  <span className="section-meta-text">
                     {new Date(note.createdAt).toLocaleDateString('vi-VN')}
                   </span>
                 </div>
@@ -72,7 +72,7 @@ export function CardCommunityNotes({ communityNotes, onNotesChanged }: CardCommu
                   <Button
                     variant="ghost"
                     size="sm"
-                    className={`gap-1 text-xs px-2 h-7 ${note.isLikedByMe ? 'text-red-500' : 'text-muted-foreground'}`}
+                    className={`gap-1 text-sm px-2 h-7 ${note.isLikedByMe ? 'text-red-500' : 'text-muted-foreground'}`}
                     onClick={() => handleToggleLike(note.id)}
                     disabled={likingIds.has(note.id)}
                   >
