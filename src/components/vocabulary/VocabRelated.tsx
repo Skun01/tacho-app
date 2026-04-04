@@ -1,4 +1,4 @@
-  import { Badge } from '@/components/ui/badge'
+import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
 import { VOCAB_DETAIL_COPY } from '@/constants/vocabularyDetail'
 
@@ -25,7 +25,7 @@ export function VocabRelated({
         {VOCAB_DETAIL_COPY.related.title}
       </span>
 
-      <Card className="border-none shadow-none py-0" style={{ backgroundColor: 'var(--surface-container-low)' }}>
+      <Card className="border-none py-0 section-card-surface section-card-elevation">
         <CardContent className="p-5 flex flex-col gap-4">
           {synonyms.length > 0 && (
             <RelatedGroup label={VOCAB_DETAIL_COPY.related.synonyms} items={synonyms} />

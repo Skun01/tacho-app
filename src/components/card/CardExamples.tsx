@@ -70,8 +70,7 @@ function ExampleCard({
 }) {
   return (
     <Card
-      className="border-none shadow-none py-0 group"
-      style={{ backgroundColor: 'var(--surface-container-low)' }}
+      className="border-none py-0 group section-card-surface section-card-elevation"
     >
       <CardContent className="p-4 flex items-start justify-between gap-4">
         {/* Left: text + meaning */}

@@ -17,7 +17,7 @@ export function SearchResultCard({ card }: SearchResultCardProps) {
 
   return (
     <Link to={`/vocabulary/${card.id}`} className="block group">
-      <Card className="border-none shadow-none transition-all duration-300 group-hover:scale-[1.01] bg-surface-container-low py-0">
+      <Card className="border-none transition-all duration-300 py-0 section-card-surface section-card-elevation group-hover:scale-[1.01] group-hover:section-card-elevation-hover">
         <CardContent className="flex items-start justify-between gap-4 p-4">
           {/* Left: word info */}
           <div className="flex flex-col gap-1 min-w-0">

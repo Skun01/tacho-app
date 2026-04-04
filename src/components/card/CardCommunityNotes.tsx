@@ -41,7 +41,7 @@ export function CardCommunityNotes({ communityNotes, onNotesChanged }: CardCommu
       </span>
 
       {communityNotes.length === 0 ? (
-        <Card className="border-none shadow-none py-0" style={{ backgroundColor: 'var(--surface-container-low)' }}>
+        <Card className="border-none py-0 section-card-surface section-card-elevation">
           <CardContent className="p-8 flex flex-col items-center gap-2 opacity-60">
             <p className="text-sm font-medium text-foreground">{VOCAB_DETAIL_COPY.notes.empty}</p>
             <p className="text-xs text-muted-foreground text-center max-w-xs">{VOCAB_DETAIL_COPY.notes.emptyHint}</p>
@@ -50,7 +50,7 @@ export function CardCommunityNotes({ communityNotes, onNotesChanged }: CardCommu
       ) : (
         <div className="flex flex-col gap-3">
           {communityNotes.map((note) => (
-            <Card key={note.id} className="border-none shadow-none py-0" style={{ backgroundColor: 'var(--surface-container-low)' }}>
+            <Card key={note.id} className="border-none py-0 section-card-surface section-card-elevation">
               <CardContent className="p-4 flex flex-col gap-3">
                 {/* Author + time */}
                 <div className="flex items-center gap-2">

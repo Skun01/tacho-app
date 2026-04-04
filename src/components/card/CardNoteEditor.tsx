@@ -51,7 +51,7 @@ export function CardNoteEditor({
   }
 
   return (
-    <Card className="border-none shadow-none py-0" style={{ backgroundColor: 'var(--surface-container-low)' }}>
+    <Card className="border-none py-0 section-card-surface section-card-elevation">
       <CardContent className="p-4 flex flex-col gap-3">
         {/* Toolbar */}
         <div className="flex items-center gap-1">

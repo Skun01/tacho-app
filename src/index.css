@@ -72,6 +72,13 @@
   --on-surface-variant: #4a4740;
   --on-secondary-container: #051f24;
   --outline-variant: #1d1c1326;
+
+  /* Elevation tokens */
+  --elevation-section-card: 0 4px 14px rgba(29, 28, 19, 0.1);
+  --elevation-section-card-hover: 0 8px 20px rgba(29, 28, 19, 0.14);
+
+  /* Dedicated section card surface for better separation from page background */
+  --section-card-surface: var(--surface-container);
 }
 
 /* ─── Dark Mode ───────────────────────────────────────────────────────────── */
@@ -121,6 +128,13 @@
   --on-surface-variant: #cac7bb;
   --on-secondary-container: #e8f3f6;
   --outline-variant: #4a4740;
+
+  /* Elevation tokens */
+  --elevation-section-card: 0 4px 14px rgba(0, 0, 0, 0.36);
+  --elevation-section-card-hover: 0 8px 20px rgba(0, 0, 0, 0.46);
+
+  /* Dedicated section card surface for better separation from page background */
+  --section-card-surface: var(--surface-container-high);
 }
 
 @theme inline {
@@ -195,4 +209,18 @@
 /* Global heading fallback — Nunito trước để tiếng Việt không vỡ */
 h1, h2, h3, h4, h5, h6 {
   font-family: "Nunito", "Kiwi Maru", system-ui, sans-serif;
+}
+
+@layer utilities {
+  .section-card-surface {
+    background-color: var(--section-card-surface);
+  }
+
+  .section-card-elevation {
+    box-shadow: var(--elevation-section-card);
+  }
+
+  .section-card-elevation-hover {
+    box-shadow: var(--elevation-section-card-hover);
+  }
 }

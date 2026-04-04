@@ -17,7 +17,7 @@ interface VocabDetailCardProps {
  */
 export function VocabDetailCard({ card }: VocabDetailCardProps) {
   return (
-    <Card className="border-none shadow-none py-0" style={{ backgroundColor: 'var(--surface-container-low)' }}>
+    <Card className="border-none py-0 section-card-surface section-card-elevation">
       <CardContent className="p-5 flex flex-col gap-5">
         {/* Section header */}
         <span className="text-xs font-bold tracking-wider text-muted-foreground">

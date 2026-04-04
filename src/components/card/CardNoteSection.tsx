@@ -87,7 +87,7 @@ export function CardNoteSection({
   if (myNote) {
     return (
       <div className="flex flex-col gap-3">
-        <Card className="border-none shadow-none py-0" style={{ backgroundColor: 'var(--surface-container-low)' }}>
+        <Card className="border-none py-0 section-card-surface section-card-elevation">
           <CardContent className="p-4 flex flex-col gap-3">
             <div className="flex items-center justify-between">
               <span className="text-xs font-semibold text-muted-foreground">Ghi chú của bạn</span>
