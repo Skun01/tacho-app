@@ -1,4 +1,6 @@
+import { Link } from 'react-router'
 import { MagnifyingGlassIcon } from '@phosphor-icons/react'
+import { Button } from '@/components/ui/button'
 import { SEARCH_COPY } from '@/constants/search'
 
 export function SearchEmptyState() {
@@ -21,6 +23,9 @@ export function SearchEmptyState() {
       >
         {SEARCH_COPY.noResultsHint}
       </p>
+      <Button asChild variant="outline" size="sm">
+        <Link to="/dashboard">{SEARCH_COPY.noResultsCta}</Link>
+      </Button>
     </div>
   )
 }

@@ -1,0 +1,45 @@
+export const GRAMMAR_DETAIL_COPY = {
+  pageTitle: (title: string) => `${title} — Chi tiết ngữ pháp`,
+  pageDescription: 'Xem chi tiết thẻ ngữ pháp tiếng Nhật trên Tacho.',
+  back: 'Quay lại',
+  cardType: 'Ngữ pháp',
+  detail: {
+    title: 'CHI TIẾT',
+    structures: 'Cấu trúc',
+    explanation: 'Giải thích',
+    caution: 'Lưu ý',
+    register: 'Ngữ vực',
+    alternateForms: 'Dạng thay thế',
+    tags: 'Thẻ nhãn',
+  },
+  sections: {
+    examples: 'Ví dụ',
+    related: 'Liên quan',
+    resources: 'Tài nguyên',
+  },
+  registerLabel: {
+    Standard: 'Tiêu chuẩn',
+    Formal: 'Trang trọng',
+    Polite: 'Lịch sự',
+    Casual: 'Thân mật',
+  },
+  related: {
+    openNewTabLabel: 'Mở ở tab mới',
+    fallbackTitle: 'Mẫu ngữ pháp',
+  },
+  relationType: {
+    Similar: 'Tương tự',
+    Contrasting: 'Đối chiếu',
+  },
+  empty: {
+    noCaution: 'Không có lưu ý.',
+    noRelations: 'Chưa có mục liên quan.',
+    noResources: 'Chưa có tài nguyên.',
+    noAlternateForms: 'Không có dạng thay thế.',
+    noRegister: 'Không xác định',
+    noTags: 'Không có thẻ nhãn.',
+  },
+  notFound: 'Không tìm thấy thẻ ngữ pháp',
+  notFoundHint: 'Thẻ này có thể đã bị xóa hoặc chưa được xuất bản.',
+  errorLoading: 'Không thể tải chi tiết ngữ pháp. Vui lòng thử lại.',
+} as const

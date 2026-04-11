@@ -1,26 +1,43 @@
 import { XIcon } from '@phosphor-icons/react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { SEARCH_COPY, JLPT_LEVEL_LABELS, PART_OF_SPEECH_LABELS } from '@/constants/search'
-import type { JlptLevel, PartOfSpeech } from '@/types/vocabulary'
+import { SEARCH_COPY, JLPT_LEVEL_LABELS, SEARCH_CARD_TYPE_OPTIONS } from '@/constants/search'
+import type { SearchCardType } from '@/types/search'
+import type { JlptLevel } from '@/types/vocabulary'
 
 interface SearchFiltersProps {
+  selectedCardType: SearchCardType | undefined
   selectedLevel: JlptLevel | undefined
-  selectedPos: PartOfSpeech | undefined
+  onCardTypeChange: (cardType: SearchCardType | undefined) => void
   onLevelChange: (level: JlptLevel | undefined) => void
-  onPosChange: (pos: PartOfSpeech | undefined) => void
 }
 
 export function SearchFilters({
+  selectedCardType,
   selectedLevel,
-  selectedPos,
+  onCardTypeChange,
   onLevelChange,
-  onPosChange,
 }: SearchFiltersProps) {
-  const hasFilters = selectedLevel || selectedPos
+  const hasFilters = selectedCardType || selectedLevel
 
   return (
     <div className="flex flex-col gap-3">
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="text-xs font-semibold text-muted-foreground shrink-0">
+          {SEARCH_COPY.filters.cardType}
+        </span>
+        {SEARCH_CARD_TYPE_OPTIONS.map((option) => (
+          <Badge
+            key={option.label}
+            variant={selectedCardType === option.value ? 'default' : 'outline'}
+            className="cursor-pointer transition-all duration-300 select-none"
+            onClick={() => onCardTypeChange(option.value)}
+          >
+            {option.label}
+          </Badge>
+        ))}
+      </div>
+
       {/* JLPT Level */}
       <div className="flex flex-wrap items-center gap-2">
         <span className="text-xs font-semibold text-muted-foreground shrink-0">
@@ -40,33 +57,14 @@ export function SearchFilters({
         ))}
       </div>
 
-      {/* Part of Speech */}
-      <div className="flex flex-wrap items-center gap-2">
-        <span className="text-xs font-semibold text-muted-foreground shrink-0">
-          {SEARCH_COPY.filters.partOfSpeech}
-        </span>
-        {Object.entries(PART_OF_SPEECH_LABELS).map(([key, label]) => (
-          <Badge
-            key={key}
-            variant={selectedPos === key ? 'default' : 'outline'}
-            className="cursor-pointer transition-all duration-300 select-none"
-            onClick={() =>
-              onPosChange(selectedPos === key ? undefined : (key as PartOfSpeech))
-            }
-          >
-            {label}
-          </Badge>
-        ))}
-      </div>
-
       {/* Clear all */}
       {hasFilters && (
         <Button
           variant="ghost"
           size="sm"
           onClick={() => {
+            onCardTypeChange(undefined)
             onLevelChange(undefined)
-            onPosChange(undefined)
           }}
           className="self-start gap-1 text-xs text-primary"
         >

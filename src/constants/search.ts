@@ -1,15 +1,28 @@
 export const SEARCH_COPY = {
   pageTitle: 'Tìm kiếm',
-  inputPlaceholder: 'Nhập từ vựng, kanji, hoặc nghĩa tiếng Việt...',
+  pageDescription: 'Tìm kiếm thẻ học tiếng Nhật trên Tacho.',
+  inputPlaceholder: 'Nhập nội dung muốn tìm...',
   resultCount: (count: number, query: string) =>
     `${count} kết quả cho "${query}"`,
+  cardTypeLabel: {
+    Vocab: 'Từ vựng',
+    Grammar: 'Ngữ pháp',
+  },
+  cardTypePill: {
+    Vocab: 'Vocab',
+    Grammar: 'Grammar',
+  },
   noResults: 'Không tìm thấy kết quả',
-  noResultsHint: 'Thử tìm với từ khóa khác hoặc bỏ bớt bộ lọc',
+  noResultsHint: 'Thử đổi từ khóa hoặc bỏ bớt bộ lọc.',
+  noResultsCta: 'Quay lại trang chủ',
   filters: {
+    cardType: 'Loại thẻ',
+    allTypes: 'Tất cả',
     level: 'Trình độ',
-    partOfSpeech: 'Loại từ',
     clearAll: 'Xóa bộ lọc',
   },
+  grammarAlternateForms: 'Dạng thay thế',
+  searchError: 'Không thể tải kết quả tìm kiếm. Vui lòng thử lại.',
 } as const
 
 export const JLPT_LEVEL_LABELS: Record<string, string> = {
@@ -19,6 +32,12 @@ export const JLPT_LEVEL_LABELS: Record<string, string> = {
   N2: 'N2',
   N1: 'N1',
 } as const
+
+export const SEARCH_CARD_TYPE_OPTIONS = [
+  { value: undefined, label: SEARCH_COPY.filters.allTypes },
+  { value: 'Vocab', label: SEARCH_COPY.cardTypeLabel.Vocab },
+  { value: 'Grammar', label: SEARCH_COPY.cardTypeLabel.Grammar },
+] as const
 
 export const PART_OF_SPEECH_LABELS: Record<string, string> = {
   Noun: 'Danh từ',
@@ -30,10 +49,4 @@ export const PART_OF_SPEECH_LABELS: Record<string, string> = {
   Particle: 'Trợ từ',
   Conjunction: 'Liên từ',
   Interjection: 'Thán từ',
-} as const
-
-export const WORD_TYPE_LABELS: Record<string, string> = {
-  Native: '和語',
-  SinoJapanese: '漢語',
-  Loanword: '外来語',
 } as const
