@@ -11,6 +11,8 @@ export interface GrammarStructureItem {
 
 export interface GrammarRelationItem {
   relatedId: string
+  title: string
+  summary: string
   relationType: GrammarRelationType
 }
 

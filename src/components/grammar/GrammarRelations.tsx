@@ -1,48 +1,14 @@
-import { useMemo } from 'react'
-import { useQueries } from '@tanstack/react-query'
 import { ArrowSquareOutIcon } from '@phosphor-icons/react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { GRAMMAR_DETAIL_COPY } from '@/constants/grammarDetail'
-import { grammarService } from '@/services/grammarService'
-import type { GrammarCardDetail, GrammarRelationItem } from '@/types/grammar'
+import type { GrammarRelationItem } from '@/types/grammar'
 
 interface GrammarRelationsProps {
   relations: GrammarRelationItem[]
 }
 
 export function GrammarRelations({ relations }: GrammarRelationsProps) {
-  const relatedIds = useMemo(
-    () => [...new Set(relations.map((relation) => relation.relatedId))],
-    [relations],
-  )
-
-  const relatedQueries = useQueries({
-    queries: relatedIds.map((relatedId) => ({
-      queryKey: ['grammar', 'relation-detail', relatedId] as const,
-      queryFn: async () => {
-        try {
-          const response = await grammarService.getDetail(relatedId)
-          if (response.success) return response.data
-          return null
-        } catch {
-          return null
-        }
-      },
-      staleTime: 1000 * 60 * 5,
-    })),
-  })
-
-  const relatedById = useMemo(() => {
-    const map = new Map<string, GrammarCardDetail>()
-    relatedQueries.forEach((query, index) => {
-      if (query.data) {
-        map.set(relatedIds[index], query.data)
-      }
-    })
-    return map
-  }, [relatedIds, relatedQueries])
-
   return (
     <section className="flex flex-col gap-4">
       <span className="section-title-text">{GRAMMAR_DETAIL_COPY.sections.related}</span>
@@ -56,8 +22,9 @@ export function GrammarRelations({ relations }: GrammarRelationsProps) {
       ) : (
         <div className="flex flex-col gap-3">
           {relations.map((relation) => {
-            const relatedCard = relatedById.get(relation.relatedId)
             const fallbackTitle = `${GRAMMAR_DETAIL_COPY.related.fallbackTitle} ${relation.relatedId}`
+            const title = relation.title?.trim() || fallbackTitle
+            const summary = relation.summary?.trim()
 
             return (
               <a
@@ -70,11 +37,11 @@ export function GrammarRelations({ relations }: GrammarRelationsProps) {
                   <CardContent className="p-4 flex items-center justify-between gap-3">
                     <div className="min-w-0 flex-1">
                       <p className="text-sm font-semibold text-foreground truncate">
-                        {relatedCard?.title ?? fallbackTitle}
+                        {title}
                       </p>
-                      {relatedCard?.summary && (
+                      {summary && (
                         <p className="text-xs text-muted-foreground truncate mt-0.5">
-                          {relatedCard.summary}
+                          {summary}
                         </p>
                       )}
                     </div>
