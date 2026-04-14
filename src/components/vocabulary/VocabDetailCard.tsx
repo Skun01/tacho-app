@@ -5,6 +5,8 @@ import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { PART_OF_SPEECH_LABELS } from '@/constants/search'
 import { VOCAB_DETAIL_COPY } from '@/constants/vocabularyDetail'
+import { useAudioPlayer } from '@/hooks/useAudioPlayer'
+import { resolveMediaUrl } from '@/lib/mediaUrl'
 import type { VocabularyCardDetail } from '@/types/vocabulary'
 
 interface VocabDetailCardProps {
@@ -16,6 +18,13 @@ interface VocabDetailCardProps {
  * Matches the middle-left panel in the reference image.
  */
 export function VocabDetailCard({ card }: VocabDetailCardProps) {
+  const { playAudio, playingAudioUrl } = useAudioPlayer({
+    playErrorMessage: VOCAB_DETAIL_COPY.audio.playError,
+  })
+  const resolvedAudioUrl = resolveMediaUrl(card.audioUrl)
+  const isAudioAvailable = Boolean(resolvedAudioUrl)
+  const isPlaying = Boolean(resolvedAudioUrl && playingAudioUrl === resolvedAudioUrl)
+
   return (
     <Card className="border-none py-0 section-card-surface section-card-elevation">
       <CardContent className="p-5 flex flex-col gap-5">
@@ -65,14 +74,20 @@ export function VocabDetailCard({ card }: VocabDetailCardProps) {
             <Button
               variant="outline"
               size="icon"
-              className="rounded-full h-10 w-10"
-              disabled={!card.audioUrl}
-              title={card.audioUrl ? VOCAB_DETAIL_COPY.audio.play : VOCAB_DETAIL_COPY.audio.unavailable}
+              className={[
+                'rounded-full h-10 w-10 transition-colors',
+                isPlaying ? 'bg-primary/10 border-primary/40' : '',
+              ].join(' ')}
+              disabled={!isAudioAvailable}
+              onClick={() => {
+                void playAudio(resolvedAudioUrl)
+              }}
+              title={isAudioAvailable ? VOCAB_DETAIL_COPY.audio.play : VOCAB_DETAIL_COPY.audio.unavailable}
             >
               <SpeakerHighIcon
                 size={18}
                 weight="fill"
-                className={card.audioUrl ? 'text-primary' : 'text-muted-foreground opacity-40'}
+                className={isAudioAvailable ? 'text-primary' : 'text-muted-foreground opacity-40'}
               />
             </Button>
           </div>

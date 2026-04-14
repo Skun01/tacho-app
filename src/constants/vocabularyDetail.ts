@@ -55,6 +55,7 @@ export const VOCAB_DETAIL_COPY = {
   audio: {
     play: 'Phát âm',
     unavailable: 'Chưa có audio',
+    playError: 'Không thể phát audio. Vui lòng thử lại.',
   },
 
   notFound: 'Không tìm thấy từ vựng',

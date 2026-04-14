@@ -4,6 +4,8 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { VOCAB_DETAIL_COPY } from '@/constants/vocabularyDetail'
+import { useAudioPlayer } from '@/hooks/useAudioPlayer'
+import { resolveMediaUrl } from '@/lib/mediaUrl'
 import type { SentenceItem } from '@/types/vocabulary'
 
 interface CardExamplesProps {
@@ -18,6 +20,9 @@ interface CardExamplesProps {
  */
 export function CardExamples({ sentences }: CardExamplesProps) {
   const [showMeanings, setShowMeanings] = useState(true)
+  const { playAudio, playingAudioUrl } = useAudioPlayer({
+    playErrorMessage: VOCAB_DETAIL_COPY.audio.playError,
+  })
 
   if (sentences.length === 0) return null
 
@@ -52,6 +57,8 @@ export function CardExamples({ sentences }: CardExamplesProps) {
             key={sentence.id}
             sentence={sentence}
             isMeaningVisible={showMeanings}
+            playingAudioUrl={playingAudioUrl}
+            onPlayAudio={playAudio}
           />
         ))}
       </div>
@@ -64,10 +71,18 @@ export function CardExamples({ sentences }: CardExamplesProps) {
 function ExampleCard({
   sentence,
   isMeaningVisible,
+  playingAudioUrl,
+  onPlayAudio,
 }: {
   sentence: SentenceItem
   isMeaningVisible: boolean
+  playingAudioUrl: string | null
+  onPlayAudio: (audioUrl?: string | null) => Promise<void>
 }) {
+  const resolvedAudioUrl = resolveMediaUrl(sentence.audioUrl)
+  const isAudioAvailable = Boolean(resolvedAudioUrl)
+  const isPlaying = Boolean(resolvedAudioUrl && playingAudioUrl === resolvedAudioUrl)
+
   return (
     <Card
       className="border-none py-0 group section-card-surface section-card-elevation"
@@ -104,14 +119,21 @@ function ExampleCard({
           <Button
             variant="ghost"
             size="icon"
-            className="h-8 w-8 rounded-full"
-            disabled={!sentence.audioUrl}
+            className={[
+              'h-8 w-8 rounded-full transition-colors',
+              isPlaying ? 'bg-primary/10' : '',
+            ].join(' ')}
+            disabled={!isAudioAvailable}
+            onClick={() => {
+              void onPlayAudio(resolvedAudioUrl)
+            }}
+            title={isAudioAvailable ? VOCAB_DETAIL_COPY.audio.play : VOCAB_DETAIL_COPY.audio.unavailable}
           >
             <SpeakerHighIcon
               size={16}
               weight="fill"
               className={
-                sentence.audioUrl
+                isAudioAvailable
                   ? 'text-primary'
                   : 'text-muted-foreground opacity-40'
               }
