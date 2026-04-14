@@ -14,6 +14,7 @@ export const KANJI_DETAIL_COPY = {
     radicals: 'Bộ thủ',
     tags: 'Thẻ nhãn',
   },
+  strokeOrderAlt: (kanji: string) => `Hình thứ tự nét của Kanji ${kanji}`,
   empty: {
     noOnyomi: 'Không có âm On.',
     noKunyomi: 'Không có âm Kun.',

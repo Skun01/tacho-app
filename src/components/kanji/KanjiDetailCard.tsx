@@ -54,40 +54,56 @@ export function KanjiDetailCard({ card }: KanjiDetailCardProps) {
     <Card className="border-none py-0 section-card-surface section-card-elevation">
       <CardContent className="p-5 flex flex-col gap-6">
 
-        {/* ── Kanji showcase ── */}
-        <div className="flex items-center gap-6">
-          <div
-            className="flex items-center justify-center rounded-xl shrink-0"
-            style={{
-              width: 96,
-              height: 96,
-              backgroundColor: 'var(--surface-container-highest)',
-            }}
-          >
-            <span className="font-heading-jp text-foreground select-all" style={{ fontSize: '3.5rem', lineHeight: 1 }}>
-              {card.kanji}
-            </span>
-          </div>
+        {/* ── Kanji showcase + stroke order ── */}
+        <div className="grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_220px] gap-4 items-start">
+          <div className="flex items-center gap-6">
+            <div
+              className="flex items-center justify-center rounded-xl shrink-0"
+              style={{
+                width: 96,
+                height: 96,
+                backgroundColor: 'var(--surface-container-highest)',
+              }}
+            >
+              <span className="font-heading-jp text-foreground select-all" style={{ fontSize: '3.5rem', lineHeight: 1 }}>
+                {card.kanji}
+              </span>
+            </div>
 
-          <div className="flex flex-col gap-2 min-w-0">
-            <p className="text-base font-semibold text-foreground leading-snug">
-              {card.meaningVi}
-            </p>
-            {card.hanViet && (
-              <span
-                className="text-sm"
+            <div className="flex flex-col gap-2 min-w-0">
+              <p className="text-base font-semibold text-foreground leading-snug">
+                {card.meaningVi}
+              </p>
+              {card.hanViet && (
+                <span
+                  className="text-sm"
+                  style={{ color: 'var(--on-surface-variant)' }}
+                >
+                  {KANJI_DETAIL_COPY.detail.hanViet}: <strong className="text-foreground">{card.hanViet}</strong>
+                </span>
+              )}
+              <div
+                className="flex items-center gap-3 text-sm"
                 style={{ color: 'var(--on-surface-variant)' }}
               >
-                {KANJI_DETAIL_COPY.detail.hanViet}: <strong className="text-foreground">{card.hanViet}</strong>
-              </span>
-            )}
-            <div
-              className="flex items-center gap-3 text-sm"
-              style={{ color: 'var(--on-surface-variant)' }}
-            >
-              <span>{KANJI_DETAIL_COPY.detail.strokeCount}: <strong className="text-foreground">{card.strokeCount}</strong></span>
+                <span>{KANJI_DETAIL_COPY.detail.strokeCount}: <strong className="text-foreground">{card.strokeCount}</strong></span>
+              </div>
             </div>
           </div>
+
+          {card.strokeOrderUrl && (
+            <div
+              className="flex flex-col gap-2 rounded-xl p-3"
+              style={{ backgroundColor: 'var(--surface-container-highest)' }}
+            >
+              <span className="section-label-text">{KANJI_DETAIL_COPY.detail.strokeOrder}</span>
+              <img
+                src={card.strokeOrderUrl}
+                alt={KANJI_DETAIL_COPY.strokeOrderAlt(card.kanji)}
+                className="w-full rounded-lg"
+              />
+            </div>
+          )}
         </div>
 
         <Separator />
@@ -160,26 +176,6 @@ export function KanjiDetailCard({ card }: KanjiDetailCardProps) {
             <p className="text-sm text-muted-foreground">{KANJI_DETAIL_COPY.empty.noRadicals}</p>
           )}
         </div>
-
-        {/* ── Stroke order ── */}
-        {card.strokeOrderUrl && (
-          <>
-            <Separator />
-            <div className="flex flex-col gap-3">
-              <span className="section-label-text">{KANJI_DETAIL_COPY.detail.strokeOrder}</span>
-              <div
-                className="inline-flex rounded-xl p-4"
-                style={{ backgroundColor: 'var(--surface-container-highest)' }}
-              >
-                <img
-                  src={card.strokeOrderUrl}
-                  alt={`${card.kanji} stroke order`}
-                  className="max-w-[240px] rounded-lg"
-                />
-              </div>
-            </div>
-          </>
-        )}
 
         {/* ── Tags ── */}
         {card.tags.length > 0 && (

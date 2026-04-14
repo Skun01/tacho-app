@@ -65,7 +65,7 @@ export function KanjiDetailPage() {
       <Navbar />
 
       <main className="min-h-screen pt-20 pb-16" style={{ backgroundColor: 'var(--surface)' }}>
-        <div className="mx-auto max-w-5xl px-6 lg:px-8">
+        <div className="mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8">
           <div className="py-4">
             <Button
               variant="ghost"
