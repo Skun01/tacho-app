@@ -7,10 +7,12 @@ export const SEARCH_COPY = {
   cardTypeLabel: {
     Vocab: 'Từ vựng',
     Grammar: 'Ngữ pháp',
+    Kanji: 'Kanji',
   },
   cardTypePill: {
     Vocab: 'Vocab',
     Grammar: 'Grammar',
+    Kanji: 'Kanji',
   },
   noResults: 'Không tìm thấy kết quả',
   noResultsHint: 'Thử đổi từ khóa hoặc bỏ bớt bộ lọc.',
@@ -37,6 +39,7 @@ export const SEARCH_CARD_TYPE_OPTIONS = [
   { value: undefined, label: SEARCH_COPY.filters.allTypes },
   { value: 'Vocab', label: SEARCH_COPY.cardTypeLabel.Vocab },
   { value: 'Grammar', label: SEARCH_COPY.cardTypeLabel.Grammar },
+  { value: 'Kanji', label: SEARCH_COPY.cardTypeLabel.Kanji },
 ] as const
 
 export const PART_OF_SPEECH_LABELS: Record<string, string> = {

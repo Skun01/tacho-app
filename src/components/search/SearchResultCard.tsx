@@ -9,7 +9,12 @@ interface SearchResultCardProps {
 }
 
 export function SearchResultCard({ card }: SearchResultCardProps) {
-  const href = card.cardType === 'Grammar' ? `/grammar/${card.id}` : `/vocabulary/${card.id}`
+  const href =
+    card.cardType === 'Grammar'
+      ? `/grammar/${card.id}`
+      : card.cardType === 'Kanji'
+        ? `/kanji/${card.id}`
+        : `/vocabulary/${card.id}`
   const showAlternateForms = card.cardType === 'Grammar' && card.alternateForms.length > 0
 
   return (

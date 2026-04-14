@@ -15,6 +15,7 @@ import { ResetPasswordPage } from './pages/ResetPasswordPage'
 import { SearchPage } from './pages/SearchPage'
 import { VocabularyDetailPage } from './pages/VocabularyDetailPage'
 import { GrammarDetailPage } from './pages/GrammarDetailPage'
+import { KanjiDetailPage } from './pages/KanjiDetailPage'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -48,6 +49,7 @@ function App() {
                 <Route path="/search" element={<SearchPage />} />
                 <Route path="/vocabulary/:id" element={<VocabularyDetailPage />} />
                 <Route path="/grammar/:id" element={<GrammarDetailPage />} />
+                <Route path="/kanji/:id" element={<KanjiDetailPage />} />
               </Route>
             </Routes>
           </AppInit>

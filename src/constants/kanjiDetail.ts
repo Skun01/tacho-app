@@ -1,0 +1,28 @@
+export const KANJI_DETAIL_COPY = {
+  pageTitle: (title: string) => `${title} — Chi tiết Kanji`,
+  pageDescription: 'Xem chi tiết thẻ Kanji tiếng Nhật trên Tacho.',
+  back: 'Quay lại',
+  cardType: 'Kanji',
+  detail: {
+    title: 'CHI TIẾT',
+    onyomi: 'Âm On',
+    kunyomi: 'Âm Kun',
+    hanViet: 'Hán Việt',
+    meaningVi: 'Nghĩa',
+    strokeCount: 'Số nét',
+    strokeOrder: 'Thứ tự nét',
+    radicals: 'Bộ thủ',
+    tags: 'Thẻ nhãn',
+  },
+  empty: {
+    noOnyomi: 'Không có âm On.',
+    noKunyomi: 'Không có âm Kun.',
+    noHanViet: 'Không xác định',
+    noRadicals: 'Chưa có bộ thủ.',
+    noTags: 'Không có thẻ nhãn.',
+    noStrokeOrder: 'Chưa có hình thứ tự nét.',
+  },
+  notFound: 'Không tìm thấy thẻ Kanji',
+  notFoundHint: 'Thẻ này có thể đã bị xóa hoặc chưa được xuất bản.',
+  errorLoading: 'Không thể tải chi tiết Kanji. Vui lòng thử lại.',
+} as const

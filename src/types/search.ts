@@ -1,6 +1,6 @@
 import type { JlptLevel } from '@/types/vocabulary'
 
-export type SearchCardType = 'Vocab' | 'Grammar'
+export type SearchCardType = 'Vocab' | 'Grammar' | 'Kanji'
 
 export interface SearchCardSummary {
   id: string
