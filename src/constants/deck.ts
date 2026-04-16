@@ -62,6 +62,13 @@ export const DECK_COPY = {
   bookmarkSaved: 'Đã cập nhật bookmark.',
   forkSuccess: 'Đã fork bộ thẻ vào thư viện cá nhân.',
   duplicateCardWarning: 'Thẻ này đã tồn tại ở thư mục khác trong cùng bộ thẻ.',
+  openCardAriaLabel: 'Mở chi tiết thẻ',
+  removeCardAriaLabel: 'Gỡ thẻ khỏi thư mục',
+  cardTypeLabels: {
+    Vocab: 'Từ vựng',
+    Grammar: 'Ngữ pháp',
+    Kanji: 'Kanji',
+  },
   statusLabels: {
     Draft: 'Nháp',
     Published: 'Đã phát hành',
