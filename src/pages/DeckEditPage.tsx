@@ -2,14 +2,13 @@ import { useEffect, useMemo, useState } from 'react'
 import {
   ArrowLeftIcon,
   DownloadSimpleIcon,
-  MagnifyingGlassIcon,
   PencilSimpleIcon,
   PlusIcon,
-  XIcon,
 } from '@phosphor-icons/react'
 import NProgress from 'nprogress'
 import { useNavigate, useParams } from 'react-router'
 import { AddCardSearchPanel } from '@/components/library/AddCardSearchPanel'
+import { DeckCardSearchBar } from '@/components/library/DeckCardSearchBar'
 import { ConfirmActionDialog } from '@/components/library/ConfirmActionDialog'
 import { DeckEmptyState } from '@/components/library/DeckEmptyState'
 import { DeckFolderSection } from '@/components/library/DeckFolderSection'
@@ -22,7 +21,6 @@ import {
   Dialog,
   DialogContent,
 } from '@/components/ui/dialog'
-import { Input } from '@/components/ui/input'
 import { DECK_COPY } from '@/constants/deck'
 import {
   useAddCardToFolder,
@@ -149,23 +147,16 @@ export function DeckEditPage() {
     () => sortedFolders.reduce((count, folder) => count + folder.cards.length, 0),
     [sortedFolders],
   )
-  const vocabCount = useMemo(
+  const existingCardFolderMap = useMemo(
     () =>
-      sortedFolders.reduce(
-        (count, folder) => count + folder.cards.filter((item) => item.card.cardType === 'Vocab').length,
-        0,
-      ),
+      sortedFolders.reduce<Record<string, string>>((result, folder) => {
+        folder.cards.forEach((item) => {
+          result[item.cardId] = folder.id
+        })
+        return result
+      }, {}),
     [sortedFolders],
   )
-  const grammarCount = useMemo(
-    () =>
-      sortedFolders.reduce(
-        (count, folder) => count + folder.cards.filter((item) => item.card.cardType === 'Grammar').length,
-        0,
-      ),
-    [sortedFolders],
-  )
-
   if (deckQuery.isError || !deck) {
     return (
       <>
@@ -243,16 +234,10 @@ export function DeckEditPage() {
                 <span className="font-semibold text-foreground">{DECK_COPY.creatorMetaLabel}: </span>
                 {deck.createdBy.username}
               </span>
-              {vocabCount > 0 && (
-                <span>
-                  <span className="font-semibold text-foreground">{vocabCount}</span> {DECK_COPY.cardTypeLabels.Vocab.toLowerCase()}
-                </span>
-              )}
-              {grammarCount > 0 && (
-                <span>
-                  <span className="font-semibold text-foreground">{grammarCount}</span> {DECK_COPY.cardTypeLabels.Grammar.toLowerCase()}
-                </span>
-              )}
+              <span>
+                <span className="font-semibold text-foreground">{DECK_COPY.cardsLabel}: </span>
+                {deck.cardsCount}
+              </span>
               <span className="ml-auto text-[10px] opacity-60">{DECK_COPY.maxCardsHint}</span>
             </div>
 
@@ -292,27 +277,11 @@ export function DeckEditPage() {
           </section>
 
           {totalCards > 0 && (
-            <div className="flex items-center gap-2 rounded-full bg-background px-4 py-2.5 shadow-[0_1px_8px_0_rgba(29,28,19,0.08)]">
-              <MagnifyingGlassIcon size={14} className="shrink-0 text-muted-foreground" />
-              <Input
-                value={searchQuery}
-                onChange={(event) => setSearchQuery(event.target.value)}
-                placeholder={DECK_COPY.searchDeckCardsPlaceholder}
-                className="h-auto border-0 bg-transparent p-0 text-sm shadow-none focus-visible:ring-0"
-              />
-              {searchQuery.trim() && (
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon-xs"
-                  onClick={() => setSearchQuery('')}
-                  aria-label={DECK_COPY.clearSearch}
-                  title={DECK_COPY.clearSearch}
-                >
-                  <XIcon size={12} />
-                </Button>
-              )}
-            </div>
+            <DeckCardSearchBar
+              value={searchQuery}
+              onChange={setSearchQuery}
+              placeholder={DECK_COPY.searchDeckCardsPlaceholder}
+            />
           )}
 
           <section className="space-y-4">
@@ -500,6 +469,7 @@ export function DeckEditPage() {
             <AddCardSearchPanel
               variant="modal"
               isPending={addCardMutation.isPending}
+              existingCardFolderMap={existingCardFolderMap}
               onClose={() => setSelectedAddCardFolderId(null)}
               onAddCard={(cardId) =>
                 addCardMutation.mutate(
@@ -507,10 +477,10 @@ export function DeckEditPage() {
                     folderId: selectedAddCardFolderId,
                     payload: { cardId },
                   },
-                  {
-                    onSuccess: () => setSelectedAddCardFolderId(null),
-                  },
                 )
+              }
+              onRemoveCard={(cardId, folderId) =>
+                removeCardMutation.mutate({ folderId, cardId })
               }
             />
           )}

@@ -11,8 +11,10 @@ import { useCardSearch } from '@/hooks/useCardSearch'
 interface AddCardSearchPanelProps {
   isPending?: boolean
   variant?: 'panel' | 'modal'
+  existingCardFolderMap?: Record<string, string>
   onClose: () => void
   onAddCard: (cardId: string) => void
+  onRemoveCard?: (cardId: string, folderId: string) => void
 }
 
 function getCardPath(cardType: string, cardId: string) {
@@ -40,8 +42,10 @@ function getLevelClassName() {
 export function AddCardSearchPanel({
   isPending = false,
   variant = 'panel',
+  existingCardFolderMap = {},
   onClose,
   onAddCard,
+  onRemoveCard,
 }: AddCardSearchPanelProps) {
   const [query, setQuery] = useState('')
   const { data, isFetching } = useCardSearch(
@@ -68,14 +72,14 @@ export function AddCardSearchPanel({
       </div>
 
       <div className={isModal ? 'relative px-6 pt-6' : 'relative mb-5'}>
-        <div className="flex items-center gap-2 rounded-xl bg-surface-container-low px-3 py-2.5">
+        <div className="flex min-h-11 items-center gap-2 rounded-xl border border-border/70 bg-background px-3 shadow-[0_1px_8px_0_rgba(29,28,19,0.06)]">
           <MagnifyingGlassIcon className="shrink-0 text-muted-foreground" size={16} />
           <Input
             autoFocus={isModal}
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             placeholder={DECK_COPY.searchAddableCardsPlaceholder}
-            className="h-auto border-0 bg-transparent p-0 text-sm shadow-none focus-visible:ring-0"
+            className="h-11 rounded-none border-0 bg-transparent px-0 py-0 text-sm shadow-none focus-visible:border-transparent focus-visible:ring-0 dark:bg-transparent"
           />
           {query.trim() && (
             <Button
@@ -109,6 +113,8 @@ export function AddCardSearchPanel({
           items.map((item) => {
             const detailPath = getCardPath(item.cardType, item.id)
             const alternateForms = item.alternateForms?.join(' ・ ') ?? ''
+            const existingFolderId = existingCardFolderMap[item.id]
+            const isAdded = Boolean(existingFolderId)
 
             return (
               <div
@@ -155,14 +161,26 @@ export function AddCardSearchPanel({
 
                 <Button
                   type="button"
-                  size="icon-sm"
+                  size={isAdded ? 'sm' : 'icon-sm'}
                   disabled={isPending}
-                  onClick={() => onAddCard(item.id)}
-                  className="shrink-0 rounded-full"
-                  aria-label={DECK_COPY.addCard}
-                  title={DECK_COPY.addCard}
+                  onClick={() => {
+                    if (isAdded && existingFolderId && onRemoveCard) {
+                      onRemoveCard(item.id, existingFolderId)
+                      return
+                    }
+
+                    onAddCard(item.id)
+                  }}
+                  variant={isAdded ? 'secondary' : 'default'}
+                  className={`shrink-0 ${isAdded ? 'rounded-full px-3 text-xs font-semibold' : 'rounded-full'}`}
+                  aria-label={isAdded ? DECK_COPY.removeCard : DECK_COPY.addCard}
+                  title={isAdded ? DECK_COPY.removeCard : DECK_COPY.addCard}
                 >
-                  <PlusIcon size={14} weight="bold" />
+                  {isAdded ? (
+                    DECK_COPY.removeCard
+                  ) : (
+                    <PlusIcon size={14} weight="bold" />
+                  )}
                 </Button>
               </div>
             )

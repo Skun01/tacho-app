@@ -1,7 +1,8 @@
-import { useEffect } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { ArrowLeftIcon } from '@phosphor-icons/react'
 import NProgress from 'nprogress'
 import { useNavigate, useParams } from 'react-router'
+import { DeckCardSearchBar } from '@/components/library/DeckCardSearchBar'
 import { DeckDetailHero } from '@/components/library/DeckDetailHero'
 import { DeckEmptyState } from '@/components/library/DeckEmptyState'
 import { DeckFolderSection } from '@/components/library/DeckFolderSection'
@@ -17,6 +18,7 @@ export function DeckDetailPage() {
   const deckQuery = useDeckDetail(deckId, Boolean(deckId))
   const bookmarkMutation = useToggleDeckBookmark()
   const forkMutation = useForkDeck()
+  const [searchQuery, setSearchQuery] = useState('')
 
   useEffect(() => {
     if (deckQuery.isFetching) {
@@ -28,6 +30,14 @@ export function DeckDetailPage() {
   }, [deckQuery.isFetching])
 
   const deck = deckQuery.data
+  const sortedFolders = useMemo(
+    () => deck?.folders.slice().sort((left, right) => left.position - right.position) ?? [],
+    [deck],
+  )
+  const totalCards = useMemo(
+    () => sortedFolders.reduce((count, folder) => count + folder.cards.length, 0),
+    [sortedFolders],
+  )
 
   return (
     <>
@@ -72,14 +82,25 @@ export function DeckDetailPage() {
                 onManage={() => navigate(`/library/my-decks/${deck.id}/edit`)}
               />
 
+              {totalCards > 0 && (
+                <DeckCardSearchBar
+                  value={searchQuery}
+                  onChange={setSearchQuery}
+                  placeholder={DECK_COPY.searchDeckCardsPlaceholder}
+                />
+              )}
+
               <section className="space-y-4">
-                {deck.folders.length === 0 ? (
+                {sortedFolders.length === 0 ? (
                   <DeckEmptyState title={DECK_COPY.emptyFolders} />
                 ) : (
-                  deck.folders
-                    .slice()
-                    .sort((left, right) => left.position - right.position)
-                    .map((folder) => <DeckFolderSection key={folder.id} folder={folder} />)
+                  sortedFolders.map((folder) => (
+                    <DeckFolderSection
+                      key={folder.id}
+                      folder={folder}
+                      searchQuery={searchQuery}
+                    />
+                  ))
                 )}
               </section>
             </>
