@@ -4,10 +4,15 @@ import { ScrollToTopButton } from '@/components/layout/ScrollToTopButton'
 import { HeroSection } from '@/components/landing/HeroSection'
 import { KnowledgeSection } from '@/components/landing/KnowledgeSection'
 import { AboutSection } from '@/components/landing/AboutSection'
+import { PageHelmet } from '@/components/seo/PageHelmet'
 
 export function LandingPage() {
   return (
     <>
+      <PageHelmet
+        title="Trang chủ"
+        description="Tacho giúp bạn học tiếng Nhật với từ vựng, ngữ pháp và kanji trong một trải nghiệm liền mạch."
+      />
       <LandingNavbar />
 
       <main>
