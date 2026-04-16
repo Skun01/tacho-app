@@ -1,8 +1,6 @@
 import { Link } from 'react-router'
 import {
   BookOpenIcon,
-  CaretDownIcon,
-  CaretUpIcon,
   DotsSixVerticalIcon,
   TrashIcon,
 } from '@phosphor-icons/react'
@@ -14,10 +12,12 @@ import type { DeckFolderCardItemResponse } from '@/types/deck'
 interface DeckDetailCardRowProps {
   item: DeckFolderCardItemResponse
   isOwner?: boolean
-  isFirst?: boolean
-  isLast?: boolean
-  onMoveUp?: () => void
-  onMoveDown?: () => void
+  draggable?: boolean
+  isDragOver?: boolean
+  onDragStart?: () => void
+  onDragOver?: (event: React.DragEvent<HTMLDivElement>) => void
+  onDrop?: () => void
+  onDragEnd?: () => void
   onRemove?: () => void
 }
 
@@ -46,25 +46,39 @@ function getLevelClassName() {
 export function DeckDetailCardRow({
   item,
   isOwner = false,
-  isFirst = false,
-  isLast = false,
-  onMoveUp,
-  onMoveDown,
+  draggable = false,
+  isDragOver = false,
+  onDragStart,
+  onDragOver,
+  onDrop,
+  onDragEnd,
   onRemove,
 }: DeckDetailCardRowProps) {
   const detailPath = getCardPath(item.card.cardType, item.card.id)
   const alternateForms = item.card.alternateForms?.join(' ・ ') ?? ''
   const summary = item.card.summary?.trim()
   const showRemoveButton = isOwner && Boolean(onRemove)
-  const showMoveButtons = isOwner && Boolean(onMoveUp) && Boolean(onMoveDown)
 
   return (
-    <div className="flex items-center gap-3 rounded-2xl bg-background px-4 py-3 shadow-[0_1px_6px_0_rgba(29,28,19,0.06)] transition-all hover:shadow-[0_4px_14px_0_rgba(29,28,19,0.08)]">
-      {showRemoveButton && (
-        <DotsSixVerticalIcon
-          size={16}
-          className="hidden shrink-0 text-muted-foreground/35 lg:block"
-        />
+    <div
+      draggable={draggable}
+      onDragStart={onDragStart}
+      onDragOver={onDragOver}
+      onDrop={onDrop}
+      onDragEnd={onDragEnd}
+      className={`flex items-center gap-3 rounded-2xl bg-background px-4 py-3 shadow-[0_1px_6px_0_rgba(29,28,19,0.06)] transition-all hover:shadow-[0_4px_14px_0_rgba(29,28,19,0.08)] ${
+        isDragOver ? 'scale-[1.01] ring-2 ring-primary/25' : ''
+      }`}
+    >
+      {isOwner && (
+        <span title={DECK_COPY.dragCard}>
+          <DotsSixVerticalIcon
+            size={16}
+            className={`hidden shrink-0 text-muted-foreground/35 lg:block ${
+              draggable ? 'cursor-grab active:cursor-grabbing' : ''
+            }`}
+          />
+        </span>
       )}
 
       <Link
@@ -105,7 +119,7 @@ export function DeckDetailCardRow({
         </div>
       </Link>
 
-      <div className="flex shrink-0 items-center gap-1">
+      <div className="flex shrink-0 items-center gap-1 rounded-full border border-border/70 bg-surface-container-low px-1.5 py-1">
         <Button
           type="button"
           variant="ghost"
@@ -117,31 +131,6 @@ export function DeckDetailCardRow({
             <BookOpenIcon size={12} />
           </Link>
         </Button>
-
-        {showMoveButtons && (
-          <>
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon-xs"
-              disabled={isFirst}
-              onClick={onMoveUp}
-              aria-label={DECK_COPY.moveUp}
-            >
-              <CaretUpIcon size={12} />
-            </Button>
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon-xs"
-              disabled={isLast}
-              onClick={onMoveDown}
-              aria-label={DECK_COPY.moveDown}
-            >
-              <CaretDownIcon size={12} />
-            </Button>
-          </>
-        )}
 
         {showRemoveButton && (
           <Button

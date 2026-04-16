@@ -1,5 +1,7 @@
-import { MagnifyingGlassIcon, PlusIcon } from '@phosphor-icons/react'
+import { MagnifyingGlassIcon, PlusIcon, XIcon } from '@phosphor-icons/react'
 import { useState } from 'react'
+import { Link } from 'react-router'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -8,6 +10,7 @@ import { useCardSearch } from '@/hooks/useCardSearch'
 
 interface AddCardSearchPanelProps {
   isPending?: boolean
+  variant?: 'panel' | 'modal'
   onClose: () => void
   onAddCard: (cardId: string) => void
 }
@@ -18,8 +21,25 @@ function getCardPath(cardType: string, cardId: string) {
   return `/kanji/${cardId}`
 }
 
+function getCardTypeClassName(cardType: string) {
+  if (cardType === 'Vocab') {
+    return 'border-emerald-200 bg-emerald-50 text-emerald-700'
+  }
+
+  if (cardType === 'Grammar') {
+    return 'border-sky-200 bg-sky-50 text-sky-700'
+  }
+
+  return 'border-violet-200 bg-violet-50 text-violet-700'
+}
+
+function getLevelClassName() {
+  return 'border-amber-200 bg-amber-50 text-amber-700'
+}
+
 export function AddCardSearchPanel({
   isPending = false,
+  variant = 'panel',
   onClose,
   onAddCard,
 }: AddCardSearchPanelProps) {
@@ -34,25 +54,45 @@ export function AddCardSearchPanel({
   )
 
   const items = data?.data ?? []
+  const isModal = variant === 'modal'
 
   return (
-    <div className="rounded-3xl border border-border/70 bg-card/90 p-6">
-      <div className="mb-6 space-y-1">
-        <h2 className="text-xl font-semibold text-foreground">{DECK_COPY.addCard}</h2>
-        <p className="text-sm text-muted-foreground">{DECK_COPY.searchCardPlaceholder}</p>
+    <div className={isModal ? 'p-0' : 'rounded-3xl border border-border/70 bg-card/90 p-6'}>
+      <div className={isModal ? 'border-b border-[#1d1c13]/8 px-6 py-4' : 'mb-6 space-y-1'}>
+        <h2 className={isModal ? 'text-base font-bold text-foreground' : 'text-xl font-semibold text-foreground'}>
+          {DECK_COPY.addCard}
+        </h2>
+        {!isModal && (
+          <p className="text-sm text-muted-foreground">{DECK_COPY.searchCardPlaceholder}</p>
+        )}
       </div>
 
-      <div className="relative mb-5">
-        <MagnifyingGlassIcon className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
-        <Input
-          value={query}
-          onChange={(event) => setQuery(event.target.value)}
-          placeholder={DECK_COPY.searchCardPlaceholder}
-          className="h-11 rounded-2xl bg-background pl-10"
-        />
+      <div className={isModal ? 'relative px-6 pt-6' : 'relative mb-5'}>
+        <div className="flex items-center gap-2 rounded-xl bg-surface-container-low px-3 py-2.5">
+          <MagnifyingGlassIcon className="shrink-0 text-muted-foreground" size={16} />
+          <Input
+            autoFocus={isModal}
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder={DECK_COPY.searchAddableCardsPlaceholder}
+            className="h-auto border-0 bg-transparent p-0 text-sm shadow-none focus-visible:ring-0"
+          />
+          {query.trim() && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-xs"
+              onClick={() => setQuery('')}
+              aria-label={DECK_COPY.clearSearch}
+              title={DECK_COPY.clearSearch}
+            >
+              <XIcon size={12} />
+            </Button>
+          )}
+        </div>
       </div>
 
-      <div className="space-y-3">
+      <div className={isModal ? 'max-h-[60vh] space-y-3 overflow-y-auto px-6 py-5' : 'space-y-3'}>
         {!query.trim() ? (
           <div className="rounded-2xl border border-dashed border-border bg-background px-4 py-8 text-center text-sm text-muted-foreground">
             {DECK_COPY.addCardEmpty}
@@ -66,33 +106,72 @@ export function AddCardSearchPanel({
             {DECK_COPY.cardSearchEmpty}
           </div>
         ) : (
-          items.map((item) => (
-            <div
-              key={item.id}
-              className="flex flex-col gap-3 rounded-2xl border border-border/70 bg-background px-4 py-4 lg:flex-row lg:items-center lg:justify-between"
-            >
-              <div className="space-y-2">
-                <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-                  <span className="rounded-full bg-surface-container px-2 py-1">{item.cardType}</span>
-                  {item.level && <span className="rounded-full bg-surface-container px-2 py-1">{item.level}</span>}
-                </div>
-                <a href={getCardPath(item.cardType, item.id)} className="block text-base font-semibold text-foreground hover:text-primary">
-                  {item.title}
-                </a>
-                <p className="line-clamp-2 text-sm text-muted-foreground">{item.summary}</p>
-              </div>
+          items.map((item) => {
+            const detailPath = getCardPath(item.cardType, item.id)
+            const alternateForms = item.alternateForms?.join(' ・ ') ?? ''
 
-              <Button type="button" size="sm" disabled={isPending} onClick={() => onAddCard(item.id)}>
-                <PlusIcon size={16} />
-                {DECK_COPY.addCard}
-              </Button>
-            </div>
-          ))
+            return (
+              <div
+                key={item.id}
+                className="flex items-center gap-3 rounded-2xl bg-background px-4 py-3 shadow-[0_1px_6px_0_rgba(29,28,19,0.06)] transition-all hover:shadow-[0_4px_14px_0_rgba(29,28,19,0.08)]"
+              >
+                <Link
+                  to={detailPath}
+                  className="flex min-w-0 flex-1 items-center gap-3 transition-opacity hover:opacity-75"
+                >
+                  <Badge
+                    variant="outline"
+                    className={`w-20 justify-center ${getCardTypeClassName(item.cardType)}`}
+                  >
+                    {DECK_COPY.cardTypeLabels[item.cardType]}
+                  </Badge>
+                  {item.level && (
+                    <Badge
+                      variant="outline"
+                      className={`w-11 justify-center ${getLevelClassName()}`}
+                    >
+                      {item.level}
+                    </Badge>
+                  )}
+
+                  <div className="min-w-0 flex-1">
+                    <div className="flex min-w-0 items-center gap-2">
+                      <span className="truncate text-[15px] font-semibold text-foreground">
+                        {item.title}
+                      </span>
+                      {alternateForms && (
+                        <span className="hidden truncate text-xs text-muted-foreground md:block">
+                          ({alternateForms})
+                        </span>
+                      )}
+                    </div>
+                    {item.summary && (
+                      <p className="mt-1 line-clamp-1 text-xs text-muted-foreground">
+                        {item.summary}
+                      </p>
+                    )}
+                  </div>
+                </Link>
+
+                <Button
+                  type="button"
+                  size="icon-sm"
+                  disabled={isPending}
+                  onClick={() => onAddCard(item.id)}
+                  className="shrink-0 rounded-full"
+                  aria-label={DECK_COPY.addCard}
+                  title={DECK_COPY.addCard}
+                >
+                  <PlusIcon size={14} weight="bold" />
+                </Button>
+              </div>
+            )
+          })
         )}
       </div>
 
-      <div className="mt-5 flex justify-end">
-        <Button type="button" variant="outline" onClick={onClose}>
+      <div className={isModal ? 'flex justify-end border-t border-[#1d1c13]/8 px-6 py-4' : 'mt-5 flex justify-end'}>
+        <Button type="button" variant={isModal ? 'secondary' : 'outline'} onClick={onClose}>
           {DECK_COPY.cancel}
         </Button>
       </div>

@@ -1,8 +1,16 @@
 import { useEffect, useMemo, useState } from 'react'
-import { ArrowLeftIcon, PlusIcon } from '@phosphor-icons/react'
+import {
+  ArrowLeftIcon,
+  DownloadSimpleIcon,
+  MagnifyingGlassIcon,
+  PencilSimpleIcon,
+  PlusIcon,
+  XIcon,
+} from '@phosphor-icons/react'
 import NProgress from 'nprogress'
 import { useNavigate, useParams } from 'react-router'
 import { AddCardSearchPanel } from '@/components/library/AddCardSearchPanel'
+import { ConfirmActionDialog } from '@/components/library/ConfirmActionDialog'
 import { DeckEmptyState } from '@/components/library/DeckEmptyState'
 import { DeckFolderSection } from '@/components/library/DeckFolderSection'
 import { DeckFormPanel } from '@/components/library/DeckFormPanel'
@@ -10,6 +18,11 @@ import { FolderFormPanel } from '@/components/library/FolderFormPanel'
 import { AppLayout } from '@/components/layout/AppLayout'
 import { PageHelmet } from '@/components/seo/PageHelmet'
 import { Button } from '@/components/ui/button'
+import {
+  Dialog,
+  DialogContent,
+} from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
 import { DECK_COPY } from '@/constants/deck'
 import {
   useAddCardToFolder,
@@ -27,21 +40,32 @@ import {
 import { deckService } from '@/services/deckService'
 import type { DeckFolderResponse } from '@/types/deck'
 
-function buildFolderOrderPayload(
-  folders: DeckFolderResponse[],
-  folderId: string,
-  direction: 'up' | 'down',
-) {
-  const sorted = [...folders].sort((left, right) => left.position - right.position)
-  const index = sorted.findIndex((item) => item.id === folderId)
-  const swapIndex = direction === 'up' ? index - 1 : index + 1
+function moveItemById<T extends { id: string }>(items: T[], activeId: string, overId: string) {
+  const currentIndex = items.findIndex((item) => item.id === activeId)
+  const targetIndex = items.findIndex((item) => item.id === overId)
 
-  if (index < 0 || swapIndex < 0 || swapIndex >= sorted.length) {
+  if (currentIndex < 0 || targetIndex < 0 || currentIndex === targetIndex) {
     return null
   }
 
-  const next = [...sorted]
-  ;[next[index], next[swapIndex]] = [next[swapIndex], next[index]]
+  const next = [...items]
+  const [moved] = next.splice(currentIndex, 1)
+  next.splice(targetIndex, 0, moved)
+
+  return next
+}
+
+function buildFolderOrderPayload(
+  folders: DeckFolderResponse[],
+  activeFolderId: string,
+  overFolderId: string,
+) {
+  const sorted = [...folders].sort((left, right) => left.position - right.position)
+  const next = moveItemById(sorted, activeFolderId, overFolderId)
+
+  if (!next) {
+    return null
+  }
 
   return {
     items: next.map((folder, order) => ({
@@ -53,23 +77,23 @@ function buildFolderOrderPayload(
 
 function buildCardOrderPayload(
   folder: DeckFolderResponse,
-  cardId: string,
-  direction: 'up' | 'down',
+  activeCardId: string,
+  overCardId: string,
 ) {
   const sorted = [...folder.cards].sort((left, right) => left.position - right.position)
-  const index = sorted.findIndex((item) => item.cardId === cardId)
-  const swapIndex = direction === 'up' ? index - 1 : index + 1
+  const next = moveItemById(
+    sorted.map((item) => ({ ...item, id: item.cardId })),
+    activeCardId,
+    overCardId,
+  )
 
-  if (index < 0 || swapIndex < 0 || swapIndex >= sorted.length) {
+  if (!next) {
     return null
   }
 
-  const next = [...sorted]
-  ;[next[index], next[swapIndex]] = [next[swapIndex], next[index]]
-
   return {
     items: next.map((item, order) => ({
-      cardId: item.cardId,
+      cardId: item.id,
       position: (order + 1) * 1000,
     })),
   }
@@ -93,6 +117,19 @@ export function DeckEditPage() {
   const [showFolderForm, setShowFolderForm] = useState(false)
   const [editingFolder, setEditingFolder] = useState<DeckFolderResponse | null>(null)
   const [selectedAddCardFolderId, setSelectedAddCardFolderId] = useState<string | null>(null)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [showDeleteDeckConfirm, setShowDeleteDeckConfirm] = useState(false)
+  const [folderPendingDelete, setFolderPendingDelete] = useState<DeckFolderResponse | null>(null)
+  const [draggedFolderId, setDraggedFolderId] = useState<string | null>(null)
+  const [dragOverFolderId, setDragOverFolderId] = useState<string | null>(null)
+  const [draggedCardState, setDraggedCardState] = useState<{
+    folderId: string
+    cardId: string
+  } | null>(null)
+  const [dragOverCardState, setDragOverCardState] = useState<{
+    folderId: string
+    cardId: string
+  } | null>(null)
 
   useEffect(() => {
     if (deckQuery.isFetching || deckTypesQuery.isFetching) {
@@ -107,6 +144,26 @@ export function DeckEditPage() {
   const sortedFolders = useMemo(
     () => deck?.folders.slice().sort((left, right) => left.position - right.position) ?? [],
     [deck],
+  )
+  const totalCards = useMemo(
+    () => sortedFolders.reduce((count, folder) => count + folder.cards.length, 0),
+    [sortedFolders],
+  )
+  const vocabCount = useMemo(
+    () =>
+      sortedFolders.reduce(
+        (count, folder) => count + folder.cards.filter((item) => item.card.cardType === 'Vocab').length,
+        0,
+      ),
+    [sortedFolders],
+  )
+  const grammarCount = useMemo(
+    () =>
+      sortedFolders.reduce(
+        (count, folder) => count + folder.cards.filter((item) => item.card.cardType === 'Grammar').length,
+        0,
+      ),
+    [sortedFolders],
   )
 
   if (deckQuery.isError || !deck) {
@@ -155,82 +212,262 @@ export function DeckEditPage() {
               <ArrowLeftIcon size={18} />
               {DECK_COPY.backToLibrary}
             </Button>
+          </div>
 
-            <div className="flex flex-wrap gap-3">
-              <Button type="button" variant="outline" onClick={() => setShowDeckForm((value) => !value)}>
-                {showDeckForm ? DECK_COPY.cancel : DECK_COPY.editDeckTitle}
-              </Button>
+          <section className="flex flex-col gap-4 rounded-3xl bg-background p-6 shadow-[0_2px_12px_0_rgba(29,28,19,0.07)]">
+            <div className="flex items-start gap-3">
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-2">
+                  <h1 className="truncate text-xl font-bold text-foreground">{deck.title}</h1>
+                  <button
+                    type="button"
+                    onClick={() => setShowDeckForm(true)}
+                    aria-label={DECK_COPY.editInfoTooltip}
+                    className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full transition-colors hover:bg-surface-container"
+                  >
+                    <PencilSimpleIcon size={14} className="text-muted-foreground" />
+                  </button>
+                </div>
+                {deck.description && (
+                  <p className="mt-1 text-sm text-muted-foreground">{deck.description}</p>
+                )}
+              </div>
+            </div>
+
+            <div className="flex flex-wrap gap-4 text-xs text-muted-foreground">
+              <span>
+                <span className="font-semibold text-foreground">{DECK_COPY.typeMetaLabel}: </span>
+                {deck.type.name ?? DECK_COPY.deckTypeEmpty}
+              </span>
+              <span>
+                <span className="font-semibold text-foreground">{DECK_COPY.creatorMetaLabel}: </span>
+                {deck.createdBy.username}
+              </span>
+              {vocabCount > 0 && (
+                <span>
+                  <span className="font-semibold text-foreground">{vocabCount}</span> {DECK_COPY.cardTypeLabels.Vocab.toLowerCase()}
+                </span>
+              )}
+              {grammarCount > 0 && (
+                <span>
+                  <span className="font-semibold text-foreground">{grammarCount}</span> {DECK_COPY.cardTypeLabels.Grammar.toLowerCase()}
+                </span>
+              )}
+              <span className="ml-auto text-[10px] opacity-60">{DECK_COPY.maxCardsHint}</span>
+            </div>
+
+            <div className="flex flex-wrap gap-2">
               <Button
                 type="button"
-                variant="outline"
+                className="rounded-xl px-4 py-2 text-sm font-semibold"
                 onClick={() => {
                   setEditingFolder(null)
-                  setShowFolderForm((value) => !value)
+                  setShowFolderForm(true)
                 }}
               >
-                <PlusIcon size={16} />
+                <PlusIcon size={14} />
                 {DECK_COPY.createFolder}
               </Button>
+
+              <Button
+                type="button"
+                variant="secondary"
+                disabled
+                title={DECK_COPY.importDisabledHint}
+                className="rounded-xl px-4 py-2 text-sm font-semibold"
+              >
+                <DownloadSimpleIcon size={14} />
+                {DECK_COPY.importDeck}
+              </Button>
+
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => {
-                  if (window.confirm(DECK_COPY.confirmDeleteDeck)) {
-                    deleteDeckMutation.mutate(deck.id)
-                  }
-                }}
+                className="ml-auto rounded-xl border-rose-200 bg-rose-50 px-4 py-2 text-sm font-semibold text-rose-600 hover:bg-rose-100 hover:text-rose-700"
+                onClick={() => setShowDeleteDeckConfirm(true)}
               >
                 {DECK_COPY.deleteDeck}
               </Button>
             </div>
-          </div>
+          </section>
 
-          {showDeckForm && (
-            <DeckFormPanel
-              title={DECK_COPY.editDeckTitle}
-              deckTypes={deckTypesQuery.data ?? []}
-              initialValues={deck}
-              submitLabel={DECK_COPY.saveSubmit}
-              isPending={updateDeckMutation.isPending}
-              onCancel={() => setShowDeckForm(false)}
-              onSubmit={async (values) => {
-                const uploadedImage = values.coverImageFile
-                  ? await deckService.uploadDeckImage(values.coverImageFile)
-                  : null
+          {totalCards > 0 && (
+            <div className="flex items-center gap-2 rounded-full bg-background px-4 py-2.5 shadow-[0_1px_8px_0_rgba(29,28,19,0.08)]">
+              <MagnifyingGlassIcon size={14} className="shrink-0 text-muted-foreground" />
+              <Input
+                value={searchQuery}
+                onChange={(event) => setSearchQuery(event.target.value)}
+                placeholder={DECK_COPY.searchDeckCardsPlaceholder}
+                className="h-auto border-0 bg-transparent p-0 text-sm shadow-none focus-visible:ring-0"
+              />
+              {searchQuery.trim() && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon-xs"
+                  onClick={() => setSearchQuery('')}
+                  aria-label={DECK_COPY.clearSearch}
+                  title={DECK_COPY.clearSearch}
+                >
+                  <XIcon size={12} />
+                </Button>
+              )}
+            </div>
+          )}
 
-                await updateDeckMutation.mutateAsync({
+          <section className="space-y-4">
+            {sortedFolders.length === 0 ? (
+              <DeckEmptyState
+                title={DECK_COPY.emptyFolders}
+                actionLabel={DECK_COPY.createFolder}
+                onAction={() => setShowFolderForm(true)}
+              />
+            ) : (
+              sortedFolders.map((folder) => (
+                <DeckFolderSection
+                  key={folder.id}
+                  folder={folder}
+                  isOwner
+                  searchQuery={searchQuery}
+                  draggable={!searchQuery.trim()}
+                  isDragOver={dragOverFolderId === folder.id && draggedFolderId !== folder.id}
+                  onDragStart={() => setDraggedFolderId(folder.id)}
+                  onDragOver={(event) => {
+                    if (searchQuery.trim()) return
+                    event.preventDefault()
+                    setDragOverFolderId(folder.id)
+                  }}
+                  onDrop={() => {
+                    if (!draggedFolderId || draggedFolderId === folder.id) {
+                      setDragOverFolderId(null)
+                      return
+                    }
+
+                    const payload = buildFolderOrderPayload(sortedFolders, draggedFolderId, folder.id)
+                    if (payload) {
+                      reorderFoldersMutation.mutate(payload)
+                    }
+
+                    setDraggedFolderId(null)
+                    setDragOverFolderId(null)
+                  }}
+                  onDragEnd={() => {
+                    setDraggedFolderId(null)
+                    setDragOverFolderId(null)
+                  }}
+                  onEdit={(folderId) => {
+                    const selected = sortedFolders.find((item) => item.id === folderId) ?? null
+                    setEditingFolder(selected)
+                  }}
+                  onDelete={(folderId) => {
+                    const selected = sortedFolders.find((item) => item.id === folderId) ?? null
+                    setFolderPendingDelete(selected)
+                  }}
+                  onAddCard={(folderId) => setSelectedAddCardFolderId(folderId)}
+                  onRemoveCard={(folderId, cardId) =>
+                    removeCardMutation.mutate({ folderId, cardId })
+                  }
+                  onDragCardStart={(cardId) => {
+                    if (searchQuery.trim()) return
+                    setDraggedCardState({ folderId: folder.id, cardId })
+                  }}
+                  onDragCardOver={(cardId) => {
+                    if (searchQuery.trim()) return
+                    setDragOverCardState({ folderId: folder.id, cardId })
+                  }}
+                  onDropCard={(cardId) => {
+                    if (
+                      !draggedCardState ||
+                      draggedCardState.folderId !== folder.id ||
+                      draggedCardState.cardId === cardId
+                    ) {
+                      setDragOverCardState(null)
+                      return
+                    }
+
+                    const payload = buildCardOrderPayload(folder, draggedCardState.cardId, cardId)
+                    if (payload) {
+                      reorderCardsMutation.mutate({
+                        folderId: folder.id,
+                        payload,
+                      })
+                    }
+
+                    setDraggedCardState(null)
+                    setDragOverCardState(null)
+                  }}
+                  onDragCardEnd={() => {
+                    setDraggedCardState(null)
+                    setDragOverCardState(null)
+                  }}
+                  draggedCardId={
+                    draggedCardState?.folderId === folder.id ? draggedCardState.cardId : null
+                  }
+                  dragOverCardId={
+                    dragOverCardState?.folderId === folder.id ? dragOverCardState.cardId : null
+                  }
+                />
+              ))
+            )}
+          </section>
+        </div>
+      </AppLayout>
+
+      <Dialog open={showDeckForm} onOpenChange={setShowDeckForm}>
+        <DialogContent className="max-w-md overflow-hidden p-0">
+          <DeckFormPanel
+            variant="modal"
+            title={DECK_COPY.editDeckTitle}
+            deckTypes={deckTypesQuery.data ?? []}
+            initialValues={deck}
+            submitLabel={DECK_COPY.saveSubmit}
+            isPending={updateDeckMutation.isPending}
+            onCancel={() => setShowDeckForm(false)}
+            onSubmit={async (values) => {
+              const uploadedImage = values.coverImageFile
+                ? await deckService.uploadDeckImage(values.coverImageFile)
+                : null
+
+              await updateDeckMutation.mutateAsync({
+                title: values.title,
+                description: values.description || undefined,
+                coverImageUrl: uploadedImage?.fileUrl ?? deck.coverImageUrl ?? null,
+                visibility: values.visibility,
+                typeId: values.typeId || null,
+              })
+              setShowDeckForm(false)
+            }}
+          />
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showFolderForm} onOpenChange={setShowFolderForm}>
+        <DialogContent className="max-w-md overflow-hidden p-0">
+          <FolderFormPanel
+            variant="modal"
+            title={DECK_COPY.createFolder}
+            isPending={createFolderMutation.isPending}
+            onCancel={() => setShowFolderForm(false)}
+            onSubmit={(values) =>
+              createFolderMutation.mutate(
+                {
                   title: values.title,
                   description: values.description || undefined,
-                  coverImageUrl: uploadedImage?.fileUrl ?? deck.coverImageUrl ?? null,
-                  visibility: values.visibility,
-                  typeId: values.typeId || null,
-                })
-                setShowDeckForm(false)
-              }}
-            />
-          )}
+                },
+                {
+                  onSuccess: () => setShowFolderForm(false),
+                },
+              )
+            }
+          />
+        </DialogContent>
+      </Dialog>
 
-          {showFolderForm && (
-            <FolderFormPanel
-              title={DECK_COPY.createFolder}
-              isPending={createFolderMutation.isPending}
-              onCancel={() => setShowFolderForm(false)}
-              onSubmit={(values) =>
-                createFolderMutation.mutate(
-                  {
-                    title: values.title,
-                    description: values.description || undefined,
-                  },
-                  {
-                    onSuccess: () => setShowFolderForm(false),
-                  },
-                )
-              }
-            />
-          )}
-
+      <Dialog open={Boolean(editingFolder)} onOpenChange={(open) => !open && setEditingFolder(null)}>
+        <DialogContent className="max-w-md overflow-hidden p-0">
           {editingFolder && (
             <FolderFormPanel
+              variant="modal"
               title={DECK_COPY.editFolder}
               initialValues={editingFolder}
               isPending={updateFolderMutation.isPending}
@@ -251,9 +488,17 @@ export function DeckEditPage() {
               }
             />
           )}
+        </DialogContent>
+      </Dialog>
 
+      <Dialog
+        open={Boolean(selectedAddCardFolderId)}
+        onOpenChange={(open) => !open && setSelectedAddCardFolderId(null)}
+      >
+        <DialogContent className="max-w-2xl overflow-hidden p-0">
           {selectedAddCardFolderId && (
             <AddCardSearchPanel
+              variant="modal"
               isPending={addCardMutation.isPending}
               onClose={() => setSelectedAddCardFolderId(null)}
               onAddCard={(cardId) =>
@@ -269,58 +514,31 @@ export function DeckEditPage() {
               }
             />
           )}
+        </DialogContent>
+      </Dialog>
 
-          <section className="space-y-4">
-            {sortedFolders.length === 0 ? (
-              <DeckEmptyState
-                title={DECK_COPY.emptyFolders}
-                actionLabel={DECK_COPY.createFolder}
-                onAction={() => setShowFolderForm(true)}
-              />
-            ) : (
-              sortedFolders.map((folder, index) => (
-                <DeckFolderSection
-                  key={folder.id}
-                  folder={folder}
-                  isOwner
-                  isFirstFolder={index === 0}
-                  isLastFolder={index === sortedFolders.length - 1}
-                  onEdit={(folderId) => {
-                    const selected = sortedFolders.find((item) => item.id === folderId) ?? null
-                    setEditingFolder(selected)
-                  }}
-                  onDelete={(folderId) => {
-                    if (window.confirm(`${DECK_COPY.deleteFolder}?`)) {
-                      deleteFolderMutation.mutate(folderId)
-                    }
-                  }}
-                  onAddCard={(folderId) => setSelectedAddCardFolderId(folderId)}
-                  onRemoveCard={(folderId, cardId) =>
-                    removeCardMutation.mutate({ folderId, cardId })
-                  }
-                  onMoveFolder={(folderId, direction) => {
-                    const payload = buildFolderOrderPayload(sortedFolders, folderId, direction)
-                    if (payload) {
-                      reorderFoldersMutation.mutate(payload)
-                    }
-                  }}
-                  onMoveCard={(folderId, cardId, direction) => {
-                    const selectedFolder = sortedFolders.find((item) => item.id === folderId)
-                    if (!selectedFolder) return
-                    const payload = buildCardOrderPayload(selectedFolder, cardId, direction)
-                    if (payload) {
-                      reorderCardsMutation.mutate({
-                        folderId,
-                        payload,
-                      })
-                    }
-                  }}
-                />
-              ))
-            )}
-          </section>
-        </div>
-      </AppLayout>
+      <ConfirmActionDialog
+        open={showDeleteDeckConfirm}
+        title={DECK_COPY.confirmDeleteDeckTitle}
+        description={DECK_COPY.confirmDeleteDeckMessage}
+        isPending={deleteDeckMutation.isPending}
+        onOpenChange={setShowDeleteDeckConfirm}
+        onConfirm={() => deleteDeckMutation.mutate(deck.id)}
+      />
+
+      <ConfirmActionDialog
+        open={Boolean(folderPendingDelete)}
+        title={DECK_COPY.confirmDeleteFolderTitle}
+        description={DECK_COPY.confirmDeleteFolderMessage}
+        isPending={deleteFolderMutation.isPending}
+        onOpenChange={(open) => !open && setFolderPendingDelete(null)}
+        onConfirm={() => {
+          if (!folderPendingDelete) return
+          deleteFolderMutation.mutate(folderPendingDelete.id, {
+            onSuccess: () => setFolderPendingDelete(null),
+          })
+        }}
+      />
     </>
   )
 }

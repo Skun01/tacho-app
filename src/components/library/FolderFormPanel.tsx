@@ -14,6 +14,7 @@ interface FolderFormPanelProps {
   title: string
   initialValues?: Partial<DeckFolderResponse>
   isPending?: boolean
+  variant?: 'panel' | 'modal'
   onCancel: () => void
   onSubmit: (values: FolderFormValues) => void
 }
@@ -29,6 +30,7 @@ export function FolderFormPanel({
   title,
   initialValues,
   isPending = false,
+  variant = 'panel',
   onCancel,
   onSubmit,
 }: FolderFormPanelProps) {
@@ -41,23 +43,33 @@ export function FolderFormPanel({
     form.reset(getDefaultValues(initialValues))
   }, [form, initialValues])
 
+  const isModal = variant === 'modal'
+
   return (
-    <div className="rounded-3xl border border-border/70 bg-card/90 p-6">
-      <div className="mb-6 space-y-1">
-        <h2 className="text-xl font-semibold text-foreground">{title}</h2>
-        <p className="text-sm text-muted-foreground">{DECK_COPY.folderDescriptionPlaceholder}</p>
+    <div className={isModal ? 'p-0' : 'rounded-3xl border border-border/70 bg-card/90 p-6'}>
+      <div className={isModal ? 'border-b border-[#1d1c13]/8 px-6 py-4' : 'mb-6 space-y-1'}>
+        <h2 className={isModal ? 'text-base font-bold text-foreground' : 'text-xl font-semibold text-foreground'}>
+          {title}
+        </h2>
+        {!isModal && (
+          <p className="text-sm text-muted-foreground">{DECK_COPY.folderDescriptionPlaceholder}</p>
+        )}
       </div>
 
       <Form {...form}>
-        <form className="space-y-5" onSubmit={form.handleSubmit(onSubmit)}>
+        <form className={isModal ? 'flex flex-col gap-5 p-6' : 'space-y-5'} onSubmit={form.handleSubmit(onSubmit)}>
           <FormField
             control={form.control}
             name="title"
             render={({ field }) => (
-              <FormItem>
-                <FormLabel>{DECK_COPY.folderTitleLabel}</FormLabel>
+              <FormItem className="gap-1.5">
+                <FormLabel className="text-xs font-semibold">{DECK_COPY.folderTitleLabel}</FormLabel>
                 <FormControl>
-                  <Input {...field} placeholder={DECK_COPY.folderTitlePlaceholder} className="h-11 rounded-2xl bg-background" />
+                  <Input
+                    {...field}
+                    placeholder={DECK_COPY.folderTitlePlaceholder}
+                    className={isModal ? 'h-10 rounded-xl border-0 bg-surface-container-low px-4 shadow-none focus-visible:bg-surface-container focus-visible:ring-0' : 'h-11 rounded-2xl bg-background'}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -68,21 +80,35 @@ export function FolderFormPanel({
             control={form.control}
             name="description"
             render={({ field }) => (
-              <FormItem>
-                <FormLabel>{DECK_COPY.folderDescriptionLabel}</FormLabel>
+              <FormItem className="gap-1.5">
+                <FormLabel className="text-xs font-semibold">{DECK_COPY.folderDescriptionLabel}</FormLabel>
                 <FormControl>
-                  <Textarea {...field} placeholder={DECK_COPY.folderDescriptionPlaceholder} className="rounded-2xl bg-background" />
+                  <Textarea
+                    {...field}
+                    rows={isModal ? 3 : undefined}
+                    placeholder={DECK_COPY.folderDescriptionPlaceholder}
+                    className={isModal ? 'min-h-0 resize-none rounded-xl border-0 bg-surface-container-low px-4 py-2.5 shadow-none focus-visible:bg-surface-container focus-visible:ring-0' : 'rounded-2xl bg-background'}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
 
-          <div className="flex flex-wrap justify-end gap-3">
-            <Button type="button" variant="outline" onClick={onCancel}>
+          <div className={isModal ? 'flex gap-3 pt-1' : 'flex flex-wrap justify-end gap-3'}>
+            <Button
+              type="button"
+              variant={isModal ? 'secondary' : 'outline'}
+              onClick={onCancel}
+              className={isModal ? 'flex-1 rounded-xl py-2.5 text-sm font-semibold' : undefined}
+            >
               {DECK_COPY.cancel}
             </Button>
-            <Button type="submit" disabled={isPending}>
+            <Button
+              type="submit"
+              disabled={isPending}
+              className={isModal ? 'flex-1 rounded-xl py-2.5 text-sm font-semibold' : undefined}
+            >
               {isPending && <SpinnerGapIcon size={16} className="animate-spin" />}
               {DECK_COPY.saveSubmit}
             </Button>
@@ -92,4 +118,3 @@ export function FolderFormPanel({
     </div>
   )
 }
-
