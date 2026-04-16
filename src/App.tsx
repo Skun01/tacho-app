@@ -16,6 +16,9 @@ import { SearchPage } from './pages/SearchPage'
 import { VocabularyDetailPage } from './pages/VocabularyDetailPage'
 import { GrammarDetailPage } from './pages/GrammarDetailPage'
 import { KanjiDetailPage } from './pages/KanjiDetailPage'
+import { LibraryPage } from './pages/LibraryPage'
+import { DeckDetailPage } from './pages/DeckDetailPage'
+import { DeckEditPage } from './pages/DeckEditPage'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -46,6 +49,9 @@ function App() {
               <Route element={<ProtectedRoute />}>
                 <Route path="/dashboard" element={<DashboardPage />} />
                 <Route path="/profile" element={<ProfilePage />} />
+                <Route path="/library" element={<LibraryPage />} />
+                <Route path="/library/decks/:deckId" element={<DeckDetailPage />} />
+                <Route path="/library/my-decks/:deckId/edit" element={<DeckEditPage />} />
                 <Route path="/search" element={<SearchPage />} />
                 <Route path="/vocabulary/:id" element={<VocabularyDetailPage />} />
                 <Route path="/grammar/:id" element={<GrammarDetailPage />} />
