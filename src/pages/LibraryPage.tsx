@@ -21,6 +21,7 @@ import {
   usePublicDecks,
   useToggleDeckBookmark,
 } from '@/hooks/useDecks'
+import { deckService } from '@/services/deckService'
 import { Input } from '@/components/ui/input'
 import type { DeckListItemResponse, DeckVisibility } from '@/types/deck'
 
@@ -358,7 +359,7 @@ export function LibraryPage() {
         </div>
 
         <Dialog open={showCreateForm} onOpenChange={setShowCreateForm}>
-          <DialogContent className="overflow-hidden p-0" showCloseButton>
+          <DialogContent className="w-full max-w-md overflow-hidden p-0" showCloseButton>
             <DeckFormPanel
               title={DECK_COPY.createDeckTitle}
               deckTypes={deckTypesQuery.data ?? []}
@@ -366,20 +367,20 @@ export function LibraryPage() {
               isPending={createDeckMutation.isPending}
               variant="modal"
               onCancel={() => setShowCreateForm(false)}
-              onSubmit={(values) =>
-                createDeckMutation.mutate(
-                  {
-                    title: values.title,
-                    description: values.description || undefined,
-                    coverImageUrl: values.coverImageUrl || null,
-                    visibility: values.visibility,
-                    typeId: values.typeId || null,
-                  },
-                  {
-                    onSuccess: () => setShowCreateForm(false),
-                  },
-                )
-              }
+              onSubmit={async (values) => {
+                const uploadedImage = values.coverImageFile
+                  ? await deckService.uploadDeckImage(values.coverImageFile)
+                  : null
+
+                await createDeckMutation.mutateAsync({
+                  title: values.title,
+                  description: values.description || undefined,
+                  coverImageUrl: uploadedImage?.fileUrl ?? null,
+                  visibility: values.visibility,
+                  typeId: values.typeId || null,
+                })
+                setShowCreateForm(false)
+              }}
             />
           </DialogContent>
         </Dialog>

@@ -24,6 +24,7 @@ import {
   useUpdateDeck,
   useUpdateFolder,
 } from '@/hooks/useDecks'
+import { deckService } from '@/services/deckService'
 import type { DeckFolderResponse } from '@/types/deck'
 
 function buildFolderOrderPayload(
@@ -192,20 +193,20 @@ export function DeckEditPage() {
               submitLabel={DECK_COPY.saveSubmit}
               isPending={updateDeckMutation.isPending}
               onCancel={() => setShowDeckForm(false)}
-              onSubmit={(values) =>
-                updateDeckMutation.mutate(
-                  {
-                    title: values.title,
-                    description: values.description || undefined,
-                    coverImageUrl: values.coverImageUrl || null,
-                    visibility: values.visibility,
-                    typeId: values.typeId || null,
-                  },
-                  {
-                    onSuccess: () => setShowDeckForm(false),
-                  },
-                )
-              }
+              onSubmit={async (values) => {
+                const uploadedImage = values.coverImageFile
+                  ? await deckService.uploadDeckImage(values.coverImageFile)
+                  : null
+
+                await updateDeckMutation.mutateAsync({
+                  title: values.title,
+                  description: values.description || undefined,
+                  coverImageUrl: uploadedImage?.fileUrl ?? deck.coverImageUrl ?? null,
+                  visibility: values.visibility,
+                  typeId: values.typeId || null,
+                })
+                setShowDeckForm(false)
+              }}
             />
           )}
 

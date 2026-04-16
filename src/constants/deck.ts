@@ -20,9 +20,16 @@ export const DECK_COPY = {
   deckDescriptionLabel: 'Mô tả',
   deckDescriptionPlaceholder: 'Mô tả ngắn về mục tiêu học tập của bộ thẻ này',
   deckCoverLabel: 'Ảnh bìa',
-  deckCoverPlaceholder: 'Dán URL ảnh bìa nếu có',
+  deckCoverPlaceholder: 'Tải lên ảnh bìa cho bộ thẻ',
   deckTypeLabel: 'Loại bộ thẻ',
   deckVisibilityLabel: 'Hiển thị',
+  deckTypePlaceholder: 'Chọn loại bộ thẻ',
+  deckTypeEmpty: 'Chưa phân loại',
+  privateVisibilityTitle: 'Riêng tư',
+  privateVisibilityDescription: 'Chỉ bạn mới xem và chỉnh sửa được bộ thẻ này.',
+  publicVisibilityTitle: 'Công khai',
+  publicVisibilityDescription: 'Mọi người có thể xem, bookmark và fork bộ thẻ này.',
+  imageUploadHint: 'PNG, JPG, WEBP hoặc GIF, tối đa 10MB.',
   createSubmit: 'Tạo bộ thẻ',
   saveSubmit: 'Lưu thay đổi',
   cancel: 'Hủy',
@@ -65,4 +72,3 @@ export const DECK_COPY = {
     Private: 'Riêng tư',
   } satisfies Record<DeckVisibility, string>,
 } as const
-

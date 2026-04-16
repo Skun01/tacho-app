@@ -14,6 +14,7 @@ import type {
   MyDeckListParams,
   ReorderFolderCardsPayload,
   ReorderFoldersPayload,
+  UploadImageResponse,
   UpdateDeckPayload,
   UpdateFolderPayload,
 } from '@/types/deck'
@@ -174,5 +175,21 @@ export const deckService = {
     )
     return response.data.data ?? []
   },
-}
 
+  async uploadDeckImage(file: File): Promise<UploadImageResponse> {
+    const formData = new FormData()
+    formData.append('image', file)
+
+    const response = await api.post<ApiResponse<UploadImageResponse>>('/uploads/image', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    })
+
+    if (!response.data.data) {
+      throw new Error('Validation_400')
+    }
+
+    return response.data.data
+  },
+}

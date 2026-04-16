@@ -96,6 +96,15 @@ export interface UpdateDeckPayload {
   typeId?: string | null
 }
 
+export interface UploadImageResponse {
+  id: string
+  fileUrl: string
+  fileType: 'Image'
+  usageType: 'Image'
+  sizeInBytes: number
+  createdAt: string
+}
+
 export interface CreateFolderPayload {
   title: string
   description?: string
@@ -130,4 +139,3 @@ export interface DeckListResult {
   items: DeckListItemResponse[]
   meta: PaginatedMeta | null
 }
-
