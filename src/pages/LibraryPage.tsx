@@ -104,10 +104,7 @@ export function LibraryPage() {
 
   const activeResult = activeQuery.data
   const sourceItems = activeResult?.items ?? []
-  const filteredItems =
-    activeTab === 'myDecks' && myDecksSubTab !== 'saved'
-      ? sourceItems.filter((item) => item.visibility === 'Private')
-      : sourceItems
+  const filteredItems = sourceItems
   const displayItems =
     activeTab === 'explore'
       ? [...filteredItems].sort((left, right) => Number(left.isOfficial) - Number(right.isOfficial))
@@ -194,7 +191,7 @@ export function LibraryPage() {
     }
 
     return (
-      <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+      <div className="grid items-start gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {displayItems.map((deck) => (
           <DeckCard
             key={deck.id}
@@ -321,7 +318,6 @@ export function LibraryPage() {
                       onClick={() =>
                         updateParams({
                           subtab: key,
-                          visibility: key === 'private' ? 'Private' : null,
                           page: '1',
                         })
                       }

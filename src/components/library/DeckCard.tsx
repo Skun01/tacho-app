@@ -1,12 +1,10 @@
 import {
   BookmarkIcon,
   BookmarkSimpleIcon,
+  BookOpenIcon,
   LockSimpleIcon,
-  PencilSimpleIcon,
-  StackSimpleIcon,
+  LockKeyOpenIcon,
 } from '@phosphor-icons/react'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
 import { LIBRARY_COPY } from '@/constants/library'
 import { resolveMediaUrl } from '@/lib/mediaUrl'
 import { cn } from '@/lib/utils'
@@ -45,7 +43,7 @@ export function DeckCard({
     <div
       onClick={() => onOpen(deck.id)}
       className={cn(
-        'group flex cursor-pointer flex-col overflow-hidden rounded-2xl bg-background transition-shadow hover:shadow-[0_4px_20px_0_rgba(29,28,19,0.12)]',
+        'group flex h-auto self-start cursor-pointer flex-col overflow-hidden rounded-2xl bg-background transition-shadow hover:shadow-[0_4px_20px_0_rgba(29,28,19,0.12)]',
         emphasizeOfficial
           ? 'ring-1 ring-primary/15 shadow-[0_6px_24px_0_rgba(0,36,83,0.10)]'
           : 'shadow-[0_2px_12px_0_rgba(29,28,19,0.07)]',
@@ -53,7 +51,7 @@ export function DeckCard({
     >
       <div
         className={cn(
-          'relative h-28 bg-gradient-to-br',
+          'relative h-32 bg-gradient-to-br',
           emphasizeOfficial ? 'from-[#cfe0ff] via-[#e9f1ff] to-[#f5f9ff]' : gradient,
         )}
       >
@@ -96,8 +94,8 @@ export function DeckCard({
         )}
       </div>
 
-      <div className="flex flex-1 flex-col gap-2 p-4">
-        <h3 className="line-clamp-2 text-sm font-semibold leading-snug text-foreground">
+      <div className="flex flex-1 flex-col gap-1.5 p-3">
+        <h3 className="line-clamp-2 min-h-10 text-sm font-semibold leading-snug text-foreground">
           {deck.title}
         </h3>
         <p className="text-xs text-muted-foreground">
@@ -106,55 +104,46 @@ export function DeckCard({
             : `${LIBRARY_COPY.createdByPrefix} ${deck.createdBy.username}`}
         </p>
 
-        {emphasizeOfficial && (
-          <p className="text-[11px] font-medium text-primary/80">
-            {LIBRARY_COPY.systemTabHint}
-          </p>
-        )}
-
-        <div className="mt-auto flex flex-wrap items-center gap-2 pt-1">
+        <div className="mt-auto flex flex-wrap items-center gap-1.5 pt-1">
           {deck.type.name && (
             <span className="rounded-full bg-surface-container px-2 py-0.5 text-[10px] text-muted-foreground">
               {deck.type.name}
             </span>
           )}
           <span className="rounded-full bg-surface-container px-2 py-0.5 text-[10px] text-muted-foreground">
-            {LIBRARY_COPY.cardCount(deck.cardsCount)}
-          </span>
-          <span className="ml-auto flex items-center gap-1 text-[10px] text-muted-foreground">
-            <StackSimpleIcon size={12} />
-            {deck.foldersCount}
+            {deck.cardsCount} {LIBRARY_COPY.cardCountSuffix}
           </span>
         </div>
 
         <div className="flex items-center justify-between gap-2 pt-1">
-          {deck.visibility === 'Private' && !deck.isOwner ? (
-            <span className="flex items-center gap-1 text-[10px] text-muted-foreground">
-              <LockSimpleIcon size={12} />
-              {LIBRARY_COPY.privateLabel}
-            </span>
-          ) : (
-            <Badge variant="outline" className="text-[10px]">
-              {deck.visibility === 'Private'
-                ? LIBRARY_COPY.privateLabel
-                : LIBRARY_COPY.publicLabel}
-            </Badge>
-          )}
+          <span
+            className={cn(
+              'inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium',
+              deck.visibility === 'Private'
+                ? 'bg-amber-100 text-amber-700'
+                : 'bg-emerald-100 text-emerald-700',
+            )}
+          >
+            {deck.visibility === 'Private' ? <LockSimpleIcon size={11} /> : <LockKeyOpenIcon size={11} />}
+            {deck.visibility === 'Private' ? LIBRARY_COPY.privateLabel : LIBRARY_COPY.publicLabel}
+          </span>
 
-          {deck.isOwner && onManage && (
-            <Button
+          {deck.isOwner && onManage ? (
+            <button
               type="button"
-              variant="ghost"
-              size="xs"
               onClick={(event) => {
                 event.stopPropagation()
                 onManage(deck.id)
               }}
-              className="h-7 rounded-lg px-2 text-xs"
+              className="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-[10px] font-semibold text-primary transition-colors hover:bg-surface-container"
             >
-              <PencilSimpleIcon size={12} />
-              {LIBRARY_COPY.actions.editDeck}
-            </Button>
+              <BookOpenIcon size={11} />
+              Sửa
+            </button>
+          ) : (
+            <span className="text-[10px] text-muted-foreground">
+              {deck.foldersCount} thư mục
+            </span>
           )}
         </div>
       </div>
