@@ -15,9 +15,7 @@ export const LIBRARY_COPY = {
   reviewLabel: 'Ôn tập',
   cardCountSuffix: 'thẻ',
   mySubTabs: {
-    all: 'Tất cả',
     private: 'Cá nhân',
-    public: 'Công khai',
     saved: 'Đã lưu',
   },
   tabs: {

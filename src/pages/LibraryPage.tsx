@@ -23,7 +23,7 @@ import {
 } from '@/hooks/useDecks'
 import { deckService } from '@/services/deckService'
 import { Input } from '@/components/ui/input'
-import type { DeckListItemResponse, DeckVisibility } from '@/types/deck'
+import type { DeckListItemResponse } from '@/types/deck'
 
 const PAGE_SIZE = 12
 
@@ -42,8 +42,7 @@ export function LibraryPage() {
   const page = Number(searchParams.get('page') ?? '1') || 1
   const search = searchParams.get('q') ?? ''
   const typeId = searchParams.get('typeId') ?? ''
-  const myDecksSubTab = (searchParams.get('subtab') ?? 'all') as 'all' | 'private' | 'public' | 'saved'
-  const visibility = (searchParams.get('visibility') ?? '') as '' | DeckVisibility
+  const myDecksSubTab = (searchParams.get('subtab') ?? 'private') as 'private' | 'saved'
   const [showCreateForm, setShowCreateForm] = useState(false)
 
   const publicParams = useMemo(
@@ -106,21 +105,15 @@ export function LibraryPage() {
   const activeResult = activeQuery.data
   const sourceItems = activeResult?.items ?? []
   const filteredItems =
-    activeTab === 'myDecks' && myDecksSubTab !== 'saved' && visibility
-      ? sourceItems.filter((item) => item.visibility === visibility)
+    activeTab === 'myDecks' && myDecksSubTab !== 'saved'
+      ? sourceItems.filter((item) => item.visibility === 'Private')
       : sourceItems
   const displayItems =
     activeTab === 'explore'
       ? [...filteredItems].sort((left, right) => Number(left.isOfficial) - Number(right.isOfficial))
       : filteredItems
 
-  const myDecksMode = myDecksSubTab === 'saved'
-    ? 'saved'
-    : visibility === 'Private'
-      ? 'private'
-      : visibility === 'Public'
-        ? 'public'
-        : 'all'
+  const myDecksMode = myDecksSubTab === 'saved' ? 'saved' : 'private'
 
   const totalPages = Math.max(
     1,
@@ -144,7 +137,7 @@ export function LibraryPage() {
       new URLSearchParams({
         tab,
         page: '1',
-        ...(tab === 'myDecks' ? { subtab: 'all' } : {}),
+        ...(tab === 'myDecks' ? { subtab: 'private' } : {}),
       }),
       { replace: true },
     )
@@ -247,13 +240,16 @@ export function LibraryPage() {
                   {LIBRARY_COPY.createDeck}
                 </Button>
 
-                <div className="flex items-center gap-3 rounded-full border border-border/70 bg-background px-5 py-3 shadow-[0_1px_8px_0_rgba(29,28,19,0.08)] sm:w-80">
-                  <MagnifyingGlassIcon size={15} className="shrink-0 text-muted-foreground" />
+                <div className="relative sm:w-80">
+                  <MagnifyingGlassIcon
+                    size={16}
+                    className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground"
+                  />
                   <Input
                     value={search}
                     onChange={(event) => updateParams({ q: event.target.value || null, page: '1' })}
                     placeholder={LIBRARY_COPY.searchPlaceholder}
-                    className="h-6 border-0 bg-transparent px-0 py-0 text-sm shadow-none focus-visible:ring-0"
+                    className="h-12 rounded-full border-border/70 bg-background pl-11 pr-4 text-sm shadow-[0_1px_8px_0_rgba(29,28,19,0.08)] focus-visible:ring-2 focus-visible:ring-ring/20"
                   />
                 </div>
               </div>
@@ -325,12 +321,7 @@ export function LibraryPage() {
                       onClick={() =>
                         updateParams({
                           subtab: key,
-                          visibility:
-                            key === 'private'
-                              ? 'Private'
-                              : key === 'public'
-                                ? 'Public'
-                                : null,
+                          visibility: key === 'private' ? 'Private' : null,
                           page: '1',
                         })
                       }
