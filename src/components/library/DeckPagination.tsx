@@ -14,7 +14,7 @@ export function DeckPagination({ page, totalPages, onPageChange }: DeckPaginatio
   }
 
   return (
-    <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border/70 bg-card/70 px-4 py-3">
+    <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border/70 bg-card/85 px-4 py-3 shadow-[0_2px_10px_0_rgba(29,28,19,0.05)] dark:bg-surface-container-high dark:shadow-[0_8px_20px_0_rgba(0,0,0,0.24)]">
       <Button
         type="button"
         variant="outline"
@@ -43,4 +43,3 @@ export function DeckPagination({ page, totalPages, onPageChange }: DeckPaginatio
     </div>
   )
 }
-

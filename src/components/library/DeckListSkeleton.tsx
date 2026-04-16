@@ -4,7 +4,7 @@ export function DeckListSkeleton() {
   return (
     <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
       {Array.from({ length: 6 }).map((_, index) => (
-        <div key={index} className="overflow-hidden rounded-3xl border border-border bg-card">
+        <div key={index} className="overflow-hidden rounded-3xl border border-border/70 bg-card shadow-[0_2px_12px_0_rgba(29,28,19,0.06)] dark:bg-surface-container-high dark:shadow-[0_10px_24px_0_rgba(0,0,0,0.24)]">
           <Skeleton className="h-40 w-full rounded-none" />
           <div className="space-y-4 p-5">
             <Skeleton className="h-5 w-2/3 rounded-full" />
@@ -21,4 +21,3 @@ export function DeckListSkeleton() {
     </div>
   )
 }
-

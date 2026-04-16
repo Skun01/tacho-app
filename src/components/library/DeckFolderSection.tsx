@@ -88,7 +88,7 @@ export function DeckFolderSection({
       onDragEnd={onDragEnd}
       className={`flex flex-col gap-3 ${isDragOver ? 'scale-[1.01]' : ''}`}
     >
-      <div className="flex flex-wrap items-start justify-between gap-4 rounded-3xl bg-background p-5 shadow-[0_2px_12px_0_rgba(29,28,19,0.07)]">
+      <div className="flex flex-wrap items-start justify-between gap-4 rounded-3xl border border-border/70 bg-card p-5 shadow-[0_2px_12px_0_rgba(29,28,19,0.07)] dark:bg-surface-container-high dark:shadow-[0_10px_24px_0_rgba(0,0,0,0.24)]">
         <div className="space-y-2">
           <div className="flex flex-wrap items-center gap-2">
             {isOwner && (
@@ -128,7 +128,7 @@ export function DeckFolderSection({
           )}
 
           {isOwner && (
-            <div className="flex items-center gap-1 rounded-full border border-border/70 bg-surface-container-low px-1.5 py-1">
+            <div className="flex items-center gap-1 rounded-full border border-border/70 bg-surface-container-high px-1.5 py-1 dark:bg-surface-container-highest">
               {onEdit && (
                 <Button
                   type="button"
@@ -160,7 +160,7 @@ export function DeckFolderSection({
       {expanded && (
         <div className="space-y-2">
           {visibleCards.length === 0 ? (
-            <div className="rounded-2xl bg-background px-4 py-8 text-center text-sm text-muted-foreground shadow-[0_1px_6px_0_rgba(29,28,19,0.06)]">
+            <div className="rounded-2xl border border-border/70 bg-card px-4 py-8 text-center text-sm text-muted-foreground shadow-[0_1px_6px_0_rgba(29,28,19,0.06)] dark:bg-surface-container-high dark:shadow-[0_8px_20px_0_rgba(0,0,0,0.22)]">
               {DECK_COPY.emptyCards}
             </div>
           ) : (

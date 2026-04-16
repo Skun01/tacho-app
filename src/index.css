@@ -1,6 +1,8 @@
 @import "tailwindcss";
 @import "shadcn/tailwind.css";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 /* ─── Tacho Design System ─────────────────────────────────────── */
 :root {
   /* Typography */

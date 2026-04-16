@@ -26,20 +26,26 @@ export function DeckDetailHero({
   onManage,
 }: DeckDetailHeroProps) {
   return (
-    <div className="flex flex-col gap-4 rounded-3xl bg-background p-6 shadow-[0_2px_12px_0_rgba(29,28,19,0.07)]">
+    <div className="flex flex-col gap-4 rounded-3xl border border-border/70 bg-card p-6 shadow-[0_2px_12px_0_rgba(29,28,19,0.07)] dark:bg-surface-container-high dark:shadow-[0_10px_26px_0_rgba(0,0,0,0.28)]">
       <div className="flex flex-wrap gap-2">
-        {deck.type.name && <Badge variant="outline">{deck.type.name}</Badge>}
+        {deck.type.name && (
+          <Badge variant="outline" className="dark:border-border/80 dark:bg-surface-container-highest dark:text-foreground">
+            {deck.type.name}
+          </Badge>
+        )}
         <Badge
           variant="outline"
           className={
             deck.visibility === 'Private'
-              ? 'border-amber-200 bg-amber-100 text-amber-700'
-              : 'border-emerald-200 bg-emerald-100 text-emerald-700'
+              ? 'border-amber-200 bg-amber-100 text-amber-700 dark:border-amber-500/30 dark:bg-amber-500/18 dark:text-amber-200'
+              : 'border-emerald-200 bg-emerald-100 text-emerald-700 dark:border-emerald-500/30 dark:bg-emerald-500/18 dark:text-emerald-200'
           }
         >
           {DECK_COPY.visibilityLabels[deck.visibility]}
         </Badge>
-        {deck.isOfficial && <Badge>{'Chính thức'}</Badge>}
+        {deck.isOfficial && (
+          <Badge className="dark:bg-primary/85 dark:text-primary-foreground">{'Chính thức'}</Badge>
+        )}
       </div>
 
       <div className="flex flex-col gap-1">
@@ -71,8 +77,8 @@ export function DeckDetailHero({
           onClick={onBookmarkToggle}
           className={`flex items-center gap-1.5 rounded-xl px-4 py-2 text-sm font-semibold transition-colors ${
             deck.isBookmarked
-              ? 'bg-amber-100 text-amber-700 hover:bg-amber-200'
-              : 'bg-surface-container text-muted-foreground hover:bg-surface-container-highest'
+              ? 'bg-amber-100 text-amber-700 hover:bg-amber-200 dark:bg-amber-500/18 dark:text-amber-200 dark:hover:bg-amber-500/26'
+              : 'bg-surface-container-high text-muted-foreground hover:bg-surface-container-highest dark:bg-surface-container-highest/80 dark:hover:bg-surface-container-highest'
           }`}
         >
           {deck.isBookmarked ? (
@@ -88,7 +94,7 @@ export function DeckDetailHero({
             type="button"
             disabled={isForkPending}
             onClick={onFork}
-            className="flex items-center gap-1.5 rounded-xl bg-surface-container px-4 py-2 text-sm font-semibold text-muted-foreground transition-colors hover:bg-surface-container-highest"
+            className="flex items-center gap-1.5 rounded-xl bg-surface-container-high px-4 py-2 text-sm font-semibold text-muted-foreground transition-colors hover:bg-surface-container-highest dark:bg-surface-container-highest/80 dark:hover:bg-surface-container-highest"
           >
             <CopyIcon size={14} />
             {DECK_COPY.fork}
@@ -99,7 +105,7 @@ export function DeckDetailHero({
           <button
             type="button"
             onClick={onManage}
-            className="flex items-center gap-1.5 rounded-xl bg-surface-container px-4 py-2 text-sm font-semibold text-muted-foreground transition-colors hover:bg-surface-container-highest"
+            className="flex items-center gap-1.5 rounded-xl bg-surface-container-high px-4 py-2 text-sm font-semibold text-muted-foreground transition-colors hover:bg-surface-container-highest dark:bg-surface-container-highest/80 dark:hover:bg-surface-container-highest"
           >
             <PencilSimpleIcon size={14} />
             {DECK_COPY.manage}

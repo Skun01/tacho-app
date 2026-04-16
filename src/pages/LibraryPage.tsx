@@ -246,13 +246,13 @@ export function LibraryPage() {
                     value={search}
                     onChange={(event) => updateParams({ q: event.target.value || null, page: '1' })}
                     placeholder={LIBRARY_COPY.searchPlaceholder}
-                    className="h-12 rounded-full border-border/70 bg-background pl-11 pr-4 text-sm shadow-[0_1px_8px_0_rgba(29,28,19,0.08)] focus-visible:ring-2 focus-visible:ring-ring/20"
+                    className="h-12 rounded-full border-border/80 bg-card pl-11 pr-4 text-sm shadow-[0_1px_8px_0_rgba(29,28,19,0.08)] focus-visible:ring-2 focus-visible:ring-ring/20 dark:bg-surface-container-high dark:shadow-[0_8px_24px_0_rgba(0,0,0,0.28)]"
                   />
                 </div>
               </div>
             </div>
 
-            <div className="flex gap-1 overflow-x-auto rounded-xl bg-surface-container p-1">
+            <div className="flex gap-1 overflow-x-auto rounded-xl border border-border/70 bg-card/90 p-1 shadow-[0_1px_8px_0_rgba(29,28,19,0.05)] dark:bg-surface-container-high dark:shadow-[0_8px_20px_0_rgba(0,0,0,0.24)]">
               {(Object.entries(LIBRARY_COPY.tabs) as Array<[LibraryTabKey, string]>).map(([key, label]) => (
                 <button
                   key={key}
@@ -260,8 +260,8 @@ export function LibraryPage() {
                   onClick={() => handleTabChange(key)}
                   className={`shrink-0 rounded-lg px-5 py-2 text-sm font-semibold transition-all duration-200 ${
                     activeTab === key
-                      ? 'bg-background text-foreground shadow-sm'
-                      : 'text-muted-foreground hover:text-foreground'
+                      ? 'bg-background text-foreground shadow-sm dark:bg-surface-container-highest'
+                      : 'text-muted-foreground hover:bg-background/70 hover:text-foreground dark:hover:bg-surface-container-highest/70'
                   }`}
                 >
                   {label}
@@ -284,7 +284,7 @@ export function LibraryPage() {
                       className={`rounded-full px-4 py-1.5 text-xs font-semibold transition-all duration-200 ${
                         !typeId
                           ? 'bg-primary text-background'
-                          : 'bg-surface-container text-muted-foreground hover:bg-surface-container-highest hover:text-foreground'
+                          : 'border border-border/70 bg-card text-muted-foreground hover:bg-accent hover:text-foreground dark:bg-surface-container-high dark:hover:bg-surface-container-highest'
                       }`}
                     >
                       {LIBRARY_COPY.allTypes}
@@ -297,7 +297,7 @@ export function LibraryPage() {
                         className={`rounded-full px-4 py-1.5 text-xs font-semibold transition-all duration-200 ${
                           typeId === type.id
                             ? 'bg-primary text-background'
-                            : 'bg-surface-container text-muted-foreground hover:bg-surface-container-highest hover:text-foreground'
+                            : 'border border-border/70 bg-card text-muted-foreground hover:bg-accent hover:text-foreground dark:bg-surface-container-high dark:hover:bg-surface-container-highest'
                         }`}
                       >
                         {type.name}
@@ -310,7 +310,7 @@ export function LibraryPage() {
 
             {activeTab === 'myDecks' && (
               <div className="flex flex-col gap-4">
-                <div className="flex gap-1 rounded-xl bg-surface-container p-1 w-fit">
+                <div className="flex w-fit gap-1 rounded-xl border border-border/70 bg-card/90 p-1 shadow-[0_1px_8px_0_rgba(29,28,19,0.05)] dark:bg-surface-container-high dark:shadow-[0_8px_20px_0_rgba(0,0,0,0.24)]">
                   {(Object.entries(LIBRARY_COPY.mySubTabs) as Array<[typeof myDecksMode, string]>).map(([key, label]) => (
                     <button
                       key={key}
@@ -323,8 +323,8 @@ export function LibraryPage() {
                       }
                       className={`rounded-lg px-4 py-1.5 text-sm font-medium transition-all duration-200 ${
                         myDecksMode === key
-                          ? 'bg-background text-foreground shadow-sm'
-                          : 'text-muted-foreground hover:text-foreground'
+                          ? 'bg-background text-foreground shadow-sm dark:bg-surface-container-highest'
+                          : 'text-muted-foreground hover:bg-background/70 hover:text-foreground dark:hover:bg-surface-container-highest/70'
                       }`}
                     >
                       {label}

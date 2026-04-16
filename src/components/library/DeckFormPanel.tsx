@@ -63,7 +63,7 @@ export function DeckFormPanel({
   const isModal = variant === 'modal'
 
   return (
-    <div className={isModal ? 'p-0' : 'rounded-3xl border border-border/70 bg-card/90 p-6'}>
+    <div className={isModal ? 'p-0' : 'rounded-3xl border border-border/70 bg-card/90 p-6 dark:bg-surface-container-high'}>
       <div className={isModal ? 'border-b border-[#1d1c13]/8 px-6 py-4' : 'mb-6 space-y-1'}>
         <h2 className={isModal ? 'text-base font-bold text-foreground' : 'text-xl font-semibold text-foreground'}>
           {title}

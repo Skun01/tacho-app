@@ -66,7 +66,7 @@ export function DeckDetailCardRow({
       onDragOver={onDragOver}
       onDrop={onDrop}
       onDragEnd={onDragEnd}
-      className={`flex items-center gap-3 rounded-2xl bg-background px-4 py-3 shadow-[0_1px_6px_0_rgba(29,28,19,0.06)] transition-all hover:shadow-[0_4px_14px_0_rgba(29,28,19,0.08)] ${
+      className={`flex items-center gap-3 rounded-2xl border border-border/70 bg-card px-4 py-3 shadow-[0_1px_6px_0_rgba(29,28,19,0.06)] transition-all hover:shadow-[0_4px_14px_0_rgba(29,28,19,0.08)] dark:bg-surface-container-high dark:hover:shadow-[0_10px_22px_0_rgba(0,0,0,0.24)] ${
         isDragOver ? 'scale-[1.01] ring-2 ring-primary/25' : ''
       }`}
     >
@@ -119,7 +119,7 @@ export function DeckDetailCardRow({
         </div>
       </Link>
 
-      <div className="flex shrink-0 items-center gap-1 rounded-full border border-border/70 bg-surface-container-low px-1.5 py-1">
+      <div className="flex shrink-0 items-center gap-1 rounded-full border border-border/70 bg-surface-container-high px-1.5 py-1 dark:bg-surface-container-highest">
         <Button
           type="button"
           variant="ghost"
