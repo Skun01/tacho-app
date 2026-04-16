@@ -1,5 +1,5 @@
 import { PageHelmet } from '@/components/seo/PageHelmet'
-import { Navbar } from '@/components/layout/Navbar'
+import { AppLayout } from '@/components/layout/AppLayout'
 import { ProfileHeader } from '@/components/profile/ProfileHeader'
 import { UpdateProfileForm } from '@/components/auth/UpdateProfileForm'
 import { ChangePasswordForm } from '@/components/auth/ChangePasswordForm'
@@ -12,12 +12,9 @@ export function ProfilePage() {
         title="Tài khoản"
         description="Quản lý thông tin tài khoản và bảo mật của bạn."
       />
-
-      <Navbar />
-
-      <main
-        className="min-h-screen pt-16"
-        style={{ backgroundColor: 'var(--surface)' }}
+      <AppLayout
+        mainClassName="min-h-screen pt-16"
+        mainStyle={{ backgroundColor: 'var(--surface)' }}
       >
         <ProfileHeader />
 
@@ -50,7 +47,7 @@ export function ProfilePage() {
           </section>
 
         </div>
-      </main>
+      </AppLayout>
     </>
   )
 }

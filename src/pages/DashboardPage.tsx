@@ -1,4 +1,4 @@
-import { Navbar } from '@/components/layout/Navbar'
+import { AppLayout } from '@/components/layout/AppLayout'
 import { PageHelmet } from '@/components/seo/PageHelmet'
 import { useAuthStore } from '@/stores/authStore'
 
@@ -11,11 +11,9 @@ export function DashboardPage() {
         title="Dashboard"
         description="Tổng quan học tập của bạn trên Tacho."
       />
-      <Navbar />
-
-      <main
-        className="flex min-h-screen flex-col items-center justify-center gap-4 p-8 pt-24"
-        style={{ backgroundColor: 'var(--surface)' }}
+      <AppLayout
+        mainClassName="flex min-h-screen flex-col items-center justify-center gap-4 p-8 pt-24"
+        mainStyle={{ backgroundColor: 'var(--surface)' }}
       >
         <div className="flex flex-col items-center gap-2 text-center">
           <p
@@ -38,7 +36,7 @@ export function DashboardPage() {
         <p className="text-xs mt-4" style={{ color: 'var(--on-surface-variant)' }}>
           🚧 Dashboard đang được xây dựng
         </p>
-      </main>
+      </AppLayout>
     </>
   )
 }

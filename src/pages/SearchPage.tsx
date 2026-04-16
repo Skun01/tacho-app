@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router'
 import NProgress from 'nprogress'
 import { gooeyToast } from '@/components/ui/goey-toaster'
-import { Navbar } from '@/components/layout/Navbar'
+import { AppLayout } from '@/components/layout/AppLayout'
 import { PageHelmet } from '@/components/seo/PageHelmet'
 import { Skeleton } from '@/components/ui/skeleton'
 import { SearchHeader } from '@/components/search/SearchHeader'
@@ -130,11 +130,9 @@ export function SearchPage() {
         title={SEARCH_COPY.pageTitle}
         description={SEARCH_COPY.pageDescription}
       />
-      <Navbar />
-
-      <main
-        className="min-h-screen pt-20 pb-16"
-        style={{ backgroundColor: 'var(--surface)' }}
+      <AppLayout
+        mainClassName="min-h-screen pt-20 pb-16"
+        mainStyle={{ backgroundColor: 'var(--surface)' }}
       >
         <div className="mx-auto max-w-4xl px-6 lg:px-8">
           <div className="flex flex-col gap-6 py-8">
@@ -192,7 +190,7 @@ export function SearchPage() {
             )}
           </div>
         </div>
-      </main>
+      </AppLayout>
     </>
   )
 }

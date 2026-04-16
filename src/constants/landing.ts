@@ -73,10 +73,25 @@ export const LANDING_ABOUT = {
 export const LANDING_FOOTER = {
   brand: 'Tacho',
   kanjiBrand: '太',
-  navLinks: [
-    { label: 'Giới thiệu', href: '#gioi-thieu' },
-    { label: 'Kho tri thức', href: '#kho-tri-thuc' },
-    { label: 'Về tôi', href: '#ve-toi' },
+  description:
+    'Tacho là không gian học tiếng Nhật gọn gàng, dễ tra cứu và đủ gần gũi để bạn muốn quay lại mỗi ngày.',
+  columns: [
+    {
+      heading: 'Khám phá',
+      links: [
+        { label: 'Giới thiệu', href: '#gioi-thieu' },
+        { label: 'Kho tri thức', href: '#kho-tri-thuc' },
+        { label: 'Về tôi', href: '#ve-toi' },
+      ],
+    },
+    {
+      heading: 'Điều hướng',
+      links: [
+        { label: 'Đăng nhập', href: '/login' },
+        { label: 'Tạo tài khoản', href: '/register' },
+        { label: 'Dashboard', href: '/dashboard' },
+      ],
+    },
   ],
   copyright: '© 2026 Tacho. All rights reserved.',
 } as const

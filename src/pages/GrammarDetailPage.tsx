@@ -6,7 +6,7 @@ import { useAuthStore } from '@/stores/authStore'
 import { gooeyToast } from '@/components/ui/goey-toaster'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
-import { Navbar } from '@/components/layout/Navbar'
+import { AppLayout } from '@/components/layout/AppLayout'
 import { PageHelmet } from '@/components/seo/PageHelmet'
 import { CardHero } from '@/components/card/CardHero'
 import { CardProgress } from '@/components/card/CardProgress'
@@ -65,9 +65,10 @@ export function GrammarDetailPage() {
         title={card ? GRAMMAR_DETAIL_COPY.pageTitle(card.title) : GRAMMAR_DETAIL_COPY.notFound}
         description={card?.summary ?? GRAMMAR_DETAIL_COPY.pageDescription}
       />
-      <Navbar />
-
-      <main className="min-h-screen pt-20 pb-16" style={{ backgroundColor: 'var(--surface)' }}>
+      <AppLayout
+        mainClassName="min-h-screen pt-20 pb-16"
+        mainStyle={{ backgroundColor: 'var(--surface)' }}
+      >
         <div className="mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8">
           <div className="py-4">
             <Button
@@ -145,7 +146,7 @@ export function GrammarDetailPage() {
             </div>
           )}
         </div>
-      </main>
+      </AppLayout>
     </>
   )
 }
