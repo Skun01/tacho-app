@@ -56,7 +56,7 @@ export function SearchPage() {
       SEARCH_SECTIONS.map((section) => ({
         ...section,
         items: results.filter((card) => card.cardType === section.key),
-      })),
+      })).sort((left, right) => right.items.length - left.items.length),
     [results],
   )
 

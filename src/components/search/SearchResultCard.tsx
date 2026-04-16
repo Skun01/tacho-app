@@ -8,6 +8,12 @@ interface SearchResultCardProps {
   card: SearchCardSummary
 }
 
+const CARD_TYPE_BADGE_CLASSES: Record<SearchCardSummary['cardType'], string> = {
+  Vocab: 'bg-blue-100 text-blue-700',
+  Grammar: 'bg-violet-100 text-violet-700',
+  Kanji: 'bg-amber-100 text-amber-700',
+}
+
 export function SearchResultCard({ card }: SearchResultCardProps) {
   const href =
     card.cardType === 'Grammar'
@@ -33,7 +39,9 @@ export function SearchResultCard({ card }: SearchResultCardProps) {
             </p>
 
             <div className="flex flex-wrap gap-1.5 mt-1 items-center">
-              <Badge variant="secondary" className="text-[10px]">
+              <Badge
+                className={`border-transparent text-[10px] ${CARD_TYPE_BADGE_CLASSES[card.cardType]}`}
+              >
                 {SEARCH_COPY.cardTypePill[card.cardType]}
               </Badge>
               {showAlternateForms && (

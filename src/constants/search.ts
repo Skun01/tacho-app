@@ -12,8 +12,8 @@ export const SEARCH_COPY = {
     Kanji: 'Kanji',
   },
   cardTypePill: {
-    Vocab: 'Vocab',
-    Grammar: 'Grammar',
+    Vocab: 'Từ vựng',
+    Grammar: 'Ngữ pháp',
     Kanji: 'Kanji',
   },
   noResults: 'Không tìm thấy kết quả',
