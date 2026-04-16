@@ -2,7 +2,7 @@ export const NAVBAR_COPY = {
   brand: 'Tacho',
   library: 'Thư viện',
   quickLearn: "Học nhanh",
-  searchPlaceholder: 'Tìm kiếm từ vựng, ngữ pháp, kanji...',
+  searchLabel: 'Tìm kiếm',
   notifications: 'Thông báo',
   noNotifications: 'Không có thông báo mới',
   profileMenu: {

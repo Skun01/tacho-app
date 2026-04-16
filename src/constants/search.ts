@@ -1,9 +1,11 @@
 export const SEARCH_COPY = {
   pageTitle: 'Tìm kiếm',
   pageDescription: 'Tìm kiếm thẻ học tiếng Nhật trên Tacho.',
-  inputPlaceholder: 'Nhập nội dung muốn tìm...',
+  inputPlaceholder: 'Tìm kiếm từ vựng, ngữ pháp, kanji...',
+  emptyQuery: 'Nhập từ khóa để bắt đầu tìm kiếm',
   resultCount: (count: number, query: string) =>
     `${count} kết quả cho "${query}"`,
+  sectionCount: (count: number) => `${count} kết quả`,
   cardTypeLabel: {
     Vocab: 'Từ vựng',
     Grammar: 'Ngữ pháp',
@@ -17,10 +19,11 @@ export const SEARCH_COPY = {
   noResults: 'Không tìm thấy kết quả',
   noResultsHint: 'Thử đổi từ khóa hoặc bỏ bớt bộ lọc.',
   noResultsCta: 'Quay lại trang chủ',
+  emptySection: (label: string, query: string) =>
+    `Không tìm thấy ${label.toLowerCase()} nào cho "${query}"`,
   filters: {
-    cardType: 'Loại thẻ',
     allTypes: 'Tất cả',
-    level: 'Trình độ',
+    level: 'JLPT',
     clearAll: 'Xóa bộ lọc',
   },
   grammarAlternateForms: 'Dạng thay thế',

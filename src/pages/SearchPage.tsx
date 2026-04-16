@@ -11,8 +11,17 @@ import { SearchResultCard } from '@/components/search/SearchResultCard'
 import { SearchEmptyState } from '@/components/search/SearchEmptyState'
 import { useCardSearch } from '@/hooks/useCardSearch'
 import { SEARCH_COPY } from '@/constants/search'
-import type { SearchCardType } from '@/types/search'
+import type { SearchCardSummary, SearchCardType } from '@/types/search'
 import type { JlptLevel } from '@/types/vocabulary'
+
+const SEARCH_SECTIONS: Array<{
+  key: SearchCardType
+  label: string
+}> = [
+  { key: 'Vocab', label: SEARCH_COPY.cardTypeLabel.Vocab },
+  { key: 'Grammar', label: SEARCH_COPY.cardTypeLabel.Grammar },
+  { key: 'Kanji', label: SEARCH_COPY.cardTypeLabel.Kanji },
+]
 
 export function SearchPage() {
   const [searchParams] = useSearchParams()
@@ -42,6 +51,14 @@ export function SearchPage() {
 
   const results = data?.data ?? []
   const totalResults = data?.metaData?.total ?? results.length
+  const groupedResults = useMemo(
+    () =>
+      SEARCH_SECTIONS.map((section) => ({
+        ...section,
+        items: results.filter((card) => card.cardType === section.key),
+      })),
+    [results],
+  )
 
   useEffect(() => {
     if (isError) {
@@ -69,6 +86,44 @@ export function SearchPage() {
     setSubmittedQuery(trimmed)
   }
 
+  useEffect(() => {
+    setQuery(initialQuery)
+    setSubmittedQuery(initialQuery)
+  }, [initialQuery])
+
+  function renderResultState(items: SearchCardSummary[], sectionLabel: string) {
+    if (isFetching) {
+      return (
+        <div className="flex flex-col gap-3">
+          {Array.from({ length: 3 }).map((_, index) => (
+            <Skeleton key={index} className="h-28 w-full rounded-3xl" />
+          ))}
+        </div>
+      )
+    }
+
+    if (items.length === 0) {
+      return (
+        <div
+          className="rounded-3xl px-6 py-8 text-center shadow-[0_1px_8px_0_rgba(29,28,19,0.06)]"
+          style={{ backgroundColor: 'var(--background)' }}
+        >
+          <p className="text-sm text-muted-foreground">
+            {SEARCH_COPY.emptySection(sectionLabel, submittedQuery)}
+          </p>
+        </div>
+      )
+    }
+
+    return (
+      <div className="flex flex-col gap-3">
+        {items.map((card) => (
+          <SearchResultCard key={card.id} card={card} />
+        ))}
+      </div>
+    )
+  }
+
   return (
     <>
       <PageHelmet
@@ -81,37 +136,60 @@ export function SearchPage() {
         className="min-h-screen pt-20 pb-16"
         style={{ backgroundColor: 'var(--surface)' }}
       >
-        <div className="mx-auto max-w-2xl px-6 lg:px-8">
+        <div className="mx-auto max-w-4xl px-6 lg:px-8">
           <div className="flex flex-col gap-6 py-8">
             <SearchHeader
               query={query}
-              totalResults={totalResults}
               onQueryChange={setQuery}
               onSubmit={handleSubmit}
             />
 
-            <SearchFilters
-              selectedCardType={selectedCardType}
-              selectedLevel={selectedLevel}
-              onCardTypeChange={setSelectedCardType}
-              onLevelChange={setSelectedLevel}
-            />
+            {!submittedQuery.trim() ? (
+              <p className="py-24 text-center text-sm text-muted-foreground">
+                {SEARCH_COPY.emptyQuery}
+              </p>
+            ) : (
+              <>
+                <div className="flex flex-col gap-2">
+                  <p className="text-sm font-medium text-muted-foreground">
+                    {SEARCH_COPY.resultCount(totalResults, submittedQuery)}
+                  </p>
+                  <SearchFilters
+                    selectedCardType={selectedCardType}
+                    selectedLevel={selectedLevel}
+                    onCardTypeChange={setSelectedCardType}
+                    onLevelChange={setSelectedLevel}
+                  />
+                </div>
 
-            {isFetching ? (
-              <div className="flex flex-col gap-3">
-                {Array.from({ length: 4 }).map((_, index) => (
-                  <Skeleton key={index} className="h-24 w-full rounded-xl" />
-                ))}
-              </div>
-            ) : results.length > 0 ? (
-              <div className="flex flex-col gap-3">
-                {results.map((card) => (
-                  <SearchResultCard key={card.id} card={card} />
-                ))}
-              </div>
-            ) : submittedQuery.trim() ? (
-              <SearchEmptyState />
-            ) : null}
+                {!isFetching && results.length === 0 ? (
+                  <SearchEmptyState />
+                ) : (
+                  <div className="flex flex-col gap-8">
+                    {groupedResults
+                      .filter(
+                        (section) =>
+                          selectedCardType === undefined || section.key === selectedCardType,
+                      )
+                      .map((section) => (
+                        <section key={section.key}>
+                          <div className="mb-3 flex items-center justify-between gap-3">
+                            <h2 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+                              {section.label}
+                            </h2>
+                            {!isFetching && section.items.length > 0 && (
+                              <span className="text-xs font-medium text-muted-foreground">
+                                {SEARCH_COPY.sectionCount(section.items.length)}
+                              </span>
+                            )}
+                          </div>
+                          {renderResultState(section.items, section.label)}
+                        </section>
+                      ))}
+                  </div>
+                )}
+              </>
+            )}
           </div>
         </div>
       </main>

@@ -25,41 +25,42 @@ export function Navbar() {
           : 'bg-surface border-b border-border/40'
       }`}
     >
-      <nav className="mx-auto flex max-w-6xl items-center gap-4 px-6 py-3 lg:px-8">
+      <nav className="mx-auto flex max-w-6xl items-center justify-between gap-6 px-6 py-3 lg:px-8">
+        <div className="flex min-w-0 items-center gap-2 md:gap-3">
+          <NavbarLogo />
 
-        <NavbarLogo />
+          <div className="hidden md:flex items-center gap-1">
+            <Button
+              variant="ghost"
+              size="sm"
+              asChild
+              className="items-center gap-1.5 text-secondary hover:text-primary shrink-0"
+            >
+              <Link to="/library">
+                <BooksIcon size={16} weight="duotone" />
+                {NAVBAR_COPY.library}
+              </Link>
+            </Button>
 
-        <Button
-          variant="ghost"
-          size="sm"
-          asChild
-          className="hidden md:flex items-center gap-1.5 text-secondary hover:text-primary shrink-0"
-        >
-          <Link to="/library">
-            <BooksIcon size={16} weight="duotone" />
-            {NAVBAR_COPY.library}
-          </Link>
-        </Button>
-
-        <Button
-          variant="ghost"
-          size="sm"
-          asChild
-          className="hidden md:flex items-center gap-1.5 text-secondary hover:text-primary shrink-0"
-        >
-          <Link to="/quick-learn">
-            <LightningIcon size={16} weight="duotone" />
-            {NAVBAR_COPY.quickLearn}
-          </Link>
-        </Button>
-
-        <NavbarSearch />
+            <Button
+              variant="ghost"
+              size="sm"
+              asChild
+              className="items-center gap-1.5 text-secondary hover:text-primary shrink-0"
+            >
+              <Link to="/quick-learn">
+                <LightningIcon size={16} weight="duotone" />
+                {NAVBAR_COPY.quickLearn}
+              </Link>
+            </Button>
+          </div>
+        </div>
 
         <div className="flex items-center gap-1 shrink-0">
+          <NavbarSearch />
           <NavbarNotifications />
           <NavbarUserMenu />
         </div>
-
       </nav>
     </header>
   )
